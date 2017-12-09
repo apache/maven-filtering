@@ -34,14 +34,19 @@
   <description>A component to assist in filtering of resource files with properties from a Maven project.</description>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/maven/shared/trunk/maven-filtering</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/maven/shared/trunk/maven-filtering</developerConnection>
-    <url>http://svn.apache.org/viewvc/maven/shared/trunk/maven-filtering</url>
+    <connection>scm:git:https://gitbox.apache.org/repos/asf/maven-filtering.git</connection>
+    <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/maven-filtering.git</developerConnection>
+    <url>https://github.com/apache/maven-filtering/tree/${project.scm.tag}</url>
+    <tag>HEAD</tag>
   </scm>
   <issueManagement>
     <system>JIRA</system>
     <url>https://issues.apache.org/jira/browse/MSHARED/component/12326444</url>
   </issueManagement>
+  <ciManagement>
+    <system>Jenkins</system>
+    <url>https://builds.apache.org/job/maven-box/job/maven-filtering/</url>
+  </ciManagement>
   <distributionManagement>
     <site>
       <id>apache.website</id>

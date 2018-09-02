@@ -23,7 +23,7 @@
   <parent>
     <groupId>org.apache.maven.shared</groupId>
     <artifactId>maven-shared-components</artifactId>
-    <version>31</version>
+    <version>32</version>
     <relativePath>../../pom/maven/maven-shared-components/pom.xml</relativePath>
   </parent>
 
@@ -55,7 +55,6 @@
   </distributionManagement>
 
   <properties>
-    <surefire.version>2.21.0</surefire.version>
     <mavenVersion>3.0</mavenVersion>
   </properties>
 

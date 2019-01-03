@@ -102,6 +102,8 @@ public class MultiDelimiterInterpolatorFilterReaderLineEndingTest
         reader.setDelimiterSpecs( new HashSet<String>( Arrays.asList( "${*}", "@" ) ) );
 
         assertEquals( "toto@titi.com bar", IOUtil.toString( reader ) );
+
+
     }
 
     // http://stackoverflow.com/questions/21786805/maven-war-plugin-customize-filter-delimitters-in-webresources/
@@ -120,5 +122,26 @@ public class MultiDelimiterInterpolatorFilterReaderLineEndingTest
         reader.setDelimiterSpecs( new HashSet<String>( Arrays.asList( "${*}", "@" ) ) );
 
         assertEquals( "  url=\"jdbc:oracle:thin:@DB_SERVER:DB_PORT:DB_NAME\"", IOUtil.toString( reader ) );
+    }
+    
+    @Test
+    public void testDefaultValue()
+        throws Exception
+    {
+        
+        Reader in = new StringReader( "toto@titi.com ${noValue:defaultValue}" );
+        MultiDelimiterInterpolatorFilterReaderLineEnding reader = new MultiDelimiterInterpolatorFilterReaderLineEnding( in, interpolator, true );
+        reader.setDelimiterSpecs( new HashSet<String>( Arrays.asList( "${*}", "@" ) ) );
+
+        assertEquals( "defaultValue", IOUtil.toString( reader ) );
+        
+        
+        when( interpolator.interpolate( eq( "${hasAValue}" ), eq( "" ), isA( RecursionInterceptor.class ) ) ).thenReturn( "42" );
+
+        in = new StringReader( "toto@titi.com ${hasAValue:defaultvalue}" );
+        reader = new MultiDelimiterInterpolatorFilterReaderLineEnding( in, interpolator, true );
+        reader.setDelimiterSpecs( new HashSet<String>( Arrays.asList( "${*}", "@" ) ) );
+
+        assertEquals( "toto@titi.com 42", IOUtil.toString( reader ) );
     }
 }

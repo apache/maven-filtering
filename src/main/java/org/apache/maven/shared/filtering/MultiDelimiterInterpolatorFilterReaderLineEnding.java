@@ -69,6 +69,8 @@ public class MultiDelimiterInterpolatorFilterReaderLineEnding
      */
     public static final String DEFAULT_END_TOKEN = "}";
 
+    public static final char DEFAULT_DEFAULT_VALUE_TOKEN = ':';
+    
     /**
      * true by default to preserve backward comp
      */
@@ -238,6 +240,7 @@ public class MultiDelimiterInterpolatorFilterReaderLineEnding
         boolean inEscape = useEscape && ch == getEscapeString().charAt( 0 );
 
         StringBuilder key = new StringBuilder();
+        StringBuilder defaultValue = new StringBuilder();
 
         // have we found an escape string?
         if ( inEscape )
@@ -341,6 +344,7 @@ public class MultiDelimiterInterpolatorFilterReaderLineEnding
 
         int endTokenSize = endToken.length();
         int end = endTokenSize;
+        boolean hasDefaultValue = false;
         do
         {
             if ( ch == -1 )
@@ -353,9 +357,24 @@ public class MultiDelimiterInterpolatorFilterReaderLineEnding
                 key.append( (char) ch );
                 break;
             }
-
-            key.append( (char) ch );
-
+           
+            if (ch == DEFAULT_DEFAULT_VALUE_TOKEN)
+            {
+              // just ignore default value token
+               hasDefaultValue = true;
+               ch = in.read();
+               continue;
+            }
+            
+            if (hasDefaultValue && ch != this.endToken.charAt( endTokenSize - end ))
+            {
+              defaultValue.append( (char) ch );
+            }
+            else
+            {
+              key.append( (char) ch );
+            }
+            
             if ( ch == this.endToken.charAt( endTokenSize - end ) )
             {
                 end--;
@@ -386,10 +405,14 @@ public class MultiDelimiterInterpolatorFilterReaderLineEnding
                 if ( interpolateWithPrefixPattern )
                 {
                     value = interpolator.interpolate( key.toString(), "", recursionInterceptor );
+                    if (value == null && hasDefaultValue)
+                    	value = defaultValue.toString();
                 }
                 else
                 {
                     value = interpolator.interpolate( key.toString(), recursionInterceptor );
+                    if (value == null && hasDefaultValue)
+                    	value = defaultValue.toString();
                 }
             }
             catch ( InterpolationException e )

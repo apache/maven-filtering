@@ -26,7 +26,7 @@ import java.util.LinkedHashSet;
 import org.codehaus.plexus.interpolation.multi.DelimiterSpecification;
 
 /**
- * @author Karl Heinz Marbaise <khmarbaise@apache.org>
+ * @author Karl Heinz Marbaise <a href="mailto:khmarbaise@apache.org">khmarbaise@apache.org</a>
  */
 public abstract class AbstractFilterReaderLineEnding
     extends FilterReader

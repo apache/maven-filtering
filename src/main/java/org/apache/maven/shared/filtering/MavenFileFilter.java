@@ -45,7 +45,7 @@ public interface MavenFileFilter
      * @param filters {@link List} of String which are path to a Property file
      * @param encoding The encoding which is used during the filtering process.
      * @throws MavenFilteringException in case of failure.
-     * @see #getDefaultFilterWrappers(MavenProject, List, boolean, MavenSession)
+     * @see DefaultFilterInfo#getDefaultFilterWrappers(MavenProject, List, boolean,MavenSession, MavenResourcesExecution)
      */
     void copyFile( File from, final File to, boolean filtering, MavenProject mavenProject, List<String> filters,
                    boolean escapedBackslashesInFilePath, String encoding, MavenSession mavenSession )

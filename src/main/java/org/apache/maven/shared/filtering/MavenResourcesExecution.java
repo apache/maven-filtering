@@ -402,25 +402,25 @@ public class MavenResourcesExecution
     public MavenResourcesExecution copyOf()
     {
         MavenResourcesExecution mre = new MavenResourcesExecution();
-        mre.setAdditionalProperties( mre.getAdditionalProperties() );
-        mre.setEncoding( mre.getEncoding() );
-        mre.setEscapedBackslashesInFilePath( mre.isEscapedBackslashesInFilePath() );
-        mre.setEscapeString( mre.getEscapeString() );
-        mre.setFileFilters( copyList( mre.getFileFilters() ) );
-        mre.setFilterWrappers( copyList( mre.getFilterWrappers() ) );
-        mre.setIncludeEmptyDirs( mre.isIncludeEmptyDirs() );
-        mre.setInjectProjectBuildFilters( mre.isInjectProjectBuildFilters() );
-        mre.setMavenProject( mre.getMavenProject() );
-        mre.setMavenSession( mre.getMavenSession() );
-        mre.setNonFilteredFileExtensions( copyList( mre.getNonFilteredFileExtensions() ) );
-        mre.setOutputDirectory( mre.getOutputDirectory() );
-        mre.setOverwrite( mre.isOverwrite() );
-        mre.setProjectStartExpressions( copyList( mre.getProjectStartExpressions() ) );
-        mre.setResources( copyList( mre.getResources() ) );
-        mre.setResourcesBaseDirectory( mre.getResourcesBaseDirectory() );
-        mre.setUseDefaultFilterWrappers( mre.isUseDefaultFilterWrappers() );
-        mre.setAddDefaultExcludes( mre.isAddDefaultExcludes() );
-        mre.setSupportMultiLineFiltering( mre.isSupportMultiLineFiltering() );
+        mre.setAdditionalProperties( this.getAdditionalProperties() );
+        mre.setEncoding( this.getEncoding() );
+        mre.setEscapedBackslashesInFilePath( this.isEscapedBackslashesInFilePath() );
+        mre.setEscapeString( this.getEscapeString() );
+        mre.setFileFilters( copyList( this.getFileFilters() ) );
+        mre.setFilterWrappers( copyList( this.getFilterWrappers() ) );
+        mre.setIncludeEmptyDirs( this.isIncludeEmptyDirs() );
+        mre.setInjectProjectBuildFilters( this.isInjectProjectBuildFilters() );
+        mre.setMavenProject( this.getMavenProject() );
+        mre.setMavenSession( this.getMavenSession() );
+        mre.setNonFilteredFileExtensions( copyList( this.getNonFilteredFileExtensions() ) );
+        mre.setOutputDirectory( this.getOutputDirectory() );
+        mre.setOverwrite( this.isOverwrite() );
+        mre.setProjectStartExpressions( copyList( this.getProjectStartExpressions() ) );
+        mre.setResources( copyList( this.getResources() ) );
+        mre.setResourcesBaseDirectory( this.getResourcesBaseDirectory() );
+        mre.setUseDefaultFilterWrappers( this.isUseDefaultFilterWrappers() );
+        mre.setAddDefaultExcludes( this.isAddDefaultExcludes() );
+        mre.setSupportMultiLineFiltering( this.isSupportMultiLineFiltering() );
         return mre;
     }
 

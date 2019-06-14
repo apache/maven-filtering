@@ -34,7 +34,7 @@ public final class FilteringUtils
     private static final Pattern PATTERN = Pattern.compile( WINDOWS_PATH_PATTERN );
 
     /**
-     * 
+     *
      */
     private FilteringUtils()
     {

@@ -81,7 +81,7 @@ public class MavenResourcesExecution
      * <li>Darcs: &#42;&#42;/_darcs, &#42;&#42;/_darcs/&#42;&#42;, &#42;&#42;/.darcsrepo,
      * &#42;&#42;/.darcsrepo/&#42;&#42;&#42;&#42;/-darcs-backup&#42;, &#42;&#42;/.darcs-temp-mail
      * </ul>
-     * 
+     *
      * @since 3.1.0
      */
     private boolean addDefaultExcludes = true;
@@ -165,7 +165,7 @@ public class MavenResourcesExecution
 
     /**
      * Return the encoding.
-     * 
+     *
      * @return Current encoding.
      */
     public String getEncoding()
@@ -175,7 +175,7 @@ public class MavenResourcesExecution
 
     /**
      * Set the value for encoding.
-     * 
+     *
      * @param encoding Give the new value for encoding.
      */
     public void setEncoding( String encoding )
@@ -254,7 +254,7 @@ public class MavenResourcesExecution
     {
         if ( this.filterWrappers == null )
         {
-            this.filterWrappers = new ArrayList<FilterWrapper>();
+            this.filterWrappers = new ArrayList<>();
         }
         this.filterWrappers.add( filterWrapper );
     }
@@ -272,6 +272,7 @@ public class MavenResourcesExecution
     {
         addFilterWrapper( new FileUtils.FilterWrapper()
         {
+            @Override
             public Reader getReader( Reader reader )
             {
                 StringSearchInterpolator propertiesInterpolator = new StringSearchInterpolator( startExp, endExp );
@@ -432,21 +433,21 @@ public class MavenResourcesExecution
         }
         else if ( lst.isEmpty() )
         {
-            return new ArrayList<T>();
+            return new ArrayList<>();
         }
         else
         {
-            return new ArrayList<T>( lst );
+            return new ArrayList<>( lst );
         }
     }
 
-    /** {@inheritDoc} */
+    @Override
     public boolean isSupportMultiLineFiltering()
     {
         return supportMultiLineFiltering;
     }
 
-    /** {@inheritDoc} */
+    @Override
     public void setSupportMultiLineFiltering( boolean supportMultiLineFiltering )
     {
         this.supportMultiLineFiltering = supportMultiLineFiltering;

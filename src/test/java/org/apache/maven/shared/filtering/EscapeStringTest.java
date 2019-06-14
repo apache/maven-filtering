@@ -42,6 +42,7 @@ public class EscapeStringTest
 
     File unitDirectory = new File( getBasedir(), "src/test/units-files/escape-remove-char" );
 
+    @Override
     protected void setUp()
         throws Exception
     {
@@ -70,12 +71,12 @@ public class EscapeStringTest
         MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
 
         Resource resource = new Resource();
-        List<Resource> resources = new ArrayList<Resource>();
+        List<Resource> resources = new ArrayList<>();
         resources.add( resource );
         resource.setDirectory( unitDirectory.getPath() );
         resource.setFiltering( true );
 
-        List<String> filtersFile = new ArrayList<String>();
+        List<String> filtersFile = new ArrayList<>();
 
         List<String> nonFilteredFileExtensions = Collections.singletonList( "gif" );
 
@@ -87,21 +88,12 @@ public class EscapeStringTest
         mavenResourcesExecution.setEscapeString( "!" );
 
         mavenResourcesFiltering.filterResources( mavenResourcesExecution );
-
-        FileInputStream in = null;
-        try
-        {
-            in = new FileInputStream( new File( outputDirectory, "content.xml" ) );
+        
+        try ( FileInputStream in = new FileInputStream( new File( outputDirectory, "content.xml" ) ) )
+        { 
             String content = IOUtil.toString( in );
-            in.close();
-            in = null;
             assertTrue( content.contains( "<broken-tag>Content with replacement: I am the replacement !</broken-tag>" ) );
             assertTrue( content.contains( "<broken-tag>Content with escaped replacement: Do not ${replaceThis} !</broken-tag>" ) );
         }
-        finally
-        {
-            IOUtil.close( in );
-        }
-
     }
 }

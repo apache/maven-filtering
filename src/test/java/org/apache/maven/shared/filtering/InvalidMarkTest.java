@@ -34,6 +34,7 @@ public class InvalidMarkTest
 {
     File outputDirectory = new File( getBasedir(), "target/LongLineTest" );
 
+    @Override
     protected void setUp()
         throws Exception
     {

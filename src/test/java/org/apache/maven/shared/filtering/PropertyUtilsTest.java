@@ -49,13 +49,13 @@ public class PropertyUtilsTest
         }
 
         basicProp.createNewFile();
-        FileWriter writer = new FileWriter( basicProp );
-
-        writer.write( "ghost=${non_existent}\n" );
-        writer.write( "key=${untat_na_damgo}\n" );
-        writer.write( "untat_na_damgo=gani_man\n" );
-        writer.flush();
-        writer.close();
+        try ( FileWriter writer = new FileWriter( basicProp ) )
+        {
+            writer.write( "ghost=${non_existent}\n" );
+            writer.write( "key=${untat_na_damgo}\n" );
+            writer.write( "untat_na_damgo=gani_man\n" );
+            writer.flush();
+        }
 
         Properties prop = PropertyUtils.loadPropertyFile( basicProp, false, false );
         assertTrue( prop.getProperty( "key" ).equals( "gani_man" ) );
@@ -73,11 +73,11 @@ public class PropertyUtilsTest
         }
 
         systemProp.createNewFile();
-        FileWriter writer = new FileWriter( systemProp );
-
-        writer.write( "key=${user.dir}" );
-        writer.flush();
-        writer.close();
+        try ( FileWriter writer = new FileWriter( systemProp ) )
+        {
+            writer.write( "key=${user.dir}" );
+            writer.flush();
+        }
 
         Properties prop = PropertyUtils.loadPropertyFile( systemProp, false, true );
         assertTrue( prop.getProperty( "key" ).equals( System.getProperty( "user.dir" ) ) );
@@ -114,10 +114,10 @@ public class PropertyUtilsTest
         assertEquals( "realVersion", interpolated.get( "bar" ) );
         assertEquals( "none filtered", interpolated.get( "none" ) );
     }
-    
+
     /**
      * Test case to reproduce MSHARED-417
-     * 
+     *
      * @throws IOException if problem writing file
      */
     public void testCircularReferences()
@@ -131,12 +131,12 @@ public class PropertyUtilsTest
         }
 
         basicProp.createNewFile();
-        FileWriter writer = new FileWriter( basicProp );
-
-        writer.write( "test=${test2}\n" );
-        writer.write( "test2=${test2}\n" );
-        writer.flush();
-        writer.close();
+        try( FileWriter writer = new FileWriter( basicProp ) )
+        {
+            writer.write( "test=${test2}\n" );
+            writer.write( "test2=${test2}\n" );
+            writer.flush();
+        }
 
         MockLogger logger = new MockLogger();
 
@@ -150,7 +150,7 @@ public class PropertyUtilsTest
 
     /**
      * Test case to reproduce MSHARED-417
-     * 
+     *
      * @throws IOException if problem writing file
      */
     public void testCircularReferences3Vars()
@@ -164,13 +164,13 @@ public class PropertyUtilsTest
         }
 
         basicProp.createNewFile();
-        FileWriter writer = new FileWriter( basicProp );
-
-        writer.write( "test=${test2}\n" );
-        writer.write( "test2=${test3}\n" );
-        writer.write( "test3=${test}\n" );
-        writer.flush();
-        writer.close();
+        try ( FileWriter writer = new FileWriter( basicProp ) )
+        {
+            writer.write( "test=${test2}\n" );
+            writer.write( "test2=${test3}\n" );
+            writer.write( "test3=${test}\n" );
+            writer.flush();
+        }
 
         MockLogger logger = new MockLogger();
 
@@ -193,7 +193,7 @@ public class PropertyUtilsTest
         implements Logger
     {
 
-        ArrayList<String> warnMsgs = new ArrayList<String>();
+        ArrayList<String> warnMsgs = new ArrayList<>();
 
         @Override
         public void debug( String message )

@@ -130,6 +130,7 @@ public class InterpolatorFilterReaderLineEnding
      * @return the number of characters actually skipped
      * @throws IOException If an I/O error occurs
      */
+    @Override
     public long skip( long n )
         throws IOException
     {
@@ -158,6 +159,7 @@ public class InterpolatorFilterReaderLineEnding
      * @return the number of characters read, or -1 if the end of the stream has been reached
      * @throws IOException If an I/O error occurs
      */
+    @Override
     public int read( char cbuf[], int off, int len )
         throws IOException
     {
@@ -186,6 +188,7 @@ public class InterpolatorFilterReaderLineEnding
      * @return the next character in the resulting stream, or -1 if the end of the resulting stream has been reached
      * @throws IOException if the underlying stream throws an IOException during reading
      */
+    @Override
     public int read()
         throws IOException
     {

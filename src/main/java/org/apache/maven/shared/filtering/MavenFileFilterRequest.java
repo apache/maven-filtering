@@ -76,7 +76,7 @@ public class MavenFileFilterRequest
 
     /**
      * Return the encoding.
-     * 
+     *
      * @return Current encoding.
      */
     public String getEncoding()
@@ -86,7 +86,7 @@ public class MavenFileFilterRequest
 
     /**
      * Set the value for encoding.
-     * 
+     *
      * @param encoding Give the new value for encoding.
      */
     public void setEncoding( String encoding )

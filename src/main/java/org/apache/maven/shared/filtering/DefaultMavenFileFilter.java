@@ -62,7 +62,7 @@ public class DefaultMavenFileFilter
     @Requirement
     private BuildContext buildContext;
 
-    /** {@inheritDoc} */
+    @Override
     public void copyFile( File from, File to, boolean filtering, MavenProject mavenProject, List<String> filters,
                           boolean escapedBackslashesInFilePath, String encoding, MavenSession mavenSession )
                               throws MavenFilteringException
@@ -78,7 +78,7 @@ public class DefaultMavenFileFilter
         copyFile( from, to, filtering, filterWrappers, encoding );
     }
 
-    /** {@inheritDoc} */
+    @Override
     public void copyFile( MavenFileFilterRequest mavenFileFilterRequest )
         throws MavenFilteringException
     {
@@ -88,7 +88,7 @@ public class DefaultMavenFileFilter
                   mavenFileFilterRequest.isFiltering(), filterWrappers, mavenFileFilterRequest.getEncoding() );
     }
 
-    /** {@inheritDoc} */
+    @Override
     public void copyFile( File from, File to, boolean filtering, List<FileUtils.FilterWrapper> filterWrappers,
                           String encoding )
                               throws MavenFilteringException
@@ -97,7 +97,7 @@ public class DefaultMavenFileFilter
         copyFile( from, to, filtering, filterWrappers, encoding, false );
     }
 
-    /** {@inheritDoc} */
+    @Override
     public void copyFile( File from, File to, boolean filtering, List<FileUtils.FilterWrapper> filterWrappers,
                           String encoding, boolean overwrite )
                               throws MavenFilteringException
@@ -136,24 +136,14 @@ public class DefaultMavenFileFilter
     {
         if ( wrappers != null && wrappers.size() > 0 )
         {
-            Reader fileReader = null;
-            Writer fileWriter = null;
-            try
+            
+            
+            try ( Reader fileReader = getFileReader( encoding, from );
+                  Writer fileWriter = getFileWriter( encoding, to ) )
             {
-                fileReader = getFileReader( encoding, from );
-                fileWriter = getFileWriter( encoding, to );
                 Reader src = readerFilter.filter( fileReader, true, wrappers );
 
                 IOUtil.copy( src, fileWriter );
-                fileReader.close();
-                fileReader = null;
-                fileWriter.close();
-                fileWriter = null;
-            }
-            finally
-            {
-                IOUtil.close( fileReader );
-                IOUtil.close( fileWriter );
             }
         }
         else

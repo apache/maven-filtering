@@ -45,6 +45,7 @@ public class DefaultMavenFileFilterTest
 
     File to = new File( getBasedir(), "target/reflection-test.properties" );
 
+    @Override
     protected void setUp()
         throws Exception
     {
@@ -118,7 +119,7 @@ public class DefaultMavenFileFilterTest
 
         File testDir = new File( getBasedir(), "src/test/units-files/MSHARED-177" );
 
-        List<String> filters = new ArrayList<String>();
+        List<String> filters = new ArrayList<>();
 
         filters.add( new File( testDir, "first_filter_file.properties" ).getAbsolutePath() );
         filters.add( new File( testDir, "second_filter_file.properties" ).getAbsolutePath() );
@@ -163,7 +164,7 @@ public class DefaultMavenFileFilterTest
         Properties additionalProperties = new Properties();
         additionalProperties.setProperty( "FILTER.a.ME", "DONE" );
         req.setAdditionalProperties( additionalProperties );
-        req.setDelimiters( new LinkedHashSet<String>( Arrays.asList( "aaa*aaa", "abc*abc" ) ) );
+        req.setDelimiters( new LinkedHashSet<>( Arrays.asList( "aaa*aaa", "abc*abc" ) ) );
 
         List<FilterWrapper> wrappers = mavenFileFilter.getDefaultFilterWrappers( req );
 

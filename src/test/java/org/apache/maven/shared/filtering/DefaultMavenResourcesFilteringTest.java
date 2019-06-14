@@ -48,6 +48,7 @@ public class DefaultMavenResourcesFilteringTest
 
     File outputDirectory = new File( getBasedir(), "target/DefaultMavenResourcesFilteringTest" );
 
+    @Override
     protected void setUp()
         throws Exception
     {
@@ -78,12 +79,12 @@ public class DefaultMavenResourcesFilteringTest
         File initialImageFile = new File( unitFilesDir, "happy_duke.gif" );
 
         Resource resource = new Resource();
-        List<Resource> resources = new ArrayList<Resource>();
+        List<Resource> resources = new ArrayList<>();
         resources.add( resource );
         resource.setDirectory( unitFilesDir );
         resource.setFiltering( true );
 
-        List<String> filtersFile = new ArrayList<String>();
+        List<String> filtersFile = new ArrayList<>();
         filtersFile.add( getBasedir()
             + "/src/test/units-files/maven-resources-filtering/empty-maven-resources-filtering.txt" );
 
@@ -109,12 +110,12 @@ public class DefaultMavenResourcesFilteringTest
         String unitFilesDir = getBasedir() + "/src/test/units-files/session-filtering";
 
         Resource resource = new Resource();
-        List<Resource> resources = new ArrayList<Resource>();
+        List<Resource> resources = new ArrayList<>();
         resources.add( resource );
         resource.setDirectory( unitFilesDir );
         resource.setFiltering( true );
 
-        List<String> filtersFile = new ArrayList<String>();
+        List<String> filtersFile = new ArrayList<>();
 
         Settings settings = new Settings();
         settings.setLocalRepository( System.getProperty( "localRepository",
@@ -136,17 +137,10 @@ public class DefaultMavenResourcesFilteringTest
         mavenResourcesFiltering.filterResources( mre );
 
         Properties result = new Properties();
-        FileInputStream in = null;
-        try
+        
+        try ( FileInputStream in = new FileInputStream( new File( outputDirectory, "session-filter-target.txt" ) ) )
         {
-            in = new FileInputStream( new File( outputDirectory, "session-filter-target.txt" ) );
             result.load( in );
-            in.close();
-            in = null;
-        }
-        finally
-        {
-            IOUtil.close( in );
         }
 
         assertEquals( settings.getLocalRepository(), result.getProperty( "session.settings.local.repo" ) );
@@ -173,12 +167,12 @@ public class DefaultMavenResourcesFilteringTest
         File initialImageFile = new File( unitFilesDir, "happy_duke.gif" );
 
         Resource resource = new Resource();
-        List<Resource> resources = new ArrayList<Resource>();
+        List<Resource> resources = new ArrayList<>();
         resources.add( resource );
         resource.setDirectory( unitFilesDir );
         resource.setFiltering( true );
 
-        List<String> filtersFile = new ArrayList<String>();
+        List<String> filtersFile = new ArrayList<>();
         filtersFile.add( getBasedir()
             + "/src/test/units-files/maven-resources-filtering/empty-maven-resources-filtering.txt" );
 
@@ -210,12 +204,12 @@ public class DefaultMavenResourcesFilteringTest
         File initialImageFile = new File( unitFilesDir, "happy_duke.gif" );
 
         Resource resource = new Resource();
-        List<Resource> resources = new ArrayList<Resource>();
+        List<Resource> resources = new ArrayList<>();
         resources.add( resource );
         resource.setDirectory( unitFilesDir );
         resource.setFiltering( true );
 
-        List<String> filtersFile = new ArrayList<String>();
+        List<String> filtersFile = new ArrayList<>();
         filtersFile.add( getBasedir()
             + "/src/test/units-files/maven-resources-filtering/empty-maven-resources-filtering.txt" );
 
@@ -238,34 +232,21 @@ public class DefaultMavenResourcesFilteringTest
     {
         assertEquals( 7, outputDirectory.listFiles().length );
         Properties result = new Properties();
-        FileInputStream in = null;
-        try
+        
+        try ( FileInputStream in = new FileInputStream( new File( outputDirectory, "empty-maven-resources-filtering.txt" ) ) )
         {
-            in = new FileInputStream( new File( outputDirectory, "empty-maven-resources-filtering.txt" ) );
             result.load( in );
-            in.close();
-            in = null;
         }
-        finally
-        {
-            IOUtil.close( in );
-        }
-
+        
         assertTrue( result.isEmpty() );
 
         result = new Properties();
-        in = null;
-        try
+
+        try ( FileInputStream in = new FileInputStream( new File( outputDirectory, "maven-resources-filtering.txt" ) ) )
         {
-            in = new FileInputStream( new File( outputDirectory, "maven-resources-filtering.txt" ) );
             result.load( in );
-            in.close();
-            in = null;
         }
-        finally
-        {
-            IOUtil.close( in );
-        }
+
         assertFalse( result.isEmpty() );
 
         if ( additionnalProperties )
@@ -327,12 +308,12 @@ public class DefaultMavenResourcesFilteringTest
         File initialImageFile = new File( unitFilesDir, "happy_duke.gif" );
 
         Resource resource = new Resource();
-        List<Resource> resources = new ArrayList<Resource>();
+        List<Resource> resources = new ArrayList<>();
         resources.add( resource );
         resource.setDirectory( unitFilesDir );
         resource.setFiltering( true );
 
-        List<String> filtersFile = new ArrayList<String>();
+        List<String> filtersFile = new ArrayList<>();
         filtersFile.add( getBasedir()
             + "/src/test/units-files/maven-resources-filtering/empty-maven-resources-filtering.txt" );
 
@@ -368,7 +349,7 @@ public class DefaultMavenResourcesFilteringTest
         File initialImageFile = new File( unitFilesDir, "happy_duke.gif" );
 
         Resource resource = new Resource();
-        List<Resource> resources = new ArrayList<Resource>();
+        List<Resource> resources = new ArrayList<>();
         resources.add( resource );
 
         resource.setDirectory( unitFilesDir );
@@ -409,12 +390,10 @@ public class DefaultMavenResourcesFilteringTest
         {
             return false;
         }
-        FileInputStream expectedIn = null;
-        FileInputStream currentIn = null;
-        try
+        
+        try ( FileInputStream expectedIn = new FileInputStream( expected );
+              FileInputStream currentIn = new FileInputStream( current ) )
         {
-            expectedIn = new FileInputStream( expected );
-            currentIn = new FileInputStream( current );
 
             byte[] expectedBuffer = IOUtil.toByteArray( expectedIn );
 
@@ -430,17 +409,6 @@ public class DefaultMavenResourcesFilteringTest
                     return false;
                 }
             }
-
-            expectedIn.close();
-            expectedIn = null;
-
-            currentIn.close();
-            currentIn = null;
-        }
-        finally
-        {
-            IOUtil.close( expectedIn );
-            IOUtil.close( currentIn );
         }
         return true;
     }
@@ -459,13 +427,13 @@ public class DefaultMavenResourcesFilteringTest
         String unitFilesDir = getBasedir() + "/src/test/units-files/maven-resources-filtering";
 
         Resource resource = new Resource();
-        List<Resource> resources = new ArrayList<Resource>();
+        List<Resource> resources = new ArrayList<>();
         resources.add( resource );
         resource.setDirectory( unitFilesDir );
         resource.setFiltering( true );
         resource.addInclude( "includ*" );
 
-        List<String> filtersFile = new ArrayList<String>();
+        List<String> filtersFile = new ArrayList<>();
         filtersFile.add( getBasedir()
             + "/src/test/units-files/maven-resources-filtering/empty-maven-resources-filtering.txt" );
 
@@ -494,14 +462,14 @@ public class DefaultMavenResourcesFilteringTest
         String unitFilesDir = getBasedir() + "/src/test/units-files/maven-resources-filtering";
 
         Resource resource = new Resource();
-        List<Resource> resources = new ArrayList<Resource>();
+        List<Resource> resources = new ArrayList<>();
         resources.add( resource );
         resource.setDirectory( unitFilesDir );
         resource.setFiltering( true );
         resource.addInclude( "includ*" );
         resource.addInclude( "**/includ*" );
 
-        List<String> filtersFile = new ArrayList<String>();
+        List<String> filtersFile = new ArrayList<>();
         filtersFile.add( getBasedir()
             + "/src/test/units-files/maven-resources-filtering/empty-maven-resources-filtering.txt" );
 
@@ -535,14 +503,14 @@ public class DefaultMavenResourcesFilteringTest
         String unitFilesDir = getBasedir() + "/src/test/units-files/maven-resources-filtering";
 
         Resource resource = new Resource();
-        List<Resource> resources = new ArrayList<Resource>();
+        List<Resource> resources = new ArrayList<>();
         resources.add( resource );
         resource.setDirectory( unitFilesDir );
         resource.setFiltering( true );
         resource.addExclude( "*.gif" );
         resource.addExclude( "**/excludedir/**" );
 
-        List<String> filtersFile = new ArrayList<String>();
+        List<String> filtersFile = new ArrayList<>();
         filtersFile.add( getBasedir()
             + "/src/test/units-files/maven-resources-filtering/empty-maven-resources-filtering.txt" );
 
@@ -580,7 +548,7 @@ public class DefaultMavenResourcesFilteringTest
         String unitFilesDir = getBasedir() + "/src/test/units-files/maven-resources-filtering";
 
         Resource resource = new Resource();
-        List<Resource> resources = new ArrayList<Resource>();
+        List<Resource> resources = new ArrayList<>();
         resources.add( resource );
         resource.setDirectory( unitFilesDir );
         resource.setFiltering( true );
@@ -598,7 +566,7 @@ public class DefaultMavenResourcesFilteringTest
         {
             FileUtils.cleanDirectory( targetPathFile );
         }
-        List<String> filtersFile = new ArrayList<String>();
+        List<String> filtersFile = new ArrayList<>();
         filtersFile.add( getBasedir()
             + "/src/test/units-files/maven-resources-filtering/empty-maven-resources-filtering.txt" );
 
@@ -626,13 +594,13 @@ public class DefaultMavenResourcesFilteringTest
         String unitFilesDir = getBasedir() + "/src/test/units-files/maven-resources-filtering";
 
         Resource resource = new Resource();
-        List<Resource> resources = new ArrayList<Resource>();
+        List<Resource> resources = new ArrayList<>();
         resources.add( resource );
         resource.setDirectory( unitFilesDir );
         resource.setFiltering( true );
         resource.addInclude( "includ*" );
         resource.setTargetPath( "testTargetPath" );
-        List<String> filtersFile = new ArrayList<String>();
+        List<String> filtersFile = new ArrayList<>();
         filtersFile.add( getBasedir()
             + "/src/test/units-files/maven-resources-filtering/empty-maven-resources-filtering.txt" );
 
@@ -660,7 +628,7 @@ public class DefaultMavenResourcesFilteringTest
 
         MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
 
-        List<Resource> resources = new ArrayList<Resource>();
+        List<Resource> resources = new ArrayList<>();
         resources.add( new Resource()
         {
             {
@@ -725,7 +693,7 @@ public class DefaultMavenResourcesFilteringTest
 
         MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
 
-        List<Resource> resources = new ArrayList<Resource>();
+        List<Resource> resources = new ArrayList<>();
         resources.add( new Resource()
         {
             {
@@ -780,7 +748,7 @@ public class DefaultMavenResourcesFilteringTest
     /**
      * The folder and file structure will be created instead of letting this resource plugin copying the structure which
      * will not work.
-     * 
+     *
      * @param sourceDirectory The source folder where the structure will be created.
      * @throws IOException
      */
@@ -824,7 +792,7 @@ public class DefaultMavenResourcesFilteringTest
 
         MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
 
-        List<Resource> resources = new ArrayList<Resource>();
+        List<Resource> resources = new ArrayList<>();
         resources.add( new Resource()
         {
             {
@@ -928,7 +896,7 @@ public class DefaultMavenResourcesFilteringTest
 
         MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
 
-        List<Resource> resources = new ArrayList<Resource>();
+        List<Resource> resources = new ArrayList<>();
         resources.add( new Resource()
         {
             {

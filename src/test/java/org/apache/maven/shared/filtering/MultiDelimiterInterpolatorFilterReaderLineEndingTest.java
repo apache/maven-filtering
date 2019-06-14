@@ -45,6 +45,7 @@ public class MultiDelimiterInterpolatorFilterReaderLineEndingTest
     @Mock
     private Interpolator interpolator;
 
+    @Override
     @Before
     public void onSetup()
     {
@@ -99,7 +100,7 @@ public class MultiDelimiterInterpolatorFilterReaderLineEndingTest
         Reader in = new StringReader( "toto@titi.com ${foo}" );
         MultiDelimiterInterpolatorFilterReaderLineEnding reader =
             new MultiDelimiterInterpolatorFilterReaderLineEnding( in, interpolator, true );
-        reader.setDelimiterSpecs( new HashSet<String>( Arrays.asList( "${*}", "@" ) ) );
+        reader.setDelimiterSpecs( new HashSet<>( Arrays.asList( "${*}", "@" ) ) );
 
         assertEquals( "toto@titi.com bar", IOUtil.toString( reader ) );
     }
@@ -117,7 +118,7 @@ public class MultiDelimiterInterpolatorFilterReaderLineEndingTest
         MultiDelimiterInterpolatorFilterReaderLineEnding reader =
             new MultiDelimiterInterpolatorFilterReaderLineEnding( in, interpolator, true );
         reader.setEscapeString( "\\" );
-        reader.setDelimiterSpecs( new HashSet<String>( Arrays.asList( "${*}", "@" ) ) );
+        reader.setDelimiterSpecs( new HashSet<>( Arrays.asList( "${*}", "@" ) ) );
 
         assertEquals( "  url=\"jdbc:oracle:thin:@DB_SERVER:DB_PORT:DB_NAME\"", IOUtil.toString( reader ) );
     }

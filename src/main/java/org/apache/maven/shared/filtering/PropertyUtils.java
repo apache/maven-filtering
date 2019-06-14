@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.maven.shared.utils.StringUtils;
-import org.apache.maven.shared.utils.io.IOUtil;
 import org.codehaus.plexus.logging.Logger;
 
 /**
@@ -87,17 +86,10 @@ public final class PropertyUtils
         }
 
         final Properties fileProps = new Properties();
-        FileInputStream inStream = null;
-        try
+        
+        try ( FileInputStream inStream = new FileInputStream( propFile ) )
         {
-            inStream = new FileInputStream( propFile );
             fileProps.load( inStream );
-            inStream.close();
-            inStream = null;
-        }
-        finally
-        {
-            IOUtil.close( inStream );
         }
 
         final Properties combinedProps = new Properties();
@@ -199,7 +191,7 @@ public final class PropertyUtils
         // it doesn't change.
 
         // for cycle detection
-        List<String> valueChain = new LinkedList<String>();
+        List<String> valueChain = new LinkedList<>();
         valueChain.add( k );
 
         String v = p.getProperty( k );

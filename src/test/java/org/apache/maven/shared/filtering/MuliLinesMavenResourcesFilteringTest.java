@@ -28,7 +28,6 @@ import java.util.Properties;
 
 import org.apache.maven.model.Resource;
 import org.apache.maven.shared.utils.io.FileUtils;
-import org.apache.maven.shared.utils.io.IOUtil;
 import org.codehaus.plexus.PlexusTestCase;
 
 /**
@@ -41,6 +40,7 @@ public class MuliLinesMavenResourcesFilteringTest
 
     File outputDirectory = new File( getBasedir(), "target/MuliLinesMavenResourcesFilteringTest" );
 
+    @Override
     protected void setUp()
         throws Exception
     {
@@ -73,12 +73,12 @@ public class MuliLinesMavenResourcesFilteringTest
         String unitFilesDir = getBasedir() + "/src/test/units-files/MRESOURCES-104";
 
         Resource resource = new Resource();
-        List<Resource> resources = new ArrayList<Resource>();
+        List<Resource> resources = new ArrayList<>();
         resources.add( resource );
         resource.setDirectory( unitFilesDir );
         resource.setFiltering( true );
 
-        List<String> filtersFile = new ArrayList<String>();
+        List<String> filtersFile = new ArrayList<>();
         filtersFile.add( getBasedir() + "/src/test/units-files/MRESOURCES-104/test.properties" );
 
         List<String> nonFilteredFileExtensions = Collections.singletonList( "gif" );
@@ -91,17 +91,10 @@ public class MuliLinesMavenResourcesFilteringTest
         mavenResourcesFiltering.filterResources( mavenResourcesExecution );
 
         Properties result = new Properties();
-        FileInputStream in = null;
-        try
+        
+        try ( FileInputStream in = new FileInputStream( new File( outputDirectory, "test.properties" ) ) )
         {
-            in = new FileInputStream( new File( outputDirectory, "test.properties" ) );
             result.load( in );
-            in.close();
-            in = null;
-        }
-        finally
-        {
-            IOUtil.close( in );
         }
 
         // email=foo@bar.com

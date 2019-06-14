@@ -41,6 +41,7 @@ public class StubMavenProject
         this.basedir = basedir;
     }
 
+    @Override
     public Properties getProperties()
     {
         return this.properties;
@@ -60,6 +61,7 @@ public class StubMavenProject
         this.properties.put( key, value );
     }
 
+    @Override
     public File getBasedir()
     {
         return basedir;

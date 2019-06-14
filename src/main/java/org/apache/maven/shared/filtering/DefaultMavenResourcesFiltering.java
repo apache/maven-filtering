@@ -67,11 +67,11 @@ public class DefaultMavenResourcesFiltering
     // ------------------------------------------------
     // Plexus lifecycle
     // ------------------------------------------------
-    /** {@inheritDoc} */
+    @Override
     public void initialize()
         throws InitializationException
     {
-        this.defaultNonFilteredFileExtensions = new ArrayList<String>( 5 );
+        this.defaultNonFilteredFileExtensions = new ArrayList<>( 5 );
         this.defaultNonFilteredFileExtensions.add( "jpg" );
         this.defaultNonFilteredFileExtensions.add( "jpeg" );
         this.defaultNonFilteredFileExtensions.add( "gif" );
@@ -80,10 +80,10 @@ public class DefaultMavenResourcesFiltering
         this.defaultNonFilteredFileExtensions.add( "ico" );
     }
 
-    /** {@inheritDoc} */
+    @Override
     public boolean filteredFileExtension( String fileName, List<String> userNonFilteredFileExtensions )
     {
-        List<String> nonFilteredFileExtensions = new ArrayList<String>( getDefaultNonFilteredFileExtensions() );
+        List<String> nonFilteredFileExtensions = new ArrayList<>( getDefaultNonFilteredFileExtensions() );
         if ( userNonFilteredFileExtensions != null )
         {
             nonFilteredFileExtensions.addAll( userNonFilteredFileExtensions );
@@ -98,17 +98,17 @@ public class DefaultMavenResourcesFiltering
         return filteredFileExtension;
     }
 
-    /** {@inheritDoc} */
+    @Override
     public List<String> getDefaultNonFilteredFileExtensions()
     {
         if ( this.defaultNonFilteredFileExtensions == null )
         {
-            this.defaultNonFilteredFileExtensions = new ArrayList<String>();
+            this.defaultNonFilteredFileExtensions = new ArrayList<>();
         }
         return this.defaultNonFilteredFileExtensions;
     }
 
-    /** {@inheritDoc} */
+    @Override
     public void filterResources( MavenResourcesExecution mavenResourcesExecution )
         throws MavenFilteringException
     {
@@ -262,7 +262,7 @@ public class DefaultMavenResourcesFiltering
     private void handleDefaultFilterWrappers( MavenResourcesExecution mavenResourcesExecution )
         throws MavenFilteringException
     {
-        List<FileUtils.FilterWrapper> filterWrappers = new ArrayList<FileUtils.FilterWrapper>();
+        List<FileUtils.FilterWrapper> filterWrappers = new ArrayList<>();
         if ( mavenResourcesExecution.getFilterWrappers() != null )
         {
             filterWrappers.addAll( mavenResourcesExecution.getFilterWrappers() );
@@ -305,7 +305,7 @@ public class DefaultMavenResourcesFiltering
         String[] includes = null;
         if ( resource.getIncludes() != null && !resource.getIncludes().isEmpty() )
         {
-            includes = (String[]) resource.getIncludes().toArray( EMPTY_STRING_ARRAY );
+            includes = resource.getIncludes().toArray( EMPTY_STRING_ARRAY );
         }
         else
         {
@@ -316,7 +316,7 @@ public class DefaultMavenResourcesFiltering
         String[] excludes = null;
         if ( resource.getExcludes() != null && !resource.getExcludes().isEmpty() )
         {
-            excludes = (String[]) resource.getExcludes().toArray( EMPTY_STRING_ARRAY );
+            excludes = resource.getExcludes().toArray( EMPTY_STRING_ARRAY );
             scanner.setExcludes( excludes );
         }
 

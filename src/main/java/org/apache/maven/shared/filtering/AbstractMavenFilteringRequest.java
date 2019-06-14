@@ -47,7 +47,7 @@ public class AbstractMavenFilteringRequest
      *
      * @since 1.0-beta-2
      */
-    private List<String> projectStartExpressions = new ArrayList<String>();
+    private List<String> projectStartExpressions = new ArrayList<>();
 
     /**
      * String which will escape interpolation mechanism: foo \${foo.bar} -> foo ${foo.bar}
@@ -69,10 +69,10 @@ public class AbstractMavenFilteringRequest
     /**
      * Set of expression delimiter specifications to use during filtering. Delimiter specifications are given in the
      * form 'BEGIN*END' or, for symmetrical delimiters, simply 'TOKEN'. The default values are '${*}' and '@'.
-     * 
+     *
      * @since 1.0-beta-3
      */
-    private LinkedHashSet<String> delimiters = new LinkedHashSet<String>();
+    private LinkedHashSet<String> delimiters = new LinkedHashSet<>();
 
     /**
      * Do not stop trying to filter tokens when reaching EOL.
@@ -91,7 +91,7 @@ public class AbstractMavenFilteringRequest
 
     /**
      * Create instance with given parameters
-     * 
+     *
      * @param mavenProject The instance of MavenProject.
      * @param filters The list of filters.
      * @param mavenSession The MavenSession.
@@ -124,7 +124,7 @@ public class AbstractMavenFilteringRequest
 
     /**
      * Set the MavenProject.
-     * 
+     *
      * @param mavenProject The MavenProject to be set.
      */
     public void setMavenProject( MavenProject mavenProject )
@@ -134,7 +134,7 @@ public class AbstractMavenFilteringRequest
 
     /**
      * The list of filters.
-     * 
+     *
      * @return The list of currently set filters.
      */
     public List<String> getFilters()
@@ -144,7 +144,7 @@ public class AbstractMavenFilteringRequest
 
     /**
      * Set the filters.
-     * 
+     *
      * @param filters Set the list of filters
      */
     public void setFilters( List<String> filters )
@@ -154,7 +154,7 @@ public class AbstractMavenFilteringRequest
 
     /**
      * Alias for {@link #getFilters()}.
-     * 
+     *
      * @return The list of filters.
      */
     public List<String> getFileFilters()
@@ -164,7 +164,7 @@ public class AbstractMavenFilteringRequest
 
     /**
      * Alias for {@link #setFilters(List)}
-     * 
+     *
      * @param paramfilters The list of filters to be set.
      */
     public void setFileFilters( List<String> paramfilters )
@@ -192,7 +192,7 @@ public class AbstractMavenFilteringRequest
 
     /**
      * Alias for {@link #isEscapeWindowsPaths()}
-     * 
+     *
      * @return The current value of {@link #isEscapeWindowsPaths()}
      */
     public boolean isEscapedBackslashesInFilePath()
@@ -202,7 +202,7 @@ public class AbstractMavenFilteringRequest
 
     /**
      * Alias for {@link #setEscapeWindowsPaths(boolean)}
-     * 
+     *
      * @param escape activate or deactivate escaping.
      */
     public void setEscapedBackslashesInFilePath( boolean escape )
@@ -313,7 +313,7 @@ public class AbstractMavenFilteringRequest
      * Set the delimiter specifications to use during filtering. Specifications should be of the form: 'BEGIN*END' for
      * asymmetrical delimiters, or 'TOKEN' for symmetrical delimiters. See
      * {@link AbstractMavenFilteringRequest#delimiters} for more information and default values.
-     * 
+     *
      * @param delimiters If <code>null</code>, reset delimiters to '${*}' only. Otherwise, use the provided value.
      * @since 1.0-beta-3
      */
@@ -339,7 +339,7 @@ public class AbstractMavenFilteringRequest
     {
         if ( delimiters != null && !delimiters.isEmpty() )
         {
-            LinkedHashSet<String> delims = new LinkedHashSet<String>();
+            LinkedHashSet<String> delims = new LinkedHashSet<>();
             if ( useDefaultDelimiters )
             {
                 delims.addAll( this.getDelimiters() );

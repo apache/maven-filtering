@@ -44,7 +44,7 @@ public abstract class AbstractFilterReaderLineEnding
      */
     private boolean preserveEscapeString = false;
 
-    protected LinkedHashSet<DelimiterSpecification> delimiters = new LinkedHashSet<DelimiterSpecification>();
+    protected LinkedHashSet<DelimiterSpecification> delimiters = new LinkedHashSet<>();
 
     /**
      * must always be bigger than escape string plus delimiters, but doesn't need to be exact

@@ -19,6 +19,17 @@ package org.apache.maven.shared.filtering;
  * under the License.
  */
 
+import java.io.File;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Properties;
+
+import javax.annotation.Nonnull;
+
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Settings;
@@ -36,22 +47,12 @@ import org.codehaus.plexus.interpolation.ValueSource;
 import org.codehaus.plexus.interpolation.multi.MultiDelimiterStringSearchInterpolator;
 import org.codehaus.plexus.logging.AbstractLogEnabled;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Properties;
-
-import javax.annotation.Nonnull;
-
 class BaseFilter
     extends AbstractLogEnabled
     implements DefaultFilterInfo
 {
 
+    @Override
     @Nonnull
     public List<FileUtils.FilterWrapper> getDefaultFilterWrappers( final MavenProject mavenProject,
                                                                    List<String> filters,
@@ -73,6 +74,7 @@ class BaseFilter
 
     }
 
+    @Override
     @Nonnull
     public List<FileUtils.FilterWrapper> getDefaultFilterWrappers( final AbstractMavenFilteringRequest req )
         throws MavenFilteringException
@@ -134,7 +136,7 @@ class BaseFilter
         {
             if ( request.isInjectProjectBuildFilters() )
             {
-                List<String> buildFilters = new ArrayList<String>( request.getMavenProject().getBuild().getFilters() );
+                List<String> buildFilters = new ArrayList<>( request.getMavenProject().getBuild().getFilters() );
 
                 // JDK-8015656: (coll) unexpected NPE from removeAll
                 if ( request.getFileFilters() != null )
@@ -255,6 +257,7 @@ class BaseFilter
             this.supportMultiLineFiltering = supportMultiLineFiltering;
         }
 
+        @Override
         public Reader getReader( Reader reader )
         {
             Interpolator interpolator = createInterpolator( delimiters, projectStartExpressions, propertiesValueSource,
@@ -319,6 +322,7 @@ class BaseFilter
         {
             interpolator.addPostProcessor( new InterpolationPostProcessor()
             {
+                @Override
                 public Object execute( String expression, Object value )
                 {
                     if ( value instanceof String )

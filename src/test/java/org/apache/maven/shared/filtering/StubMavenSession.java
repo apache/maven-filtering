@@ -80,16 +80,19 @@ public class StubMavenSession
         }
     }
 
+    @Override
     public Settings getSettings()
     {
         return settings;
     }
 
+    @Override
     public Properties getSystemProperties()
     {
         return this.systemProperties;
     }
 
+    @Override
     public Properties getUserProperties()
     {
         return this.userProperties;

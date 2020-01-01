@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -227,6 +229,19 @@ public class DefaultMavenResourcesFiltering
 
                 File destinationFile = getDestinationFile( outputDirectory, targetPath, name, mavenResourcesExecution );
 
+                if ( mavenResourcesExecution.isFlatten() && destinationFile.exists() )
+                {
+                    if ( mavenResourcesExecution.isOverwrite() )
+                    {
+                        getLogger().warn( "existing file " + destinationFile.getName()
+                                + " will be overwritten by " + name );
+                    }
+                    else
+                    {
+                        throw new MavenFilteringException( "existing file " + destinationFile.getName()
+                                + " will be overwritten by " + name + " and overwrite was not set to true" );
+                    }
+                }
                 boolean filteredExt =
                     filteredFileExtension( source.getName(), mavenResourcesExecution.getNonFilteredFileExtensions() );
 
@@ -275,7 +290,17 @@ public class DefaultMavenResourcesFiltering
                                      MavenResourcesExecution mavenResourcesExecution )
                                          throws MavenFilteringException
     {
-        String destination = name;
+        String destination;
+        if ( !mavenResourcesExecution.isFlatten() )
+        {
+            destination = name;
+        }
+        else
+        {
+            Path path = Paths.get( name );
+            Path filePath = path.getFileName();
+            destination = filePath.toString();
+        }
 
         if ( mavenResourcesExecution.isFilterFilenames() && mavenResourcesExecution.getFilterWrappers().size() > 0 )
         {

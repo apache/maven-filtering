@@ -108,6 +108,12 @@ public class MavenResourcesExecution
     private boolean supportMultiLineFiltering;
 
     /**
+     * Write resources to a flattened directory structure.
+     *
+     */
+    private boolean flatten = false;
+
+    /**
      * Do nothing.
      */
     public MavenResourcesExecution()
@@ -355,6 +361,26 @@ public class MavenResourcesExecution
     public void setOverwrite( boolean overwrite )
     {
         this.overwrite = overwrite;
+    }
+
+    /**
+     * Write to flattened directory structure.
+     *
+     * @return {@link #flatten}
+     */
+    public boolean isFlatten()
+    {
+        return flatten;
+    }
+
+    /**
+     * Write to flattened directory structure.
+     *
+     * @param flatten flatten true or false.
+     */
+    public void setFlatten( boolean flatten )
+    {
+        this.flatten = flatten;
     }
 
     /**

@@ -440,6 +440,88 @@ public class DefaultMavenResourcesFilteringTest
 
     }
 
+    public void testFlattenDirectoryStructure()
+            throws Exception
+    {
+        File baseDir = new File( "c:\\foo\\bar" );
+        StubMavenProject mavenProject = new StubMavenProject( baseDir );
+        mavenProject.setVersion( "1.0" );
+        mavenProject.setGroupId( "org.apache" );
+        mavenProject.setName( "test project" );
+
+        MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
+
+        String unitFilesDir = getBasedir() + "/src/test/units-files/maven-resources-filtering";
+
+        Resource resource = new Resource();
+        List<Resource> resources = new ArrayList<>();
+        resources.add( resource );
+        resource.setDirectory( unitFilesDir );
+        resource.setFiltering( true );
+        resource.addInclude( "includ*" );
+        resource.addInclude( "**/includ*" );
+
+        List<String> filtersFile = new ArrayList<>();
+        filtersFile.add( getBasedir()
+                + "/src/test/units-files/maven-resources-filtering/empty-maven-resources-filtering.txt" );
+
+        MavenResourcesExecution mavenResourcesExecution =
+                new MavenResourcesExecution( resources, outputDirectory, mavenProject, "UTF-8", filtersFile,
+                        Collections.<String> emptyList(), new StubMavenSession() );
+        mavenResourcesExecution.setFlatten(true);
+        mavenResourcesExecution.setOverwrite(true);
+        mavenResourcesFiltering.filterResources( mavenResourcesExecution );
+
+        File[] files = outputDirectory.listFiles();
+        assertNotNull( files );
+        assertEquals( 2, files.length );
+        File includeFile = new File( outputDirectory, "includefile.txt" );
+        assertTrue( includeFile.exists() );
+
+        includeFile = new File( outputDirectory, "include.txt" );
+        assertTrue( includeFile.exists() );
+
+    }
+
+    public void testFlattenDirectoryStructureWithoutOverride()
+            throws Exception
+    {
+        File baseDir = new File( "c:\\foo\\bar" );
+        StubMavenProject mavenProject = new StubMavenProject( baseDir );
+        mavenProject.setVersion( "1.0" );
+        mavenProject.setGroupId( "org.apache" );
+        mavenProject.setName( "test project" );
+
+        MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
+
+        String unitFilesDir = getBasedir() + "/src/test/units-files/maven-resources-filtering";
+
+        Resource resource = new Resource();
+        List<Resource> resources = new ArrayList<>();
+        resources.add( resource );
+        resource.setDirectory( unitFilesDir );
+        resource.setFiltering( true );
+        resource.addInclude( "includ*" );
+        resource.addInclude( "**/includ*" );
+
+        List<String> filtersFile = new ArrayList<>();
+        filtersFile.add( getBasedir()
+                + "/src/test/units-files/maven-resources-filtering/empty-maven-resources-filtering.txt" );
+
+        MavenResourcesExecution mavenResourcesExecution =
+                new MavenResourcesExecution( resources, outputDirectory, mavenProject, "UTF-8", filtersFile,
+                        Collections.<String> emptyList(), new StubMavenSession() );
+        mavenResourcesExecution.setFlatten(true);
+        mavenResourcesExecution.setOverwrite(false);
+        try {
+            mavenResourcesFiltering.filterResources(mavenResourcesExecution);
+        } catch (MavenFilteringException e) {
+            return;
+        }
+        fail("Copying directory structure with duplicate filename includefile.txt should have failed with overwrite");
+
+    }
+
     public void testExcludeOneFile()
         throws Exception
     {

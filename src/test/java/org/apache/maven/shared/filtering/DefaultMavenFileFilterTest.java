@@ -34,6 +34,7 @@ import org.apache.maven.shared.utils.io.FileUtils;
 import org.apache.maven.shared.utils.io.FileUtils.FilterWrapper;
 import org.apache.maven.shared.utils.io.IOUtil;
 import org.codehaus.plexus.PlexusTestCase;
+import org.junit.Assert;
 
 /**
  * @author Olivier Lamy
@@ -76,6 +77,38 @@ public class DefaultMavenFileFilterTest
 
         Properties properties = PropertyUtils.loadPropertyFile( to, null );
         assertEquals( "${pom.version}", properties.getProperty( "version" ) );
+
+    }
+
+    // MSHARED-884: repeated filtering should not overwrite the destination, unless overwrite = true
+    public void testNotOverwriteFileWithFiltering()
+        throws Exception
+    {
+        MavenFileFilter mavenFileFilter = lookup( MavenFileFilter.class );
+
+        FilterWrapper filterWrapper = new FilterWrapper() {
+            @Override
+            public Reader getReader(Reader reader) {
+                return reader;
+            }
+        };
+
+        File from = new File( getBasedir(), "src/test/units-files/reflection-test.properties" );
+
+        mavenFileFilter.copyFile( from, to, true, Collections.singletonList(filterWrapper), "UTF-8" );
+
+        // very old file :-)
+        to.setLastModified( 1 );
+
+        long originalLastModified = to.lastModified();
+
+        mavenFileFilter.copyFile( from, to, true, Collections.singletonList(filterWrapper), "UTF-8" );
+
+        assertEquals(originalLastModified, to.lastModified());
+
+        mavenFileFilter.copyFile( from, to, true, Collections.singletonList(filterWrapper), "UTF-8", true );
+
+        Assert.assertNotEquals(originalLastModified, to.lastModified());
 
     }
 

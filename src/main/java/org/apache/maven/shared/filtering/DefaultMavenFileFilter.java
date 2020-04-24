@@ -110,7 +110,7 @@ public class DefaultMavenFileFilter
                 {
                     getLogger().debug( "filtering " + from.getPath() + " to " + to.getPath() );
                 }
-                filterFile( from, to, encoding, filterWrappers );
+                filterFile( from, to, encoding, filterWrappers, overwrite );
             }
             else
             {
@@ -131,24 +131,66 @@ public class DefaultMavenFileFilter
     }
 
     private void filterFile( @Nonnull File from, @Nonnull File to, @Nullable String encoding,
-                             @Nullable List<FilterWrapper> wrappers )
+                             @Nullable List<FilterWrapper> wrappers, boolean overwrite )
                                  throws IOException, MavenFilteringException
     {
         if ( wrappers != null && wrappers.size() > 0 )
         {
-            
-            
-            try ( Reader fileReader = getFileReader( encoding, from );
-                  Writer fileWriter = getFileWriter( encoding, to ) )
+            if ( overwrite )
             {
-                Reader src = readerFilter.filter( fileReader, true, wrappers );
+                try ( Reader fileReader = getFileReader( encoding, from );
+                      Writer fileWriter = getFileWriter( encoding, to ) )
+                {
+                    Reader src = readerFilter.filter( fileReader, true, wrappers );
 
-                IOUtil.copy( src, fileWriter );
+                    IOUtil.copy( src, fileWriter );
+                }
+            }
+            else
+            {
+                final File dir = to.getParentFile();
+
+                if ( !dir.isDirectory() )
+                {
+                    FileUtils.mkdir( dir.getPath() );
+                }
+
+                File tmp = FileUtils.createTempFile( "filter", ".tmp", dir );
+
+                if ( getLogger().isDebugEnabled() )
+                {
+                    getLogger().debug( "writing to temporary file " + tmp.getPath() );
+                }
+
+                try ( Reader fileReader = getFileReader( encoding, from );
+                      Writer fileWriter = getFileWriter( encoding, tmp ) )
+                {
+                    Reader src = readerFilter.filter( fileReader, true, wrappers );
+
+                    IOUtil.copy( src, fileWriter );
+                }
+
+                if ( FileUtils.contentEquals( tmp, to ) )
+                {
+                    if ( getLogger().isDebugEnabled() )
+                    {
+                        getLogger().debug( "matching content, deleting " + tmp.getPath() );
+                    }
+                    FileUtils.delete( tmp );
+                }
+                else
+                {
+                    if ( getLogger().isDebugEnabled() )
+                    {
+                        getLogger().debug( "modified content, overwriting " + to.getPath() );
+                    }
+                    FileUtils.rename( tmp, to );
+                }
             }
         }
         else
         {
-            if ( to.lastModified() < from.lastModified() )
+            if ( overwrite || to.lastModified() < from.lastModified() )
             {
                 FileUtils.copyFile( from, to );
             }

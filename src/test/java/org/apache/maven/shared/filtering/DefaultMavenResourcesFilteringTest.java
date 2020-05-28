@@ -39,7 +39,7 @@ import org.codehaus.plexus.interpolation.ValueSource;
 
 /**
  * @author Olivier Lamy
- * @version $Id$
+ *
  * @since 1.0-beta-1
  */
 public class DefaultMavenResourcesFilteringTest

@@ -29,7 +29,7 @@ import org.codehaus.plexus.PlexusTestCase;
 /**
  * @author Olivier Lamy
  * @since 1.0-beta-1
- * @version $Id$
+ *
  */
 public class TestReflectionProperties
     extends PlexusTestCase

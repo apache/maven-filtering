@@ -27,7 +27,7 @@ import org.apache.maven.project.MavenProject;
 /**
  * @author Olivier Lamy
  * @since 1.0-beta-1
- * @version $Id$
+ *
  */
 public class StubMavenProject
     extends MavenProject

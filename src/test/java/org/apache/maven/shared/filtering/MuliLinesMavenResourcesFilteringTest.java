@@ -32,7 +32,7 @@ import org.codehaus.plexus.PlexusTestCase;
 
 /**
  * @author Olivier Lamy
- * @version $Id$
+ *
  */
 public class MuliLinesMavenResourcesFilteringTest
     extends PlexusTestCase

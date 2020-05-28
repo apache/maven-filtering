@@ -37,7 +37,7 @@ import org.codehaus.plexus.PlexusTestCase;
 
 /**
  * @author Olivier Lamy
- * @version $Id$
+ *
  */
 public class DefaultMavenFileFilterTest
     extends PlexusTestCase

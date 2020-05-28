@@ -31,7 +31,7 @@ import org.sonatype.aether.RepositorySystemSession;
 /**
  * @author Olivier Lamy
  * @since 1.0-beta-1
- * @version $Id$
+ *
  */
 public class StubMavenSession
     extends MavenSession

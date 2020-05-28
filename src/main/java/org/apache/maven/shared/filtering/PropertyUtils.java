@@ -20,9 +20,10 @@ package org.apache.maven.shared.filtering;
  */
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
@@ -87,7 +88,7 @@ public final class PropertyUtils
 
         final Properties fileProps = new Properties();
         
-        try ( FileInputStream inStream = new FileInputStream( propFile ) )
+        try ( InputStream inStream = Files.newInputStream( propFile.toPath() ) )
         {
             fileProps.load( inStream );
         }

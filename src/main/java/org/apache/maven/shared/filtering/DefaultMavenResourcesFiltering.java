@@ -149,7 +149,7 @@ public class DefaultMavenResourcesFiltering
 
             if ( getLogger().isDebugEnabled() )
             {
-                String ls = System.getProperty( "line.separator" );
+                String ls = System.lineSeparator();
                 StringBuilder debugMessage =
                     new StringBuilder( "resource with targetPath " ).append( resource.getTargetPath() ).append( ls );
                 debugMessage.append( "directory " ).append( resource.getDirectory() ).append( ls );
@@ -400,24 +400,22 @@ public class DefaultMavenResourcesFiltering
             reader = wrapper.getReader( reader );
         }
 
-        StringWriter writer = new StringWriter();
-
-        try
+        try ( StringWriter writer = new StringWriter() )
         {
             IOUtil.copy( reader, writer );
+            String filteredFilename = writer.toString();
+
+            if ( getLogger().isDebugEnabled() )
+            {
+                getLogger().debug( "renaming filename " + name + " to " + filteredFilename );
+            }
+            return filteredFilename;
         }
         catch ( IOException e )
         {
             throw new MavenFilteringException( "Failed filtering filename" + name, e );
         }
 
-        String filteredFilename = writer.toString();
-
-        if ( getLogger().isDebugEnabled() )
-        {
-            getLogger().debug( "renaming filename " + name + " to " + filteredFilename );
-        }
-        return filteredFilename;
     }
 
 }

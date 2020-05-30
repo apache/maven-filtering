@@ -14,3 +14,6 @@ out/
 /bootstrap
 /dependencies.xml
 .java-version
+*.versionsBackup
+.checkstyle
+

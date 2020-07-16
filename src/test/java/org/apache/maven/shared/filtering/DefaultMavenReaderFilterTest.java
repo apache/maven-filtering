@@ -23,7 +23,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.Properties;
 
-import org.apache.maven.shared.utils.io.IOUtil;
+import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.PlexusTestCase;
 
 /**
@@ -35,7 +35,6 @@ public class DefaultMavenReaderFilterTest
     public void testJustDoSomeFiltering()
         throws Exception
     {
-        assertNotNull( DefaultMavenReaderFilter.class );
         MavenReaderFilter readerFilter = lookup( MavenReaderFilter.class );
 
         StringReader src = new StringReader( "toto@titi.com ${foo}" );
@@ -46,8 +45,9 @@ public class DefaultMavenReaderFilterTest
         req.setFiltering( true );
         req.setAdditionalProperties( additionalProperties );
 
-        final Reader filter = readerFilter.filter( req );
-
-        assertEquals( "toto@titi.com bar", IOUtil.toString( filter ) );
+        try ( Reader filter = readerFilter.filter( req ) )
+        {
+            assertEquals( "toto@titi.com bar", IOUtils.toString( filter ) );
+        }
     }
 }

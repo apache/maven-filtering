@@ -227,7 +227,7 @@ public class DefaultMavenResourcesFilteringTest
     }
 
     private void assertFiltering( File baseDir, File initialImageFile, boolean escapeTest,
-                                  boolean additionnalProperties )
+                                  boolean additionalProperties )
                                       throws Exception
     {
         assertEquals( 7, outputDirectory.listFiles().length );
@@ -249,7 +249,7 @@ public class DefaultMavenResourcesFilteringTest
 
         assertFalse( result.isEmpty() );
 
-        if ( additionnalProperties )
+        if ( additionalProperties )
         {
             assertEquals( "1973-06-14", result.getProperty( "goodDate" ) );
             assertEquals( "99.00", result.get( "version" ) );

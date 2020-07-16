@@ -24,6 +24,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 
@@ -79,11 +80,11 @@ public abstract class AbstractInterpolatorFilterReaderLineEndingTest
 
 //        in = new StringReader( "escape escape string before expression \\\\${a}" );
 //        reader = getDollarBracesReader( in, interpolator, "\\" );
-//        assertEquals( "escape escape string before expression \\DONE_A", IOUtil.toString( reader ) );
+//        assertEquals( "escape escape string before expression \\DONE_A", IOUtils.toString( reader ) );
 //
 //        in = new StringReader( "escape escape string and expression \\\\\\${a}" );
 //        reader = getDollarBracesReader( in, interpolator, "\\" );
-//        assertEquals( "escape escape string before expression \\${a}", IOUtil.toString( reader ) );
+//        assertEquals( "escape escape string before expression \\${a}", IOUtils.toString( reader ) );
 
         in = new StringReader( "unknown expression ${unknown}" );
         reader = getDollarBracesReader( in, interpolator, "\\" );
@@ -110,13 +111,13 @@ public abstract class AbstractInterpolatorFilterReaderLineEndingTest
 
     // MSHARED-235: reader exceeds readAheadLimit
     @Test
-    public void testMarkInvalid()
-        throws Exception
+    public void testMarkInvalid() throws IOException
     {
-        Reader in = new StringReader( "@\").replace(p,\"]\").replace(q,\"" );
-        Reader reader = getAtReader( in, interpolator, "\\" );
-
-        assertEquals( "@\").replace(p,\"]\").replace(q,\"", IOUtils.toString( reader ) );
+        try ( Reader reader =
+            getAtReader( new StringReader( "@\").replace(p,\"]\").replace(q,\"" ), interpolator, "\\" ) )
+        {
+            assertEquals( "@\").replace(p,\"]\").replace(q,\"", IOUtils.toString( reader ) );
+        }
     }
 
     protected abstract Reader getAbc_AbcReader( Reader in, Interpolator interpolator );

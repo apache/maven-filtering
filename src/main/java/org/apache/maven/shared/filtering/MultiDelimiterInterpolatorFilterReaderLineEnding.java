@@ -31,7 +31,7 @@ import org.codehaus.plexus.interpolation.SimpleRecursionInterceptor;
 import org.codehaus.plexus.interpolation.multi.DelimiterSpecification;
 
 /**
- * A FilterReader implementation, that works with Interpolator interface instead of it's own interpolation
+ * A FilterReader implementation, that works with Interpolator interface instead of its own interpolation
  * implementation. This implementation is heavily based on org.codehaus.plexus.util.InterpolationFilterReader.
  *
  * @author cstamas

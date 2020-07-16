@@ -30,9 +30,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 
+import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.interpolation.Interpolator;
 import org.codehaus.plexus.interpolation.RecursionInterceptor;
-import org.codehaus.plexus.util.IOUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -102,7 +102,7 @@ public class MultiDelimiterInterpolatorFilterReaderLineEndingTest
             new MultiDelimiterInterpolatorFilterReaderLineEnding( in, interpolator, true );
         reader.setDelimiterSpecs( new HashSet<>( Arrays.asList( "${*}", "@" ) ) );
 
-        assertEquals( "toto@titi.com bar", IOUtil.toString( reader ) );
+        assertEquals( "toto@titi.com bar", IOUtils.toString( reader ) );
     }
 
     // http://stackoverflow.com/questions/21786805/maven-war-plugin-customize-filter-delimitters-in-webresources/
@@ -120,6 +120,6 @@ public class MultiDelimiterInterpolatorFilterReaderLineEndingTest
         reader.setEscapeString( "\\" );
         reader.setDelimiterSpecs( new HashSet<>( Arrays.asList( "${*}", "@" ) ) );
 
-        assertEquals( "  url=\"jdbc:oracle:thin:@DB_SERVER:DB_PORT:DB_NAME\"", IOUtil.toString( reader ) );
+        assertEquals( "  url=\"jdbc:oracle:thin:@DB_SERVER:DB_PORT:DB_NAME\"", IOUtils.toString( reader ) );
     }
 }

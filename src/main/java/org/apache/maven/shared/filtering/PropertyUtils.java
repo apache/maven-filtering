@@ -260,7 +260,7 @@ public final class PropertyUtils
 
     /**
      * Logs the detected cycle in properties resolution
-     * @param valueChain the secuence of properties resolved so fa
+     * @param valueChain the sequence of properties resolved so far
      * @param nk the key the closes the cycle
      * @param logger Logger instance
      */

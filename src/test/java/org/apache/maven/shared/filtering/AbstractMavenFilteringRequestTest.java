@@ -86,7 +86,6 @@ public class AbstractMavenFilteringRequestTest
     @Test
     public void setDelimitersShouldAddDefaultDelimitersIfUseDefaultDelimitersIfSingleElementIsGiven()
     {
-        LinkedHashSet<String> delimiters = new LinkedHashSet<>();
         delimiters.add( "test" );
         request.setDelimiters( delimiters, true );
         assertThat( request.getDelimiters(), Matchers.contains( "${*}", "@", "test" ) );
@@ -95,7 +94,6 @@ public class AbstractMavenFilteringRequestTest
     @Test
     public void setDelimitersShouldAddDefaultDelimitersForNullElement()
     {
-        LinkedHashSet<String> delimiters = new LinkedHashSet<>();
         delimiters.add( "test" );
         delimiters.add( null );
         delimiters.add( "second" );

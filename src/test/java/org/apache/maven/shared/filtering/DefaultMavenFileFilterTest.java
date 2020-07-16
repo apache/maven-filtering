@@ -22,6 +22,7 @@ package org.apache.maven.shared.filtering;
 import java.io.File;
 import java.io.Reader;
 import java.io.StringReader;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,10 +30,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.shared.utils.io.FileUtils;
 import org.apache.maven.shared.utils.io.FileUtils.FilterWrapper;
-import org.apache.maven.shared.utils.io.IOUtil;
 import org.codehaus.plexus.PlexusTestCase;
 
 /**
@@ -50,10 +50,7 @@ public class DefaultMavenFileFilterTest
         throws Exception
     {
         super.setUp();
-        if ( to.exists() )
-        {
-            FileUtils.forceDelete( to );
-        }
+        Files.deleteIfExists( to.toPath() );
     }
 
     public void testNotOverwriteFile()
@@ -149,9 +146,10 @@ public class DefaultMavenFileFilterTest
 
         List<FilterWrapper> wrappers = mavenFileFilter.getDefaultFilterWrappers( req );
 
-        Reader reader = wrappers.get( 0 ).getReader( new StringReader( "${filefilter} ${buildfilter}" ) );
-
-        assertEquals( "true true", IOUtil.toString( reader ) );
+        try ( Reader reader = wrappers.get( 0 ).getReader( new StringReader( "${filefilter} ${buildfilter}" ) ) )
+        {
+            assertEquals( "true true", IOUtils.toString( reader ) );
+        }
     }
 
     // MSHARED-198: custom delimiters doesn't work as expected
@@ -169,10 +167,10 @@ public class DefaultMavenFileFilterTest
         List<FilterWrapper> wrappers = mavenFileFilter.getDefaultFilterWrappers( req );
 
         Reader reader = wrappers.get( 0 ).getReader( new StringReader( "aaaFILTER.a.MEaaa" ) );
-        assertEquals( "DONE", IOUtil.toString( reader ) );
+        assertEquals( "DONE", IOUtils.toString( reader ) );
 
         reader = wrappers.get( 0 ).getReader( new StringReader( "abcFILTER.a.MEabc" ) );
-        assertEquals( "DONE", IOUtil.toString( reader ) );
+        assertEquals( "DONE", IOUtils.toString( reader ) );
     }
 
     // MSHARED-199: Filtering doesn't work if 2 delimiters are used on the same line, the first one being left open
@@ -188,7 +186,9 @@ public class DefaultMavenFileFilterTest
 
         List<FilterWrapper> wrappers = mavenFileFilter.getDefaultFilterWrappers( req );
 
-        Reader reader = wrappers.get( 0 ).getReader( new StringReader( "toto@titi.com ${foo}" ) );
-        assertEquals( "toto@titi.com bar", IOUtil.toString( reader ) );
+        try ( Reader reader = wrappers.get( 0 ).getReader( new StringReader( "toto@titi.com ${foo}" ) ) )
+        {
+            assertEquals( "toto@titi.com bar", IOUtils.toString( reader ) );
+        }
     }
 }

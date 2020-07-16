@@ -28,13 +28,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.maven.model.Resource;
 import org.apache.maven.shared.utils.PathTool;
 import org.apache.maven.shared.utils.ReaderFactory;
 import org.apache.maven.shared.utils.StringUtils;
-import org.apache.maven.shared.utils.io.FileUtils;
 import org.apache.maven.shared.utils.io.FileUtils.FilterWrapper;
-import org.apache.maven.shared.utils.io.IOUtil;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.AbstractLogEnabled;
@@ -88,8 +88,8 @@ public class DefaultMavenResourcesFiltering
         {
             nonFilteredFileExtensions.addAll( userNonFilteredFileExtensions );
         }
-        boolean filteredFileExtension =
-            !nonFilteredFileExtensions.contains( StringUtils.lowerCase( FileUtils.extension( fileName ) ) );
+        String extension = StringUtils.lowerCase( FilenameUtils.getExtension( fileName ) );
+        boolean filteredFileExtension = !nonFilteredFileExtensions.contains( extension );
         if ( getLogger().isDebugEnabled() )
         {
             getLogger().debug( "file " + fileName + " has a" + ( filteredFileExtension ? " " : " non " )
@@ -304,13 +304,14 @@ public class DefaultMavenResourcesFiltering
      */
     static boolean isPropertiesFile( File file )
     {
-        return "properties".equals( StringUtils.lowerCase( FileUtils.extension( file.getName() ) ) );
+        String extension = StringUtils.lowerCase( FilenameUtils.getExtension( ( file.getName() ) ) );
+        return "properties".equals( extension );
     }
 
     private void handleDefaultFilterWrappers( MavenResourcesExecution mavenResourcesExecution )
         throws MavenFilteringException
     {
-        List<FileUtils.FilterWrapper> filterWrappers = new ArrayList<>();
+        List<FilterWrapper> filterWrappers = new ArrayList<>();
         if ( mavenResourcesExecution.getFilterWrappers() != null )
         {
             filterWrappers.addAll( mavenResourcesExecution.getFilterWrappers() );
@@ -450,7 +451,7 @@ public class DefaultMavenResourcesFiltering
 
         try ( StringWriter writer = new StringWriter() )
         {
-            IOUtil.copy( reader, writer );
+            IOUtils.copy( reader, writer );
             String filteredFilename = writer.toString();
 
             if ( getLogger().isDebugEnabled() )

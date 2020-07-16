@@ -30,8 +30,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.model.Resource;
-import org.apache.maven.shared.utils.io.FileUtils;
 import org.codehaus.plexus.PlexusTestCase;
 import org.sonatype.plexus.build.incremental.ThreadBuildContext;
 import org.sonatype.plexus.build.incremental.test.TestIncrementalBuildContext;
@@ -51,7 +51,7 @@ public class IncrementalResourceFilteringTest
         super.setUp();
         if ( outputDirectory.exists() )
         {
-            FileUtils.forceDelete( outputDirectory );
+            FileUtils.deleteDirectory( outputDirectory );
         }
         outputDirectory.mkdirs();
     }

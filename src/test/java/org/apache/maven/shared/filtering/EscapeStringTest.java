@@ -20,15 +20,14 @@ package org.apache.maven.shared.filtering;
  */
 
 import java.io.File;
-import java.io.FileInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.model.Resource;
-import org.apache.maven.shared.utils.io.FileUtils;
-import org.apache.maven.shared.utils.io.IOUtil;
 import org.codehaus.plexus.PlexusTestCase;
 
 /**
@@ -49,7 +48,7 @@ public class EscapeStringTest
         super.setUp();
         if ( outputDirectory.exists() )
         {
-            FileUtils.forceDelete( outputDirectory );
+            FileUtils.deleteDirectory( outputDirectory );
         }
         outputDirectory.mkdirs();
     }
@@ -89,11 +88,9 @@ public class EscapeStringTest
 
         mavenResourcesFiltering.filterResources( mavenResourcesExecution );
         
-        try ( FileInputStream in = new FileInputStream( new File( outputDirectory, "content.xml" ) ) )
-        { 
-            String content = IOUtil.toString( in );
-            assertTrue( content.contains( "<broken-tag>Content with replacement: I am the replacement !</broken-tag>" ) );
-            assertTrue( content.contains( "<broken-tag>Content with escaped replacement: Do not ${replaceThis} !</broken-tag>" ) );
-        }
+        File file = new File( outputDirectory, "content.xml" );
+        String content = FileUtils.readFileToString( file, StandardCharsets.UTF_8 );
+        assertTrue( content.contains( "<broken-tag>Content with replacement: I am the replacement !</broken-tag>" ) );
+        assertTrue( content.contains( "<broken-tag>Content with escaped replacement: Do not ${replaceThis} !</broken-tag>" ) );
     }
 }

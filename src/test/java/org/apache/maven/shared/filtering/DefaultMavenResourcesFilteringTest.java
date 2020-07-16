@@ -22,17 +22,17 @@ package org.apache.maven.shared.filtering;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Resource;
 import org.apache.maven.settings.Settings;
-import org.apache.maven.shared.utils.io.FileUtils;
-import org.apache.maven.shared.utils.io.IOUtil;
 import org.codehaus.plexus.PlexusTestCase;
 import org.codehaus.plexus.interpolation.PrefixedObjectValueSource;
 import org.codehaus.plexus.interpolation.ValueSource;
@@ -55,7 +55,7 @@ public class DefaultMavenResourcesFilteringTest
         super.setUp();
         if ( outputDirectory.exists() )
         {
-            FileUtils.forceDelete( outputDirectory );
+            FileUtils.deleteDirectory( outputDirectory );
         }
         outputDirectory.mkdirs();
     }
@@ -383,34 +383,28 @@ public class DefaultMavenResourcesFilteringTest
         assertTrue( filesAreIdentical( initialImageFile, imageFile ) );
     }
 
-    public static boolean filesAreIdentical( File expected, File current )
+    private static boolean filesAreIdentical( File expected, File current )
         throws IOException
     {
         if ( expected.length() != current.length() )
         {
             return false;
         }
-        
-        try ( FileInputStream expectedIn = new FileInputStream( expected );
-              FileInputStream currentIn = new FileInputStream( current ) )
+
+        byte[] expectedBuffer = Files.readAllBytes( expected.toPath() );
+        byte[] currentBuffer = Files.readAllBytes( current.toPath() );
+        if ( expectedBuffer.length != currentBuffer.length )
         {
-
-            byte[] expectedBuffer = IOUtil.toByteArray( expectedIn );
-
-            byte[] currentBuffer = IOUtil.toByteArray( currentIn );
-            if ( expectedBuffer.length != currentBuffer.length )
+            return false;
+        }
+        for ( int i = 0, size = expectedBuffer.length; i < size; i++ )
+        {
+            if ( expectedBuffer[i] != currentBuffer[i] )
             {
                 return false;
             }
-            for ( int i = 0, size = expectedBuffer.length; i < size; i++ )
-            {
-                if ( expectedBuffer[i] != currentBuffer[i] )
-                {
-                    return false;
-                }
-            }
         }
-        return true;
+    return true;
     }
 
     public void testIncludeOneFile()
@@ -758,12 +752,12 @@ public class DefaultMavenResourcesFilteringTest
         File dir1 = new File( sourceDirectory, "dir1" );
 
         dir1.mkdirs();
-        FileUtils.fileWrite( new File( dir1, "foo.txt" ), "UTF-8", "This is a Test File" );
+        FileUtils.write( new File( dir1, "foo.txt" ), "This is a Test File", "UTF-8" );
 
         File emptyDirectory = new File( sourceDirectory, "empty-directory" );
         emptyDirectory.mkdirs();
 
-        FileUtils.fileWrite( new File( emptyDirectory, ".gitignore" ), "UTF-8", "# .gitignore file" );
+        FileUtils.write( new File( emptyDirectory, ".gitignore" ), "# .gitignore file", "UTF-8" );
 
         File emptyDirectoryChild = new File( sourceDirectory, "empty-directory-child" );
         emptyDirectory.mkdirs();
@@ -771,7 +765,7 @@ public class DefaultMavenResourcesFilteringTest
         File emptyDirectoryChildEmptyChild = new File( emptyDirectoryChild, "empty-child" );
         emptyDirectoryChildEmptyChild.mkdirs();
 
-        FileUtils.fileWrite( new File( emptyDirectoryChildEmptyChild, ".gitignore" ), "UTF-8", "# .gitignore file" );
+        FileUtils.write( new File( emptyDirectoryChildEmptyChild, ".gitignore" ), "# .gitignore file", "UTF-8" );
     }
 
     /**

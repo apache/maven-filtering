@@ -21,14 +21,15 @@ package org.apache.maven.shared.filtering;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.maven.model.Resource;
 import org.apache.maven.shared.utils.io.FileUtils;
-import org.apache.maven.shared.utils.io.IOUtil;
 import org.codehaus.plexus.PlexusTestCase;
 
 /**
@@ -91,7 +92,7 @@ public class EscapeStringTest
         
         try ( FileInputStream in = new FileInputStream( new File( outputDirectory, "content.xml" ) ) )
         { 
-            String content = IOUtil.toString( in );
+            String content = IOUtils.toString( in, StandardCharsets.UTF_8 );
             assertTrue( content.contains( "<broken-tag>Content with replacement: I am the replacement !</broken-tag>" ) );
             assertTrue( content.contains( "<broken-tag>Content with escaped replacement: Do not ${replaceThis} !</broken-tag>" ) );
         }

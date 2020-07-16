@@ -28,11 +28,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Resource;
 import org.apache.maven.settings.Settings;
 import org.apache.maven.shared.utils.io.FileUtils;
-import org.apache.maven.shared.utils.io.IOUtil;
 import org.codehaus.plexus.PlexusTestCase;
 import org.codehaus.plexus.interpolation.PrefixedObjectValueSource;
 import org.codehaus.plexus.interpolation.ValueSource;
@@ -395,9 +395,9 @@ public class DefaultMavenResourcesFilteringTest
               FileInputStream currentIn = new FileInputStream( current ) )
         {
 
-            byte[] expectedBuffer = IOUtil.toByteArray( expectedIn );
+            byte[] expectedBuffer = IOUtils.toByteArray( expectedIn );
 
-            byte[] currentBuffer = IOUtil.toByteArray( currentIn );
+            byte[] currentBuffer = IOUtils.toByteArray( currentIn );
             if ( expectedBuffer.length != currentBuffer.length )
             {
                 return false;

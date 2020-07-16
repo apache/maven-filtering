@@ -24,12 +24,13 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 
+import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.interpolation.Interpolator;
 import org.codehaus.plexus.interpolation.RecursionInterceptor;
-import org.codehaus.plexus.util.IOUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -55,39 +56,39 @@ public abstract class AbstractInterpolatorFilterReaderLineEndingTest
 
         Reader in = new StringReader( "text without expression" );
         Reader reader = getDollarBracesReader( in, interpolator, "\\" );
-        assertEquals( "text without expression", IOUtil.toString( reader ) );
+        assertEquals( "text without expression", IOUtils.toString( reader ) );
 
         in = new StringReader( "valid expression ${a}" );
         reader = getDollarBracesReader( in, interpolator, null );
-        assertEquals( "valid expression DONE_A", IOUtil.toString( reader ) );
+        assertEquals( "valid expression DONE_A", IOUtils.toString( reader ) );
 
         in = new StringReader( "empty expression ${}" );
         reader = getDollarBracesReader( in, interpolator, null );
-        assertEquals( "empty expression ${}", IOUtil.toString( reader ) );
+        assertEquals( "empty expression ${}", IOUtils.toString( reader ) );
 
         in = new StringReader( "dollar space expression $ {a}" );
         reader = getDollarBracesReader( in, interpolator, "\\" );
-        assertEquals( "dollar space expression $ {a}", IOUtil.toString( reader ) );
+        assertEquals( "dollar space expression $ {a}", IOUtils.toString( reader ) );
 
         in = new StringReader( "space in expression ${ a}" );
         reader = getDollarBracesReader( in, interpolator, "\\" );
-        assertEquals( "space in expression ${ a}", IOUtil.toString( reader ) );
+        assertEquals( "space in expression ${ a}", IOUtils.toString( reader ) );
 
         in = new StringReader( "escape dollar with expression \\${a}" );
         reader = getDollarBracesReader( in, interpolator, "\\" );
-        assertEquals( "escape dollar with expression ${a}", IOUtil.toString( reader ) );
+        assertEquals( "escape dollar with expression ${a}", IOUtils.toString( reader ) );
 
 //        in = new StringReader( "escape escape string before expression \\\\${a}" );
 //        reader = getDollarBracesReader( in, interpolator, "\\" );
-//        assertEquals( "escape escape string before expression \\DONE_A", IOUtil.toString( reader ) );
+//        assertEquals( "escape escape string before expression \\DONE_A", IOUtils.toString( reader ) );
 //
 //        in = new StringReader( "escape escape string and expression \\\\\\${a}" );
 //        reader = getDollarBracesReader( in, interpolator, "\\" );
-//        assertEquals( "escape escape string before expression \\${a}", IOUtil.toString( reader ) );
+//        assertEquals( "escape escape string before expression \\${a}", IOUtils.toString( reader ) );
 
         in = new StringReader( "unknown expression ${unknown}" );
         reader = getDollarBracesReader( in, interpolator, "\\" );
-        assertEquals( "unknown expression ${unknown}", IOUtil.toString( reader ) );
+        assertEquals( "unknown expression ${unknown}", IOUtils.toString( reader ) );
     }
 
     // MSHARED-198: custom delimiters doesn't work as expected
@@ -101,22 +102,22 @@ public abstract class AbstractInterpolatorFilterReaderLineEndingTest
         Reader in = new StringReader( "aaaFILTER.a.MEaaa" );
         Reader reader = getAaa_AaaReader( in, interpolator );
 
-        assertEquals( "DONE", IOUtil.toString( reader ) );
+        assertEquals( "DONE", IOUtils.toString( reader ) );
 
         in = new StringReader( "abcFILTER.a.MEabc" );
         reader = getAbc_AbcReader( in, interpolator );
-        assertEquals( "DONE", IOUtil.toString( reader ) );
+        assertEquals( "DONE", IOUtils.toString( reader ) );
     }
 
     // MSHARED-235: reader exceeds readAheadLimit
     @Test
-    public void testMarkInvalid()
-        throws Exception
+    public void testMarkInvalid() throws IOException
     {
-        Reader in = new StringReader( "@\").replace(p,\"]\").replace(q,\"" );
-        Reader reader = getAtReader( in, interpolator, "\\" );
-
-        assertEquals( "@\").replace(p,\"]\").replace(q,\"", IOUtil.toString( reader ) );
+        try ( Reader reader =
+            getAtReader( new StringReader( "@\").replace(p,\"]\").replace(q,\"" ), interpolator, "\\" ) )
+        {
+            assertEquals( "@\").replace(p,\"]\").replace(q,\"", IOUtils.toString( reader ) );
+        }
     }
 
     protected abstract Reader getAbc_AbcReader( Reader in, Interpolator interpolator );

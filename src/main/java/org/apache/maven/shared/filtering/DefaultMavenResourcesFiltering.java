@@ -230,9 +230,14 @@ public class DefaultMavenResourcesFiltering
                 boolean filteredExt =
                     filteredFileExtension( source.getName(), mavenResourcesExecution.getNonFilteredFileExtensions() );
 
+                // Determine which encoding to use when filtering this file
+                String encoding = getEncoding( source, mavenResourcesExecution.getEncoding(),
+                                               mavenResourcesExecution.getPropertiesEncoding() );
+                getLogger().debug( "Using '" + encoding + "' encoding to copy filtered resource '"
+                                       + source.getName() + "'." );
                 mavenFileFilter.copyFile( source, destinationFile, resource.isFiltering() && filteredExt,
                                           mavenResourcesExecution.getFilterWrappers(),
-                                          mavenResourcesExecution.getEncoding(),
+                                          encoding,
                                           mavenResourcesExecution.isOverwrite() );
             }
 
@@ -257,6 +262,49 @@ public class DefaultMavenResourcesFiltering
 
         }
 
+    }
+
+    /**
+     * Get the encoding to use when filtering the specified file. Properties files can be configured to use a different
+     * encoding than regular files.
+     *
+     * @param file The file to check
+     * @param encoding The encoding to use for regular files
+     * @param propertiesEncoding The encoding to use for properties files
+     * @return The encoding to use when filtering the specified file
+     * @since 3.2.0
+     */
+    static String getEncoding( File file, String encoding, String propertiesEncoding )
+    {
+        if ( isPropertiesFile( file ) )
+        {
+            if ( propertiesEncoding == null )
+            {
+                // Since propertiesEncoding is a new feature, not all plugins will have implemented support for it.
+                // These plugins will have propertiesEncoding set to null.
+                return encoding;
+            }
+            else
+            {
+                return propertiesEncoding;
+            }
+        }
+        else
+        {
+            return encoding;
+        }
+    }
+
+    /**
+     * Determine whether a file is a properties file or not.
+     *
+     * @param file The file to check
+     * @return <code>true</code> if the file name has an extension of "properties", otherwise <code>false</code>
+     * @since 3.2.0
+     */
+    static boolean isPropertiesFile( File file )
+    {
+        return "properties".equals( StringUtils.lowerCase( FileUtils.extension( file.getName() ) ) );
     }
 
     private void handleDefaultFilterWrappers( MavenResourcesExecution mavenResourcesExecution )

@@ -975,4 +975,68 @@ public class DefaultMavenResourcesFilteringTest
         assertEquals( "1.0.txt", files[0].getName() );
     }
 
+    /**
+     * MRESOURCES-171: Use correct encoding when filtering properties-files
+     */
+    public void testFilterPropertiesFiles()
+        throws Exception
+    {
+        File baseDir = new File( "/foo/bar" );
+        StubMavenProject mavenProject = new StubMavenProject( baseDir );
+        mavenProject.setVersion( "1.0" );
+        mavenProject.setGroupId( "org.apache" );
+        mavenProject.setName( "test project" );
+
+        MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
+
+        String unitFilesDir = getBasedir() + "/src/test/units-files/MRESOURCES-171";
+
+        Resource resource = new Resource();
+        resource.setDirectory( unitFilesDir );
+        resource.setFiltering( true );
+        resource.setTargetPath( "testFilterPropertiesFiles" );
+
+        MavenResourcesExecution mavenResourcesExecution =
+            new MavenResourcesExecution( Collections.singletonList( resource ), outputDirectory, mavenProject, "UTF-8",
+                                         Collections.<String> emptyList(), Collections.<String> emptyList(),
+                                         new StubMavenSession() );
+        mavenResourcesExecution.setPropertiesEncoding( "ISO-8859-1" );
+        mavenResourcesFiltering.filterResources( mavenResourcesExecution );
+
+        File targetPathFile = new File( outputDirectory, "testFilterPropertiesFiles" );
+        assertTrue( FileUtils.contentEquals( new File( unitFilesDir, "test.properties" ),
+                                             new File( targetPathFile, "test.properties" ) ) );
+        assertTrue( FileUtils.contentEquals( new File( unitFilesDir, "test.txt" ),
+                                             new File( targetPathFile, "test.txt" ) ) );
+    }
+
+    public void testGetEncoding()
+    {
+        String ISO88591 = "ISO-8859-1";
+        String UTF8 = "UTF-8";
+        File propertiesFile = new File( "file.properties" );
+        File regularFile = new File( "file.xml" );
+
+        // Properties files
+        assertEquals( null, DefaultMavenResourcesFiltering.getEncoding( propertiesFile, null, null ) );
+        assertEquals( UTF8, DefaultMavenResourcesFiltering.getEncoding( propertiesFile, "UTF-8", null ) );
+        assertEquals( ISO88591, DefaultMavenResourcesFiltering.getEncoding( propertiesFile, "UTF-8", ISO88591 ) );
+        // Regular files
+        assertEquals( null, DefaultMavenResourcesFiltering.getEncoding( regularFile, null, null ) );
+        assertEquals( UTF8, DefaultMavenResourcesFiltering.getEncoding( regularFile, "UTF-8", null ) );
+        assertEquals( UTF8, DefaultMavenResourcesFiltering.getEncoding( regularFile, "UTF-8", ISO88591 ) );
+    }
+
+    public void testIsPropertiesFile()
+    {
+        // Properties files
+        assertTrue( DefaultMavenResourcesFiltering.isPropertiesFile( new File( "file.properties" ) ) );
+        assertTrue( DefaultMavenResourcesFiltering.isPropertiesFile( new File( "some/parent/path",
+                                                                               "file.properties" ) ) );
+        // Regular files
+        assertFalse( DefaultMavenResourcesFiltering.isPropertiesFile( new File( "file" ) ) );
+        assertFalse( DefaultMavenResourcesFiltering.isPropertiesFile( new File( "some/parent/path", "file" ) ) );
+        assertFalse( DefaultMavenResourcesFiltering.isPropertiesFile( new File( "file.xml" ) ) );
+        assertFalse( DefaultMavenResourcesFiltering.isPropertiesFile( new File( "some/parent/path", "file.xml" ) ) );
+    }
 }

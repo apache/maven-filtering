@@ -58,6 +58,11 @@ public class MavenResourcesExecution
     private String encoding;
 
     /**
+     * @since 3.2.0
+     */
+    private String propertiesEncoding;
+
+    /**
      * By default files like {@code .gitignore}, {@code .cvsignore} etc. are excluded which means they will not being
      * copied. If you need them for a particular reason you can do that by settings this to {@code false}. This means
      * all files like the following will be copied.
@@ -181,6 +186,28 @@ public class MavenResourcesExecution
     public void setEncoding( String encoding )
     {
         this.encoding = encoding;
+    }
+
+    /**
+     * Return the encoding of properties files.
+     *
+     * @return Current encoding of properties files.
+     * @since 3.2.0
+     */
+    public String getPropertiesEncoding()
+    {
+        return propertiesEncoding;
+    }
+
+    /**
+     * Set the value for encoding of properties files.
+     *
+     * @param propertiesEncoding Give the new value for encoding of properties files.
+     * @since 3.2.0
+     */
+    public void setPropertiesEncoding( String propertiesEncoding )
+    {
+        this.propertiesEncoding = propertiesEncoding;
     }
 
     /**

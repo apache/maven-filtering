@@ -144,6 +144,22 @@ public class DefaultMavenResourcesFiltering
                 + "' encoding to copy filtered resources." );
         }
 
+        if ( mavenResourcesExecution.getPropertiesEncoding() == null
+            || mavenResourcesExecution.getPropertiesEncoding().length() < 1 )
+        {
+            getLogger().info( "Using '" + mavenResourcesExecution.getEncoding()
+                + "' encoding to copy filtered properties files." );
+        }
+        else
+        {
+            getLogger().info( "Using '" + mavenResourcesExecution.getPropertiesEncoding()
+                + "' encoding to copy filtered properties files." );
+        }
+
+        // Keep track of filtering being used and the properties files being filtered
+        boolean isFilteringUsed = false;
+        List<File> propertiesFiles = new ArrayList<>();
+
         for ( Resource resource : mavenResourcesExecution.getResources() )
         {
 
@@ -190,6 +206,10 @@ public class DefaultMavenResourcesFiltering
                 throw new MavenFilteringException( "Cannot create resource output directory: " + outputDirectory );
             }
 
+            if ( resource.isFiltering() )
+            {
+                isFilteringUsed = true;
+            }
             boolean ignoreDelta = !outputExists || buildContext.hasDelta( mavenResourcesExecution.getFileFilters() )
                 || buildContext.hasDelta( getRelativeOutputDirectory( mavenResourcesExecution ) );
             getLogger().debug( "ignoreDelta " + ignoreDelta );
@@ -229,6 +249,10 @@ public class DefaultMavenResourcesFiltering
 
                 boolean filteredExt =
                     filteredFileExtension( source.getName(), mavenResourcesExecution.getNonFilteredFileExtensions() );
+                if ( resource.isFiltering() && isPropertiesFile( source ) )
+                {
+                    propertiesFiles.add( source );
+                }
 
                 // Determine which encoding to use when filtering this file
                 String encoding = getEncoding( source, mavenResourcesExecution.getEncoding(),
@@ -259,6 +283,37 @@ public class DefaultMavenResourcesFiltering
 
                 buildContext.refresh( destinationFile );
             }
+
+        }
+
+        // Warn the user if all of the following requirements are met, to avoid those that are not affected
+        // - the propertiesEncoding parameter has not been set
+        // - properties is a filtered extension
+        // - filtering is enabled for at least one resource
+        // - there is at least one properties file in one of the resources that has filtering enabled
+        if ( ( mavenResourcesExecution.getPropertiesEncoding() == null
+            || mavenResourcesExecution.getPropertiesEncoding().length() < 1 )
+            && !mavenResourcesExecution.getNonFilteredFileExtensions().contains( "properties" )
+            && isFilteringUsed
+            && propertiesFiles.size() > 0 )
+        {
+            // @todo Sometime in the future we should change this to be a warning
+            getLogger().info( "The encoding used to copy filtered properties files have not been set."
+                                  + " This means that the same encoding will be used to copy filtered properties files"
+                                  + " as when copying other filtered resources. This might not be what you want!"
+                                  + " Run your build with --debug to see which files might be affected."
+                                  + " Read more at "
+                                  + "https://maven.apache.org/plugins/maven-resources-plugin/"
+                                  + "examples/filtering-properties-files.html" );
+
+            StringBuilder affectedFiles = new StringBuilder();
+            affectedFiles.append( "Here is a list of the filtered properties files in you project that might be"
+                                      + " affected by encoding problems: " );
+            for ( File propertiesFile : propertiesFiles )
+            {
+                affectedFiles.append( System.lineSeparator() ).append( " - " ).append( propertiesFile.getPath() );
+            }
+            getLogger().debug( affectedFiles.toString() );
 
         }
 

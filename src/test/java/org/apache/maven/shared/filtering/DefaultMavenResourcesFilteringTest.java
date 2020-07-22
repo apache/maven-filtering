@@ -673,10 +673,7 @@ public class DefaultMavenResourcesFilteringTest
     public void testShouldReturnGitIgnoreFiles()
         throws Exception
     {
-        File sourceDirectory = new File( getBasedir(), "/target/sourceTestGitIgnoreFile" );
-        FileUtils.forceDelete( sourceDirectory );
-
-        createTestDataStructure( sourceDirectory );
+        createTestDataStructure();
 
         File outputDirectory = new File( getBasedir(), "/target/testGitIgnoreFile" );
         File baseDir = new File( "c:\\foo\\bar" );
@@ -703,11 +700,11 @@ public class DefaultMavenResourcesFilteringTest
         mavenResourcesExecution.setAddDefaultExcludes( false );
         mavenResourcesFiltering.filterResources( mavenResourcesExecution );
 
-        File[] childs = outputDirectory.listFiles();
-        assertNotNull( childs );
-        assertEquals( 3, childs.length );
+        File[] children = outputDirectory.listFiles();
+        assertNotNull( children );
+        assertEquals( 3, children.length );
 
-        for ( File file : childs )
+        for ( File file : children )
         {
             if ( file.getName().endsWith( "dir1" ) || file.getName().endsWith( "empty-directory" )
                 || file.getName().endsWith( "empty-directory-child" ) )
@@ -734,21 +731,21 @@ public class DefaultMavenResourcesFilteringTest
             }
             else
             {
-                fail( "unknow child file found " + file.getName() );
+                fail( "unknown child file found " + file.getName() );
             }
         }
     }
 
     /**
-     * The folder and file structure will be created instead of letting this resource plugin copying the structure which
-     * will not work.
-     *
-     * @param sourceDirectory The source folder where the structure will be created.
-     * @throws IOException
+     * The folder and file structure will be created instead of letting this resource plugin
+     * copy the structure which will not work.
      */
-    private void createTestDataStructure( File sourceDirectory )
+    private static void createTestDataStructure()
         throws IOException
     {
+        File sourceDirectory = new File( getBasedir(), "/target/sourceTestGitIgnoreFile" );
+        FileUtils.forceDelete( sourceDirectory );
+
         File dir1 = new File( sourceDirectory, "dir1" );
 
         dir1.mkdirs();

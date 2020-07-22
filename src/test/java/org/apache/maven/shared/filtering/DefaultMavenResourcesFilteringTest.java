@@ -185,7 +185,7 @@ public class DefaultMavenResourcesFilteringTest
         assertFiltering( baseDir, initialImageFile, true, false );
     }
 
-    public void testWithMavenResourcesExecutionWithAdditionnalProperties()
+    public void testWithMavenResourcesExecutionWithAdditionalProperties()
         throws Exception
     {
         File baseDir = new File( "c:\\foo\\bar" );

@@ -22,6 +22,7 @@ package org.apache.maven.shared.filtering;
 import java.io.File;
 import java.io.Reader;
 import java.io.StringReader;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -31,7 +32,6 @@ import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.shared.utils.io.FileUtils;
 import org.apache.maven.shared.utils.io.FileUtils.FilterWrapper;
 import org.codehaus.plexus.PlexusTestCase;
 
@@ -50,10 +50,7 @@ public class DefaultMavenFileFilterTest
         throws Exception
     {
         super.setUp();
-        if ( to.exists() )
-        {
-            FileUtils.forceDelete( to );
-        }
+        Files.deleteIfExists( to.toPath() );
     }
 
     public void testNotOverwriteFile()

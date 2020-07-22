@@ -22,8 +22,8 @@ package org.apache.maven.shared.filtering;
 import java.io.File;
 import java.util.Collections;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.model.Resource;
-import org.apache.maven.shared.utils.io.FileUtils;
 import org.codehaus.plexus.PlexusTestCase;
 
 /**
@@ -41,7 +41,7 @@ public class InvalidMarkTest
         super.setUp();
         if ( outputDirectory.exists() )
         {
-            FileUtils.forceDelete( outputDirectory );
+            FileUtils.deleteDirectory( outputDirectory );
         }
         outputDirectory.mkdirs();
     }

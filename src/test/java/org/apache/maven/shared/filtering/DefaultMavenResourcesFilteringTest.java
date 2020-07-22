@@ -61,15 +61,15 @@ public class DefaultMavenResourcesFilteringTest
             FileUtils.deleteDirectory( outputDirectory );
         }
         outputDirectory.mkdirs();
+        
+        mavenProject.setVersion( "1.0" );
+        mavenProject.setGroupId( "org.apache" );
+        mavenProject.setName( "test project" );
     }
 
     public void testSimpleFiltering()
         throws Exception
     {
-        mavenProject.setVersion( "1.0" );
-        mavenProject.setGroupId( "org.apache" );
-        mavenProject.setName( "test project" );
-
         Properties projectProperties = new Properties();
         projectProperties.put( "foo", "bar" );
         projectProperties.put( "java.version", "zloug" );
@@ -149,10 +149,6 @@ public class DefaultMavenResourcesFilteringTest
     public void testWithMavenResourcesExecution()
         throws Exception
     {
-        mavenProject.setVersion( "1.0" );
-        mavenProject.setGroupId( "org.apache" );
-        mavenProject.setName( "test project" );
-
         Properties projectProperties = new Properties();
         projectProperties.put( "foo", "bar" );
         projectProperties.put( "java.version", "zloug" );
@@ -184,10 +180,6 @@ public class DefaultMavenResourcesFilteringTest
     public void testWithMavenResourcesExecutionWithAdditionalProperties()
         throws Exception
     {
-        mavenProject.setVersion( "1.0" );
-        mavenProject.setGroupId( "org.apache" );
-        mavenProject.setName( "test project" );
-
         Properties projectProperties = new Properties();
         projectProperties.put( "foo", "bar" );
         projectProperties.put( "java.version", "zloug" );
@@ -286,10 +278,6 @@ public class DefaultMavenResourcesFilteringTest
     public void testAddingTokens()
         throws Exception
     {
-        mavenProject.setVersion( "1.0" );
-        mavenProject.setGroupId( "org.apache" );
-        mavenProject.setName( "test project" );
-
         Properties projectProperties = new Properties();
         projectProperties.put( "foo", "bar" );
         projectProperties.put( "java.version", "zloug" );
@@ -331,9 +319,6 @@ public class DefaultMavenResourcesFilteringTest
     public void testNoFiltering()
         throws Exception
     {
-        mavenProject.setVersion( "1.0" );
-        mavenProject.setGroupId( "org.apache" );
-
         MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
 
         String unitFilesDir = getBasedir() + "/src/test/units-files/maven-resources-filtering";
@@ -401,10 +386,6 @@ public class DefaultMavenResourcesFilteringTest
     public void testIncludeOneFile()
         throws Exception
     {
-        mavenProject.setVersion( "1.0" );
-        mavenProject.setGroupId( "org.apache" );
-        mavenProject.setName( "test project" );
-
         MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
 
         String unitFilesDir = getBasedir() + "/src/test/units-files/maven-resources-filtering";
@@ -434,10 +415,6 @@ public class DefaultMavenResourcesFilteringTest
     public void testIncludeOneFileAndDirectory()
         throws Exception
     {
-        mavenProject.setVersion( "1.0" );
-        mavenProject.setGroupId( "org.apache" );
-        mavenProject.setName( "test project" );
-
         MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
 
         String unitFilesDir = getBasedir() + "/src/test/units-files/maven-resources-filtering";
@@ -473,10 +450,6 @@ public class DefaultMavenResourcesFilteringTest
     public void testExcludeOneFile()
         throws Exception
     {
-        mavenProject.setVersion( "1.0" );
-        mavenProject.setGroupId( "org.apache" );
-        mavenProject.setName( "test project" );
-
         MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
 
         String unitFilesDir = getBasedir() + "/src/test/units-files/maven-resources-filtering";
@@ -516,10 +489,6 @@ public class DefaultMavenResourcesFilteringTest
     public void testTargetAbsolutePath()
         throws Exception
     {
-        mavenProject.setVersion( "1.0" );
-        mavenProject.setGroupId( "org.apache" );
-        mavenProject.setName( "test project" );
-
         MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
 
         String unitFilesDir = getBasedir() + "/src/test/units-files/maven-resources-filtering";
@@ -560,10 +529,6 @@ public class DefaultMavenResourcesFilteringTest
     public void testTargetPath()
         throws Exception
     {
-        mavenProject.setVersion( "1.0" );
-        mavenProject.setGroupId( "org.apache" );
-        mavenProject.setName( "test project" );
-
         MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
 
         String unitFilesDir = getBasedir() + "/src/test/units-files/maven-resources-filtering";
@@ -595,10 +560,6 @@ public class DefaultMavenResourcesFilteringTest
     public void testEmptyDirectories()
         throws Exception
     {
-        mavenProject.setVersion( "1.0" );
-        mavenProject.setGroupId( "org.apache" );
-        mavenProject.setName( "test project" );
-
         MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
 
         List<Resource> resources = new ArrayList<>();
@@ -655,9 +616,6 @@ public class DefaultMavenResourcesFilteringTest
         createTestDataStructure();
 
         File outputDirectory = new File( getBasedir(), "/target/testGitIgnoreFile" );
-        mavenProject.setVersion( "1.0" );
-        mavenProject.setGroupId( "org.apache" );
-        mavenProject.setName( "test project" );
 
         MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
 
@@ -752,8 +710,6 @@ public class DefaultMavenResourcesFilteringTest
     public void testMSHARED81()
         throws Exception
     {
-        mavenProject.setVersion( "1.0" );
-
         mavenProject.addProperty( "escaped", "this is escaped" );
         mavenProject.addProperty( "escaped.at", "this is escaped.at" );
         mavenProject.addProperty( "foo", "this is foo" );
@@ -811,8 +767,6 @@ public class DefaultMavenResourcesFilteringTest
 //    public void testCorrectlyEscapesEscapeString()
 //        throws Exception
 //    {
-//
-//        mavenProject.setVersion( "1.0" );
 //        mavenProject.addProperty( "a", "DONE_A" );
 //
 //        MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
@@ -852,8 +806,6 @@ public class DefaultMavenResourcesFilteringTest
     public void testEdgeCases()
         throws Exception
     {
-        mavenProject.setVersion( "1.0" );
-
         mavenProject.addProperty( "escaped", "this is escaped" );
         mavenProject.addProperty( "escaped.at", "this is escaped.at" );
         mavenProject.addProperty( "foo", "this is foo" );
@@ -910,10 +862,6 @@ public class DefaultMavenResourcesFilteringTest
     public void testFilterFileName()
         throws Exception
     {
-        mavenProject.setVersion( "1.0" );
-        mavenProject.setGroupId( "org.apache" );
-        mavenProject.setName( "test project" );
-
         MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
 
         String unitFilesDir = getBasedir() + "/src/test/units-files/maven-filename-filtering";
@@ -944,10 +892,6 @@ public class DefaultMavenResourcesFilteringTest
     public void testFilterPropertiesFiles()
         throws Exception
     {
-        mavenProject.setVersion( "1.0" );
-        mavenProject.setGroupId( "org.apache" );
-        mavenProject.setName( "test project" );
-
         MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
 
         String unitFilesDir = getBasedir() + "/src/test/units-files/MRESOURCES-171";

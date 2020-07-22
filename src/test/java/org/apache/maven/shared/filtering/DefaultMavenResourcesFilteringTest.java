@@ -744,7 +744,9 @@ public class DefaultMavenResourcesFilteringTest
         throws IOException
     {
         File sourceDirectory = new File( getBasedir(), "/target/sourceTestGitIgnoreFile" );
-        FileUtils.forceDelete( sourceDirectory );
+        if ( sourceDirectory.exists() ) {
+            FileUtils.forceDelete( sourceDirectory );
+        }
 
         File dir1 = new File( sourceDirectory, "dir1" );
 

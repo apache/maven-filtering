@@ -738,13 +738,14 @@ public class DefaultMavenResourcesFilteringTest
 
     /**
      * The folder and file structure will be created instead of letting this resource plugin
-     * copy the structure which will not work.
+     * copy the structure which does not work.
      */
     private static void createTestDataStructure()
         throws IOException
     {
         File sourceDirectory = new File( getBasedir(), "/target/sourceTestGitIgnoreFile" );
-        if ( sourceDirectory.exists() ) {
+        if ( sourceDirectory.exists() )
+        {
             FileUtils.forceDelete( sourceDirectory );
         }
 

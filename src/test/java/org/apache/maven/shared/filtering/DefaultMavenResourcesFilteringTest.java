@@ -49,7 +49,7 @@ public class DefaultMavenResourcesFilteringTest
     private File outputDirectory = new File( getBasedir(), "target/DefaultMavenResourcesFilteringTest" );
     private File baseDir = new File( "c:\\foo\\bar" );
     private StubMavenProject mavenProject = new StubMavenProject( baseDir );
-
+    private MavenResourcesFiltering mavenResourcesFiltering;
 
     @Override
     protected void setUp()
@@ -65,6 +65,8 @@ public class DefaultMavenResourcesFilteringTest
         mavenProject.setVersion( "1.0" );
         mavenProject.setGroupId( "org.apache" );
         mavenProject.setName( "test project" );
+        
+        mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
     }
 
     public void testSimpleFiltering()
@@ -74,7 +76,6 @@ public class DefaultMavenResourcesFilteringTest
         projectProperties.put( "foo", "bar" );
         projectProperties.put( "java.version", "zloug" );
         mavenProject.setProperties( projectProperties );
-        MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
 
         String unitFilesDir = getBasedir() + "/src/test/units-files/maven-resources-filtering";
         File initialImageFile = new File( unitFilesDir, "happy_duke.gif" );
@@ -103,7 +104,6 @@ public class DefaultMavenResourcesFilteringTest
     public void testSessionFiltering()
         throws Exception
     {
-        MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
 
         String unitFilesDir = getBasedir() + "/src/test/units-files/session-filtering";
 
@@ -153,7 +153,6 @@ public class DefaultMavenResourcesFilteringTest
         projectProperties.put( "foo", "bar" );
         projectProperties.put( "java.version", "zloug" );
         mavenProject.setProperties( projectProperties );
-        MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
 
         String unitFilesDir = getBasedir() + "/src/test/units-files/maven-resources-filtering";
         File initialImageFile = new File( unitFilesDir, "happy_duke.gif" );
@@ -184,7 +183,6 @@ public class DefaultMavenResourcesFilteringTest
         projectProperties.put( "foo", "bar" );
         projectProperties.put( "java.version", "zloug" );
         mavenProject.setProperties( projectProperties );
-        MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
 
         String unitFilesDir = getBasedir() + "/src/test/units-files/maven-resources-filtering";
         File initialImageFile = new File( unitFilesDir, "happy_duke.gif" );
@@ -282,7 +280,6 @@ public class DefaultMavenResourcesFilteringTest
         projectProperties.put( "foo", "bar" );
         projectProperties.put( "java.version", "zloug" );
         mavenProject.setProperties( projectProperties );
-        MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
 
         String unitFilesDir = getBasedir() + "/src/test/units-files/maven-resources-filtering";
         File initialImageFile = new File( unitFilesDir, "happy_duke.gif" );
@@ -319,7 +316,6 @@ public class DefaultMavenResourcesFilteringTest
     public void testNoFiltering()
         throws Exception
     {
-        MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
 
         String unitFilesDir = getBasedir() + "/src/test/units-files/maven-resources-filtering";
         File initialImageFile = new File( unitFilesDir, "happy_duke.gif" );
@@ -386,7 +382,6 @@ public class DefaultMavenResourcesFilteringTest
     public void testIncludeOneFile()
         throws Exception
     {
-        MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
 
         String unitFilesDir = getBasedir() + "/src/test/units-files/maven-resources-filtering";
 
@@ -415,8 +410,6 @@ public class DefaultMavenResourcesFilteringTest
     public void testIncludeOneFileAndDirectory()
         throws Exception
     {
-        MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
-
         String unitFilesDir = getBasedir() + "/src/test/units-files/maven-resources-filtering";
 
         Resource resource = new Resource();
@@ -450,7 +443,6 @@ public class DefaultMavenResourcesFilteringTest
     public void testExcludeOneFile()
         throws Exception
     {
-        MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
 
         String unitFilesDir = getBasedir() + "/src/test/units-files/maven-resources-filtering";
 
@@ -489,7 +481,6 @@ public class DefaultMavenResourcesFilteringTest
     public void testTargetAbsolutePath()
         throws Exception
     {
-        MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
 
         String unitFilesDir = getBasedir() + "/src/test/units-files/maven-resources-filtering";
 
@@ -529,7 +520,6 @@ public class DefaultMavenResourcesFilteringTest
     public void testTargetPath()
         throws Exception
     {
-        MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
 
         String unitFilesDir = getBasedir() + "/src/test/units-files/maven-resources-filtering";
 
@@ -560,7 +550,6 @@ public class DefaultMavenResourcesFilteringTest
     public void testEmptyDirectories()
         throws Exception
     {
-        MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
 
         List<Resource> resources = new ArrayList<>();
         resources.add( new Resource()
@@ -617,7 +606,6 @@ public class DefaultMavenResourcesFilteringTest
 
         File outputDirectory = new File( getBasedir(), "/target/testGitIgnoreFile" );
 
-        MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
 
         List<Resource> resources = new ArrayList<>();
         resources.add( new Resource()
@@ -715,7 +703,6 @@ public class DefaultMavenResourcesFilteringTest
         mavenProject.addProperty( "foo", "this is foo" );
         mavenProject.addProperty( "bar", "this is bar" );
 
-        MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
 
         List<Resource> resources = new ArrayList<>();
         resources.add( new Resource()
@@ -769,8 +756,7 @@ public class DefaultMavenResourcesFilteringTest
 //    {
 //        mavenProject.addProperty( "a", "DONE_A" );
 //
-//        MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
-//
+////
 //        List<Resource> resources = new ArrayList<Resource>();
 //        resources.add( new Resource()
 //        {
@@ -812,7 +798,6 @@ public class DefaultMavenResourcesFilteringTest
         mavenProject.addProperty( "bar", "this is bar" );
         mavenProject.addProperty( "domain", "this.is.domain.com" );
 
-        MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
 
         List<Resource> resources = new ArrayList<>();
         resources.add( new Resource()
@@ -862,7 +847,6 @@ public class DefaultMavenResourcesFilteringTest
     public void testFilterFileName()
         throws Exception
     {
-        MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
 
         String unitFilesDir = getBasedir() + "/src/test/units-files/maven-filename-filtering";
 
@@ -892,7 +876,6 @@ public class DefaultMavenResourcesFilteringTest
     public void testFilterPropertiesFiles()
         throws Exception
     {
-        MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
 
         String unitFilesDir = getBasedir() + "/src/test/units-files/MRESOURCES-171";
 

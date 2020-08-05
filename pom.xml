@@ -27,7 +27,7 @@
   </parent>
 
   <artifactId>maven-filtering</artifactId>
-  <version>3.2.0</version>
+  <version>3.2.1-SNAPSHOT</version>
 
   <name>Apache Maven Filtering</name>
   <description>A component to assist in filtering of resource files with properties from a Maven project.</description>
@@ -56,7 +56,7 @@
   <properties>
     <mavenVersion>3.1.0</mavenVersion>
     <javaVersion>7</javaVersion>
-    <project.build.outputTimestamp>2020-08-05T15:08:03Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2020-08-05T15:09:04Z</project.build.outputTimestamp>
   </properties>
 
   <contributors>

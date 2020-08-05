@@ -49,7 +49,7 @@ public interface MavenReaderFilter
      * @return an input stream that applies the filter
      * @throws org.apache.maven.shared.filtering.MavenFilteringException in case of failure.
      * @see #getDefaultFilterWrappers(org.apache.maven.project.MavenProject, java.util.List, boolean,
-     *      org.apache.maven.execution.MavenSession)
+     *      org.apache.maven.execution.MavenSession, org.apache.maven.shared.filtering.MavenResourcesExecution)
      */
     @Nonnull
     Reader filter( @Nonnull Reader from, boolean filtering, @Nullable MavenProject mavenProject, List<String> filters,

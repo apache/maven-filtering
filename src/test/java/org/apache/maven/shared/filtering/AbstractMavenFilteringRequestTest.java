@@ -28,7 +28,7 @@ import org.hamcrest.Matchers;
 import org.junit.Test;
 
 /**
- * @author Karl Heinz Marbaise <a href="mailto:khmarbaise@apache.org>khmarbaise@apache.org</a>.
+ * @author Karl Heinz Marbaise <a href="mailto:khmarbaise@apache.org">khmarbaise@apache.org</a>.
  */
 public class AbstractMavenFilteringRequestTest
 {

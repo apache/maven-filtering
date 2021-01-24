@@ -41,7 +41,7 @@ public final class FilteringUtils
         // nothing just an util class
     }
 
-    // TODO: Correct to handle relative windows paths. (http://jira.codehaus.org/browse/MSHARED-121)
+    // TODO: Correct to handle relative windows paths. (http://jira.apache.org/jira/browse/MSHARED-121)
     // How do we distinguish a relative windows path from some other value that happens to contain backslashes??
     /**
      * @param val The value to be escaped.

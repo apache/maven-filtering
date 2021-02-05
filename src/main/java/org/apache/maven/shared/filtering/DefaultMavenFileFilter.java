@@ -20,7 +20,6 @@ package org.apache.maven.shared.filtering;
  */
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 import org.apache.maven.execution.MavenSession;
@@ -108,9 +107,10 @@ public class DefaultMavenFileFilter
 
             buildContext.refresh( to );
         }
-        catch ( IOException e )
+        catch ( Exception e )
         {
-            throw new MavenFilteringException( e.getMessage(), e );
+            throw new MavenFilteringException( ( filtering ? "filtering " : "copying " ) + from.getPath() + " to "
+                + to.getPath() + " failed with " + e.getClass().getSimpleName() + ": " + e.getMessage(), e );
         }
     }
 }

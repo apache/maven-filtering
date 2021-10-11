@@ -125,8 +125,8 @@
     <dependency>
       <groupId>org.sonatype.plexus</groupId>
       <artifactId>plexus-build-api</artifactId>
-      <!-- FIXME: Upgrade from 0.0.4 to 0.0.7 will fail some tests -->
-      <version>0.0.4</version>
+      <!-- FIXME: Upgrade from 0.0.7 to 0.0.7 will fail some tests -->
+      <version>0.0.7</version>
       <scope>test</scope>
       <classifier>tests</classifier>
     </dependency>

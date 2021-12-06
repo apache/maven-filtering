@@ -21,6 +21,9 @@ package org.apache.maven.shared.filtering;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 import org.apache.maven.execution.MavenSession;
@@ -103,7 +106,15 @@ public class DefaultMavenFileFilter
                 {
                     getLogger().debug( "copy " + from.getPath() + " to " + to.getPath() );
                 }
-                FileUtils.copyFile( from, to, encoding, new FileUtils.FilterWrapper[0], overwrite );
+                if ( overwrite )
+                {
+                    Files.copy( from.toPath(), to.toPath(), LinkOption.NOFOLLOW_LINKS,
+                            StandardCopyOption.REPLACE_EXISTING );
+                }
+                else
+                {
+                    Files.copy( from.toPath(), to.toPath(), LinkOption.NOFOLLOW_LINKS );
+                }
             }
 
             buildContext.refresh( to );

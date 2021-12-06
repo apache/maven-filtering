@@ -22,9 +22,6 @@ package org.apache.maven.shared.filtering;
 import java.io.Reader;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.utils.io.FileUtils;
@@ -51,8 +48,7 @@ public interface MavenReaderFilter
      * @see #getDefaultFilterWrappers(org.apache.maven.project.MavenProject, java.util.List, boolean,
      *      org.apache.maven.execution.MavenSession, org.apache.maven.shared.filtering.MavenResourcesExecution)
      */
-    @Nonnull
-    Reader filter( @Nonnull Reader from, boolean filtering, @Nullable MavenProject mavenProject, List<String> filters,
+    Reader filter( Reader from, boolean filtering, MavenProject mavenProject, List<String> filters,
                    boolean escapedBackslashesInFilePath, MavenSession mavenSession )
                        throws MavenFilteringException;
 
@@ -64,8 +60,7 @@ public interface MavenReaderFilter
      * @return an input stream that applies the filter
      * @since 1.0-beta-3
      */
-    @Nonnull
-    Reader filter( @Nonnull MavenReaderFilterRequest mavenFileFilterRequest )
+    Reader filter( MavenReaderFilterRequest mavenFileFilterRequest )
         throws MavenFilteringException;
 
     /**
@@ -76,6 +71,5 @@ public interface MavenReaderFilter
      * @param filterWrappers {@link java.util.List} of FileUtils.FilterWrapper
      * @return an input stream that applies the filter
      */
-    @Nonnull
-    Reader filter( @Nonnull Reader from, boolean filtering, @Nonnull List<FileUtils.FilterWrapper> filterWrappers );
+    Reader filter( Reader from, boolean filtering, List<FileUtils.FilterWrapper> filterWrappers );
 }

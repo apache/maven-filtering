@@ -28,8 +28,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
 
-import javax.annotation.Nonnull;
-
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Settings;
@@ -53,7 +51,6 @@ class BaseFilter
 {
 
     @Override
-    @Nonnull
     public List<FileUtils.FilterWrapper> getDefaultFilterWrappers( final MavenProject mavenProject,
                                                                    List<String> filters,
                                                                    final boolean escapedBackslashesInFilePath,
@@ -75,7 +72,6 @@ class BaseFilter
     }
 
     @Override
-    @Nonnull
     public List<FileUtils.FilterWrapper> getDefaultFilterWrappers( final AbstractMavenFilteringRequest req )
         throws MavenFilteringException
     {

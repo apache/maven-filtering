@@ -23,8 +23,6 @@ import java.io.Reader;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.utils.io.FileUtils.FilterWrapper;
@@ -39,8 +37,7 @@ public class DefaultMavenReaderFilter
     implements MavenReaderFilter
 {
     @Override
-    @Nonnull
-    public Reader filter( @Nonnull Reader from, boolean filtering, MavenProject mavenProject, List<String> filters,
+    public Reader filter( Reader from, boolean filtering, MavenProject mavenProject, List<String> filters,
                           boolean escapedBackslashesInFilePath, MavenSession mavenSession )
                               throws MavenFilteringException
     {
@@ -56,8 +53,7 @@ public class DefaultMavenReaderFilter
     }
 
     @Override
-    @Nonnull
-    public Reader filter( @Nonnull MavenReaderFilterRequest mavenFileFilterRequest )
+    public Reader filter( MavenReaderFilterRequest mavenFileFilterRequest )
         throws MavenFilteringException
     {
         List<FilterWrapper> filterWrappers = getDefaultFilterWrappers( mavenFileFilterRequest );
@@ -65,14 +61,12 @@ public class DefaultMavenReaderFilter
     }
 
     @Override
-    @Nonnull
-    public Reader filter( @Nonnull Reader from, boolean filtering, @Nonnull List<FilterWrapper> filterWrappers )
+    public Reader filter( Reader from, boolean filtering, List<FilterWrapper> filterWrappers )
     {
         return filterWrap( from, filtering ? filterWrappers : Collections.<FilterWrapper>emptyList() );
     }
 
-    @Nonnull
-    private static Reader filterWrap( @Nonnull Reader from, @Nonnull Iterable<FilterWrapper> wrappers )
+    private static Reader filterWrap( Reader from, Iterable<FilterWrapper> wrappers )
     {
         Reader reader = from;
         for ( FilterWrapper wrapper : wrappers )

@@ -21,8 +21,6 @@ package org.apache.maven.shared.filtering;
 
 import java.util.List;
 
-import javax.annotation.Nonnull;
-
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.utils.io.FileUtils;
@@ -43,7 +41,6 @@ public interface DefaultFilterInfo
      * @return {@link java.util.List} of FileUtils.FilterWrapper
      * @since 1.0-beta-2
      */
-    @Nonnull
     List<FileUtils.FilterWrapper> getDefaultFilterWrappers( MavenProject mavenProject, List<String> filters,
                                                             boolean escapedBackslashesInFilePath,
                                                             MavenSession mavenSession,
@@ -56,7 +53,6 @@ public interface DefaultFilterInfo
      * @return {@link java.util.List} of FileUtils.FilterWrapper
      * @since 1.0-beta-3
      */
-    @Nonnull
     List<FileUtils.FilterWrapper> getDefaultFilterWrappers( AbstractMavenFilteringRequest request )
         throws MavenFilteringException;
 }

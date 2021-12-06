@@ -140,19 +140,19 @@ public class DefaultMavenResourcesFiltering
         }
         else
         {
-            getLogger().info( "Using '" + mavenResourcesExecution.getEncoding()
+            getLogger().debug( "Using '" + mavenResourcesExecution.getEncoding()
                 + "' encoding to copy filtered resources." );
         }
 
         if ( mavenResourcesExecution.getPropertiesEncoding() == null
             || mavenResourcesExecution.getPropertiesEncoding().length() < 1 )
         {
-            getLogger().info( "Using '" + mavenResourcesExecution.getEncoding()
+            getLogger().debug( "Using '" + mavenResourcesExecution.getEncoding()
                 + "' encoding to copy filtered properties files." );
         }
         else
         {
-            getLogger().info( "Using '" + mavenResourcesExecution.getPropertiesEncoding()
+            getLogger().debug( "Using '" + mavenResourcesExecution.getPropertiesEncoding()
                 + "' encoding to copy filtered properties files." );
         }
 

@@ -184,17 +184,17 @@ public class DefaultMavenResourcesFiltering
 
             String targetPath = resource.getTargetPath();
 
-            File resourceDirectory = new File( resource.getDirectory() );
+            File resourceDirectory = ( resource.getDirectory() == null ) ? null : new File( resource.getDirectory() );
 
-            if ( !resourceDirectory.isAbsolute() )
+            if ( resourceDirectory != null && !resourceDirectory.isAbsolute() )
             {
                 resourceDirectory =
-                    new File( mavenResourcesExecution.getResourcesBaseDirectory(), resourceDirectory.getPath() );
+                        new File( mavenResourcesExecution.getResourcesBaseDirectory(), resourceDirectory.getPath() );
             }
 
-            if ( !resourceDirectory.exists() )
+            if ( resourceDirectory == null || !resourceDirectory.exists() )
             {
-                getLogger().info( "skip non existing resourceDirectory " + resourceDirectory.getPath() );
+                getLogger().info( "skip non existing resourceDirectory " + resourceDirectory );
                 continue;
             }
 

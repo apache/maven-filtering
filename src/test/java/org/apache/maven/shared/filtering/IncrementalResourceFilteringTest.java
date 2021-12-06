@@ -80,7 +80,7 @@ public class IncrementalResourceFilteringTest
         assertTrue( ctx.getRefreshFiles().contains( new File( outputDirectory, "file01.txt" ) ) );
 
         ctx = new TestIncrementalBuildContext( unitDirectory, Collections.emptySet(), changedFiles,
-                                               Collections.emptyMap() );
+                                               Collections.emptyMap(), new ArrayList(), new ArrayList() );
         ThreadBuildContext.setThreadBuildContext( ctx );
 
         filter( "moretime" );
@@ -145,7 +145,7 @@ public class IncrementalResourceFilteringTest
         Set<String> deletedFiles = new HashSet<>();
         deletedFiles.add( "filters.txt" );
         TestIncrementalBuildContext ctx = new TestIncrementalBuildContext( unitDirectory, Collections.emptySet(),
-                                                                           deletedFiles, Collections.emptyMap() );
+                deletedFiles, Collections.emptyMap(), new ArrayList(), new ArrayList() );
         ThreadBuildContext.setThreadBuildContext( ctx );
 
         filter( "notime" );

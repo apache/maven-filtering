@@ -106,11 +106,6 @@
       <version>1.26</version>
     </dependency>
     <dependency>
-      <groupId>org.sonatype.plexus</groupId>
-      <artifactId>plexus-build-api</artifactId>
-      <version>0.0.7</version>
-    </dependency>
-    <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
       <version>2.6</version>
@@ -125,8 +120,12 @@
     <dependency>
       <groupId>org.sonatype.plexus</groupId>
       <artifactId>plexus-build-api</artifactId>
-      <!-- FIXME: Upgrade from 0.0.4 to 0.0.7 will fail some tests -->
-      <version>0.0.4</version>
+      <version>0.0.7</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sonatype.plexus</groupId>
+      <artifactId>plexus-build-api</artifactId>
+      <version>0.0.7</version>
       <scope>test</scope>
       <classifier>tests</classifier>
     </dependency>

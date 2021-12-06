@@ -22,6 +22,7 @@ package org.apache.maven.shared.filtering;
 import java.io.File;
 import java.io.Reader;
 import java.io.StringReader;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -69,7 +70,18 @@ public class DefaultMavenFileFilterTest
 
         to.setLastModified( System.currentTimeMillis() );
 
-        mavenFileFilter.copyFile( from, to, false, null, null );
+        try
+        {
+            mavenFileFilter.copyFile( from, to, false, null, null );
+        }
+        catch ( MavenFilteringException mfe )
+        {
+            // dest file already exist - overwrite by default false
+            if ( !( mfe.getCause() instanceof FileAlreadyExistsException ) )
+            {
+                fail( mfe.getMessage() );
+            }
+        }
 
         Properties properties = PropertyUtils.loadPropertyFile( to, null );
         assertEquals( "${pom.version}", properties.getProperty( "version" ) );

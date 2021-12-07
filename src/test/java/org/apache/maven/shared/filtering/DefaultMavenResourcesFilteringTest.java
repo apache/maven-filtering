@@ -882,6 +882,7 @@ public class DefaultMavenResourcesFilteringTest
         mavenProject.addProperty( "foo", "this is foo" );
         mavenProject.addProperty( "bar", "this is bar" );
         mavenProject.addProperty( "domain", "this.is.domain.com" );
+        mavenProject.addProperty( "com.xxxxxxx.xxxx.root.build.environment.CLOUD_AZURE_AKS_KUBERNETES_NODE_LABEL_AGENTPOOL_VALUE_PRODUCTION_XXXXXXXXXXX_NODE_IMPL_PRODUCT_SEGMENT_PROCESSOR", "longpropvalue" );
 
 
         List<Resource> resources = new ArrayList<>();

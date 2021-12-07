@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.TreeSet;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
@@ -72,14 +73,11 @@ class BaseFilter
     }
 
     @Override
-    public List<FileUtils.FilterWrapper> getDefaultFilterWrappers( final AbstractMavenFilteringRequest req )
+    public List<FileUtils.FilterWrapper> getDefaultFilterWrappers( final AbstractMavenFilteringRequest request )
         throws MavenFilteringException
     {
         // backup values
-        boolean supportMultiLineFiltering = req.isSupportMultiLineFiltering();
-
-        // compensate for null parameter value.
-        final AbstractMavenFilteringRequest request = req == null ? new MavenFileFilterRequest() : req;
+        boolean supportMultiLineFiltering = request.isSupportMultiLineFiltering();
 
         request.setSupportMultiLineFiltering( supportMultiLineFiltering );
 
@@ -160,26 +158,25 @@ class BaseFilter
             filterProperties.putAll( request.getAdditionalProperties() );
         }
 
-        List<FileUtils.FilterWrapper> defaultFilterWrappers =
-            request == null ? new ArrayList<FileUtils.FilterWrapper>( 1 )
-                            : new ArrayList<FileUtils.FilterWrapper>( request.getDelimiters().size() + 1 );
+        List<FileUtils.FilterWrapper> defaultFilterWrappers = new ArrayList<>( request.getDelimiters().size() + 1 );
 
         if ( getLogger().isDebugEnabled() )
         {
-            getLogger().debug( "properties used " + filterProperties );
+            getLogger().debug( "properties used:" );
+            for ( String s : new TreeSet<>( filterProperties.stringPropertyNames() ) )
+            {
+                getLogger().debug( s + ": " + filterProperties.getProperty( s ) );
+            }
         }
 
         final ValueSource propertiesValueSource = new PropertiesBasedValueSource( filterProperties );
 
-        if ( request != null )
-        {
-            FileUtils.FilterWrapper wrapper =
-                new Wrapper( request.getDelimiters(), request.getMavenProject(), request.getMavenSession(),
-                             propertiesValueSource, request.getProjectStartExpressions(), request.getEscapeString(),
-                             request.isEscapeWindowsPaths(), request.isSupportMultiLineFiltering() );
+        FileUtils.FilterWrapper wrapper =
+            new Wrapper( request.getDelimiters(), request.getMavenProject(), request.getMavenSession(),
+                         propertiesValueSource, request.getProjectStartExpressions(), request.getEscapeString(),
+                         request.isEscapeWindowsPaths(), request.isSupportMultiLineFiltering() );
 
-            defaultFilterWrappers.add( wrapper );
-        }
+        defaultFilterWrappers.add( wrapper );
 
         return defaultFilterWrappers;
     }

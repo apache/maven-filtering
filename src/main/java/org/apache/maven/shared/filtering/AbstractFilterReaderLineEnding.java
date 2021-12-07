@@ -49,7 +49,9 @@ public abstract class AbstractFilterReaderLineEnding
     /**
      * must always be bigger than escape string plus delimiters, but doesn't need to be exact
      */
-    protected int markLength = 128;
+    // CHECKSTYLE_OFF: MagicNumber
+    protected int markLength = 255;
+    // CHECKSTYLE_ON: MagicNumber
 
     protected AbstractFilterReaderLineEnding( Reader in )
     {
@@ -73,7 +75,7 @@ public abstract class AbstractFilterReaderLineEnding
         if ( escapeString != null && escapeString.length() >= 1 )
         {
             this.escapeString = escapeString;
-            this.useEscape = escapeString != null && escapeString.length() >= 1;
+            this.useEscape = true;
             calculateMarkLength();
         }
     }
@@ -96,13 +98,13 @@ public abstract class AbstractFilterReaderLineEnding
 
     protected void calculateMarkLength()
     {
-        markLength = 128;
+        // CHECKSTYLE_OFF: MagicNumber
+        markLength = 255;
+        // CHECKSTYLE_ON: MagicNumber
 
         if ( escapeString != null )
         {
-
             markLength += escapeString.length();
-
         }
         for ( DelimiterSpecification spec : delimiters )
         {

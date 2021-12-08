@@ -98,7 +98,7 @@
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-utils</artifactId>
-      <version>3.3.0</version><!-- Java 7 -->
+      <version>3.4.1</version><!-- Java 7 -->
     </dependency>
     <dependency>
       <groupId>org.codehaus.plexus</groupId>

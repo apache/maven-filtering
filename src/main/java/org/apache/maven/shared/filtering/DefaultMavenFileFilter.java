@@ -20,8 +20,10 @@ package org.apache.maven.shared.filtering;
  */
 
 import java.io.File;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 
@@ -105,14 +107,25 @@ public class DefaultMavenFileFilter
                 {
                     getLogger().debug( "copy " + from.getPath() + " to " + to.getPath() );
                 }
+                Path fromPath = from.toPath();
+                Path toPath = to.toPath();
+
                 if ( overwrite )
                 {
-                    Files.copy( from.toPath(), to.toPath(), LinkOption.NOFOLLOW_LINKS,
-                            StandardCopyOption.REPLACE_EXISTING );
+                    Files.copy( fromPath, toPath, LinkOption.NOFOLLOW_LINKS, StandardCopyOption.REPLACE_EXISTING );
                 }
                 else
                 {
-                    Files.copy( from.toPath(), to.toPath(), LinkOption.NOFOLLOW_LINKS );
+                    try
+                    {
+                        if ( to.lastModified() < from.lastModified() )
+                        {
+                            Files.copy( fromPath, toPath, LinkOption.NOFOLLOW_LINKS );
+                        }
+                    } catch ( FileAlreadyExistsException e ) {
+                        // ignore
+                        getLogger().warn( "Destination already exists " + toPath );
+                    }
                 }
             }
 

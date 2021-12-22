@@ -688,10 +688,6 @@ public class DefaultMavenResourcesFilteringTest
 
         File outputDirectory = new File( getBasedir(), "/target/testGitIgnoreFile" );
 
-        if ( outputDirectory.exists() )
-        {
-            FileUtils.forceDelete( outputDirectory );
-        }
         List<Resource> resources = new ArrayList<>();
         resources.add( new Resource()
         {

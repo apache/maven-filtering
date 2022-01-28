@@ -47,7 +47,7 @@ public interface MavenFileFilter
      * @throws MavenFilteringException in case of failure.
      * @see DefaultFilterInfo#getDefaultFilterWrappers(MavenProject, List, boolean,MavenSession, MavenResourcesExecution)
      */
-    void copyFile( File from, final File to, boolean filtering, MavenProject mavenProject, List<String> filters,
+    void copyFile( File from, File to, boolean filtering, MavenProject mavenProject, List<String> filters,
                    boolean escapedBackslashesInFilePath, String encoding, MavenSession mavenSession )
                        throws MavenFilteringException;
 
@@ -67,7 +67,7 @@ public interface MavenFileFilter
      * @param encoding The encoding used during the filtering.
      * @throws MavenFilteringException In case of an error.
      */
-    void copyFile( File from, final File to, boolean filtering, List<FileUtils.FilterWrapper> filterWrappers,
+    void copyFile( File from, File to, boolean filtering, List<FileUtils.FilterWrapper> filterWrappers,
                    String encoding )
                        throws MavenFilteringException;
 
@@ -81,7 +81,7 @@ public interface MavenFileFilter
      * @throws MavenFilteringException In case of an error.
      * @since 1.0-beta-2
      */
-    void copyFile( File from, final File to, boolean filtering, List<FileUtils.FilterWrapper> filterWrappers,
+    void copyFile( File from, File to, boolean filtering, List<FileUtils.FilterWrapper> filterWrappers,
                    String encoding, boolean overwrite )
                        throws MavenFilteringException;
 }

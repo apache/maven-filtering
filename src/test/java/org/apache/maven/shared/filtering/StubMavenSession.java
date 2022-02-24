@@ -19,14 +19,20 @@ package org.apache.maven.shared.filtering;
  * under the License.
  */
 
+import javax.annotation.Nonnull;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Properties;
 
-import org.apache.maven.execution.DefaultMavenExecutionRequest;
-import org.apache.maven.execution.MavenExecutionResult;
-import org.apache.maven.execution.MavenSession;
+import org.apache.maven.api.Listener;
+import org.apache.maven.api.LocalRepository;
+import org.apache.maven.api.RemoteRepository;
+import org.apache.maven.api.Session;
+import org.apache.maven.api.SessionData;
+import org.apache.maven.api.services.Service;
 import org.apache.maven.settings.Settings;
-import org.codehaus.plexus.PlexusContainer;
-import org.eclipse.aether.RepositorySystemSession;
 
 /**
  * @author Olivier Lamy
@@ -34,7 +40,7 @@ import org.eclipse.aether.RepositorySystemSession;
  *
  */
 public class StubMavenSession
-    extends MavenSession
+    implements Session
 {
 
     private Properties userProperties;
@@ -60,9 +66,6 @@ public class StubMavenSession
 
     public StubMavenSession( Properties systemProperties, Properties userProperties, Settings settings )
     {
-
-        super( (PlexusContainer) null, (RepositorySystemSession) null, new DefaultMavenExecutionRequest(),
-               (MavenExecutionResult) null );
 
         this.settings = settings;
 
@@ -98,4 +101,64 @@ public class StubMavenSession
         return this.userProperties;
     }
 
+    @Nonnull
+    @Override
+    public LocalRepository getLocalRepository()
+    {
+        return null;
+    }
+
+    @Nonnull
+    @Override
+    public List<RemoteRepository> getRemoteRepositories()
+    {
+        return null;
+    }
+
+    @Nonnull
+    @Override
+    public SessionData getData()
+    {
+        return null;
+    }
+
+    @Nonnull
+    @Override
+    public <T extends Service> T getService( Class<T> clazz ) throws NoSuchElementException
+    {
+        return null;
+    }
+
+    @Nonnull
+    @Override
+    public Session withLocalRepository( @Nonnull LocalRepository localRepository )
+    {
+        return null;
+    }
+
+    @Nonnull
+    @Override
+    public Session withRemoteRepositories( @Nonnull List<RemoteRepository> repositories )
+    {
+        return null;
+    }
+
+    @Override
+    public void registerListener( @Nonnull Listener listener )
+    {
+
+    }
+
+    @Override
+    public void unregisterListener( @Nonnull Listener listener )
+    {
+
+    }
+
+    @Nonnull
+    @Override
+    public Collection<Listener> getListeners()
+    {
+        return null;
+    }
 }

@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.Properties;
 
-import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.PlexusTestCase;
 
 /**
@@ -38,7 +37,7 @@ public class TestReflectionProperties
     public void testSimpleFiltering()
         throws Exception
     {
-        MavenProject mavenProject = new MavenProject();
+        StubMavenProject mavenProject = new StubMavenProject( null );
         mavenProject.setVersion( "1.0" );
         mavenProject.setGroupId( "org.apache" );
         Properties userProperties = new Properties();
@@ -72,8 +71,8 @@ public class TestReflectionProperties
     public void testSimpleNonFiltering()
         throws Exception
     {
-        
-        MavenProject mavenProject = new MavenProject();
+
+        StubMavenProject mavenProject = new StubMavenProject( null );
         mavenProject.setVersion( "1.0" );
         mavenProject.setGroupId( "org.apache" );
         Properties userProperties = new Properties();

@@ -188,8 +188,8 @@ public class DefaultMavenResourcesFiltering
 
             if ( resourceDirectory != null && !resourceDirectory.isAbsolute() )
             {
-                resourceDirectory =
-                        new File( mavenResourcesExecution.getResourcesBaseDirectory(), resourceDirectory.getPath() );
+                resourceDirectory = mavenResourcesExecution
+                        .getResourcesBaseDirectory().resolve( resourceDirectory.getPath() ).toFile();
             }
 
             if ( resourceDirectory == null || !resourceDirectory.exists() )
@@ -201,7 +201,7 @@ public class DefaultMavenResourcesFiltering
             // this part is required in case the user specified "../something"
             // as destination
             // see MNG-1345
-            File outputDirectory = mavenResourcesExecution.getOutputDirectory();
+            File outputDirectory = mavenResourcesExecution.getOutputDirectory().toFile();
             boolean outputExists = outputDirectory.exists();
             if ( !outputExists && !outputDirectory.mkdirs() )
             {
@@ -497,15 +497,15 @@ public class DefaultMavenResourcesFiltering
 
     private String getRelativeOutputDirectory( MavenResourcesExecution execution )
     {
-        String relOutDir = execution.getOutputDirectory().getAbsolutePath();
+        String relOutDir = execution.getOutputDirectory().toAbsolutePath().toString();
 
         if ( execution.getMavenProject() != null && execution.getMavenProject().getBasedir() != null )
         {
-            String basedir = execution.getMavenProject().getBasedir().getAbsolutePath();
+            String basedir = execution.getMavenProject().getBasedir().toAbsolutePath().toString();
             relOutDir = PathTool.getRelativeFilePath( basedir, relOutDir );
             if ( relOutDir == null )
             {
-                relOutDir = execution.getOutputDirectory().getPath();
+                relOutDir = execution.getOutputDirectory().toAbsolutePath().toString();
             }
             else
             {

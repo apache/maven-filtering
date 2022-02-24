@@ -23,8 +23,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.project.MavenProject;
+import org.apache.maven.api.Project;
+import org.apache.maven.api.Session;
 import org.apache.maven.shared.utils.io.FileUtils;
 import org.apache.maven.shared.utils.io.FileUtils.FilterWrapper;
 import org.codehaus.plexus.component.annotations.Component;
@@ -47,8 +47,8 @@ public class DefaultMavenFileFilter
     private BuildContext buildContext;
 
     @Override
-    public void copyFile( File from, File to, boolean filtering, MavenProject mavenProject, List<String> filters,
-                          boolean escapedBackslashesInFilePath, String encoding, MavenSession mavenSession )
+    public void copyFile( File from, File to, boolean filtering, Project mavenProject, List<String> filters,
+                          boolean escapedBackslashesInFilePath, String encoding, Session mavenSession )
                               throws MavenFilteringException
     {
         MavenResourcesExecution mre = new MavenResourcesExecution();

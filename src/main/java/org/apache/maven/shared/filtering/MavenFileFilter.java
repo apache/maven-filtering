@@ -22,8 +22,8 @@ package org.apache.maven.shared.filtering;
 import java.io.File;
 import java.util.List;
 
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.project.MavenProject;
+import org.apache.maven.api.Project;
+import org.apache.maven.api.Session;
 import org.apache.maven.shared.utils.io.FileUtils;
 
 /**
@@ -39,16 +39,16 @@ public interface MavenFileFilter
      * @param from file to copy/filter
      * @param to destination file
      * @param filtering enable or not filtering
-     * @param mavenProject {@link MavenProject}
-     * @param mavenSession {@link MavenSession}
+     * @param mavenProject {@link Project}
+     * @param mavenSession {@link Session}
      * @param escapedBackslashesInFilePath escape backslashes in file path.
      * @param filters {@link List} of String which are path to a Property file
      * @param encoding The encoding which is used during the filtering process.
      * @throws MavenFilteringException in case of failure.
-     * @see DefaultFilterInfo#getDefaultFilterWrappers(MavenProject, List, boolean,MavenSession, MavenResourcesExecution)
+     * @see DefaultFilterInfo#getDefaultFilterWrappers(Project, List, boolean, Session, MavenResourcesExecution)
      */
-    void copyFile( File from, File to, boolean filtering, MavenProject mavenProject, List<String> filters,
-                   boolean escapedBackslashesInFilePath, String encoding, MavenSession mavenSession )
+    void copyFile( File from, File to, boolean filtering, Project mavenProject, List<String> filters,
+                   boolean escapedBackslashesInFilePath, String encoding, Session mavenSession )
                        throws MavenFilteringException;
 
     /**

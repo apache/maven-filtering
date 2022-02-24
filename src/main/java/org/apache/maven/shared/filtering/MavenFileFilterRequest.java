@@ -23,8 +23,8 @@ import java.io.File;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.project.MavenProject;
+import org.apache.maven.api.Project;
+import org.apache.maven.api.Session;
 
 /**
  * @author Olivier Lamy
@@ -61,9 +61,9 @@ public class MavenFileFilterRequest
      * @param mavenSession The Maven Session.
      * @param additionalProperties Supplemental properties.
      */
-    public MavenFileFilterRequest( File from, File to, boolean filtering, MavenProject mavenProject,
+    public MavenFileFilterRequest( File from, File to, boolean filtering, Project mavenProject,
                                    List<String> filters, boolean escapedBackslashesInFilePath, String encoding,
-                                   MavenSession mavenSession, Properties additionalProperties )
+                                   Session mavenSession, Properties additionalProperties )
     {
         super( mavenProject, filters, mavenSession );
         this.encoding = encoding;

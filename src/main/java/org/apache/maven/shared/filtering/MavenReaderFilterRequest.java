@@ -23,8 +23,8 @@ import java.io.Reader;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.project.MavenProject;
+import org.apache.maven.api.Project;
+import org.apache.maven.api.Session;
 
 /**
  * @author Olivier Lamy
@@ -56,8 +56,8 @@ public class MavenReaderFilterRequest
      * @param mavenSession The Maven Session.
      * @param additionalProperties supplemental properties.
      */
-    public MavenReaderFilterRequest( Reader from, boolean filtering, MavenProject mavenProject, List<String> filters,
-                                     boolean escapedBackslashesInFilePath, MavenSession mavenSession,
+    public MavenReaderFilterRequest( Reader from, boolean filtering, Project mavenProject, List<String> filters,
+                                     boolean escapedBackslashesInFilePath, Session mavenSession,
                                      Properties additionalProperties )
     {
         super( mavenProject, filters, mavenSession );

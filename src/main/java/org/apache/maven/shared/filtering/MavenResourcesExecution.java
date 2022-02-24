@@ -19,14 +19,14 @@ package org.apache.maven.shared.filtering;
  * under the License.
  */
 
-import java.io.File;
 import java.io.Reader;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.maven.execution.MavenSession;
+import org.apache.maven.api.Project;
+import org.apache.maven.api.Session;
 import org.apache.maven.model.Resource;
-import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.utils.io.FileUtils;
 import org.apache.maven.shared.utils.io.FileUtils.FilterWrapper;
 import org.codehaus.plexus.interpolation.StringSearchInterpolator;
@@ -43,13 +43,13 @@ public class MavenResourcesExecution
 
     private List<Resource> resources;
 
-    private File outputDirectory;
+    private Path outputDirectory;
 
     private List<String> nonFilteredFileExtensions;
 
     private List<FileUtils.FilterWrapper> filterWrappers;
 
-    private File resourcesBaseDirectory;
+    private Path resourcesBaseDirectory;
 
     private boolean useDefaultFilterWrappers = false;
 
@@ -138,9 +138,9 @@ public class MavenResourcesExecution
      * @param nonFilteredFileExtensions The extensions which should not being filtered.
      * @param mavenSession The maven session.
      */
-    public MavenResourcesExecution( List<Resource> resources, File outputDirectory, MavenProject mavenProject,
+    public MavenResourcesExecution( List<Resource> resources, Path outputDirectory, Project mavenProject,
                                     String encoding, List<String> fileFilters, List<String> nonFilteredFileExtensions,
-                                    MavenSession mavenSession )
+                                    Session mavenSession )
     {
         super( mavenProject, fileFilters, mavenSession );
         this.encoding = encoding;
@@ -160,8 +160,8 @@ public class MavenResourcesExecution
      * @param resourcesBaseDirectory The resources base directory.
      * @param nonFilteredFileExtensions The list of extensions which should not being filtered.
      */
-    public MavenResourcesExecution( List<Resource> resources, File outputDirectory, String encoding,
-                                    List<FileUtils.FilterWrapper> filterWrappers, File resourcesBaseDirectory,
+    public MavenResourcesExecution( List<Resource> resources, Path outputDirectory, String encoding,
+                                    List<FileUtils.FilterWrapper> filterWrappers, Path resourcesBaseDirectory,
                                     List<String> nonFilteredFileExtensions )
     {
         this();
@@ -235,7 +235,7 @@ public class MavenResourcesExecution
     /**
      * @return The output directory.
      */
-    public File getOutputDirectory()
+    public Path getOutputDirectory()
     {
         return outputDirectory;
     }
@@ -243,7 +243,7 @@ public class MavenResourcesExecution
     /**
      * @param outputDirectory The output directory.
      */
-    public void setOutputDirectory( File outputDirectory )
+    public void setOutputDirectory( Path outputDirectory )
     {
         this.outputDirectory = outputDirectory;
     }
@@ -323,7 +323,7 @@ public class MavenResourcesExecution
     /**
      * @return The resource base directory.
      */
-    public File getResourcesBaseDirectory()
+    public Path getResourcesBaseDirectory()
     {
         return resourcesBaseDirectory;
     }
@@ -331,7 +331,7 @@ public class MavenResourcesExecution
     /**
      * @param resourcesBaseDirectory Set the resource base directory.
      */
-    public void setResourcesBaseDirectory( File resourcesBaseDirectory )
+    public void setResourcesBaseDirectory( Path resourcesBaseDirectory )
     {
         this.resourcesBaseDirectory = resourcesBaseDirectory;
     }

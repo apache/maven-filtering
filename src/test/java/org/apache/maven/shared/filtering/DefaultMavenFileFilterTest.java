@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.maven.project.MavenProject;
+import org.apache.maven.api.Project;
 import org.apache.maven.shared.utils.io.FileUtils.FilterWrapper;
 import org.codehaus.plexus.PlexusTestCase;
 
@@ -139,8 +139,8 @@ public class DefaultMavenFileFilterTest
         AbstractMavenFilteringRequest req = new AbstractMavenFilteringRequest();
         req.setFileFilters( Collections.singletonList( "src/main/filters/filefilter.properties" ) );
 
-        MavenProject mavenProject = new StubMavenProject( new File( "src/test/units-files/MSHARED-161" ) );
-        mavenProject.getBuild().setFilters( Collections.singletonList( "src/main/filters/buildfilter.properties" ) );
+        Project mavenProject = new StubMavenProject( new File( "src/test/units-files/MSHARED-161" ) );
+        mavenProject.getModel().getBuild().setFilters( Collections.singletonList( "src/main/filters/buildfilter.properties" ) );
         req.setMavenProject( mavenProject );
         req.setInjectProjectBuildFilters( true );
 

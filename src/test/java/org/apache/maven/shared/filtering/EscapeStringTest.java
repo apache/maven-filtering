@@ -66,7 +66,7 @@ public class EscapeStringTest
         projectProperties.put( "foo", "bar" );
         projectProperties.put( "java.version", "zloug" );
         projectProperties.put( "replaceThis", "I am the replacement" );
-        mavenProject.setProperties( projectProperties );
+        mavenProject.getModel().setProperties( projectProperties );
         MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
 
         Resource resource = new Resource();
@@ -80,7 +80,7 @@ public class EscapeStringTest
         List<String> nonFilteredFileExtensions = Collections.singletonList( "gif" );
 
         MavenResourcesExecution mavenResourcesExecution =
-            new MavenResourcesExecution( resources, outputDirectory, mavenProject, "UTF-8", filtersFile,
+            new MavenResourcesExecution( resources, outputDirectory.toPath(), mavenProject, "UTF-8", filtersFile,
                                          nonFilteredFileExtensions, new StubMavenSession() );
         mavenResourcesExecution.setUseDefaultFilterWrappers( true );
 

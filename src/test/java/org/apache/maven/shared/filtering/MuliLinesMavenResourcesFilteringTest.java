@@ -67,7 +67,7 @@ public class MuliLinesMavenResourcesFilteringTest
         Properties projectProperties = new Properties();
         projectProperties.put( "foo", "bar" );
         projectProperties.put( "java.version", "zloug" );
-        mavenProject.setProperties( projectProperties );
+        mavenProject.getModel().setProperties( projectProperties );
         MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
 
         String unitFilesDir = getBasedir() + "/src/test/units-files/MRESOURCES-104";
@@ -84,7 +84,7 @@ public class MuliLinesMavenResourcesFilteringTest
         List<String> nonFilteredFileExtensions = Collections.singletonList( "gif" );
 
         MavenResourcesExecution mavenResourcesExecution =
-            new MavenResourcesExecution( resources, outputDirectory, mavenProject, "UTF-8", filtersFile,
+            new MavenResourcesExecution( resources, outputDirectory.toPath(), mavenProject, "UTF-8", filtersFile,
                                          nonFilteredFileExtensions, new StubMavenSession() );
         mavenResourcesExecution.setUseDefaultFilterWrappers( true );
 

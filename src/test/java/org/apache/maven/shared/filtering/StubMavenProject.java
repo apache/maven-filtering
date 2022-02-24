@@ -19,10 +19,16 @@ package org.apache.maven.shared.filtering;
  * under the License.
  */
 
-import java.io.File;
-import java.util.Properties;
+import javax.annotation.Nonnull;
 
-import org.apache.maven.project.MavenProject;
+import java.io.File;
+import java.nio.file.Path;
+import java.util.List;
+
+import org.apache.maven.api.Artifact;
+import org.apache.maven.api.Dependency;
+import org.apache.maven.api.Project;
+import org.apache.maven.model.Model;
 
 /**
  * @author Olivier Lamy
@@ -30,10 +36,10 @@ import org.apache.maven.project.MavenProject;
  *
  */
 public class StubMavenProject
-    extends MavenProject
+        implements Project
 {
-    private Properties properties;
 
+    private Model model = new Model();
     private File basedir;
 
     protected StubMavenProject( File basedir )
@@ -41,30 +47,98 @@ public class StubMavenProject
         this.basedir = basedir;
     }
 
+    @Nonnull
     @Override
-    public Properties getProperties()
+    public String getGroupId()
     {
-        return this.properties;
+        return model.getGroupId();
     }
 
-    public void setProperties( Properties properties )
+    public void setGroupId( String groupId )
     {
-        this.properties = properties;
+        model.setGroupId( groupId );
     }
 
-    public void addProperty( String key, String value )
+    @Nonnull
+    @Override
+    public String getArtifactId()
     {
-        if ( this.properties == null )
-        {
-            this.properties = new Properties();
-        }
-        this.properties.put( key, value );
+        return model.getArtifactId();
+    }
+
+    public void setArtifactId( String artifactId )
+    {
+        model.setArtifactId( artifactId );
+    }
+
+    @Nonnull
+    @Override
+    public String getVersion()
+    {
+        return model.getVersion();
+    }
+
+    public void setVersion( String version )
+    {
+        model.setVersion( version );
+    }
+
+    public String getName()
+    {
+        return model.getName();
+    }
+
+    public void setName( String name )
+    {
+        model.setName( name );
+    }
+
+    @Nonnull
+    @Override
+    public String getPackaging()
+    {
+        return model.getPackaging();
+    }
+
+    @Nonnull
+    @Override
+    public Artifact getArtifact()
+    {
+        return null;
+    }
+
+    @Nonnull
+    @Override
+    public Model getModel()
+    {
+        return model;
+    }
+
+    @Nonnull
+    @Override
+    public Path getPomPath()
+    {
+        return null;
+    }
+
+    @Nonnull
+    @Override
+    public List<Dependency> getDependencies()
+    {
+        return null;
+    }
+
+    @Nonnull
+    @Override
+    public List<Dependency> getManagedDependencies()
+    {
+        return null;
     }
 
     @Override
-    public File getBasedir()
+    public Path getBasedir()
     {
-        return basedir;
+        return basedir.toPath();
     }
 
 }

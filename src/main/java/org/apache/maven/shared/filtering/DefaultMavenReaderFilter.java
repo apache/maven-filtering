@@ -23,8 +23,8 @@ import java.io.Reader;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.project.MavenProject;
+import org.apache.maven.api.Project;
+import org.apache.maven.api.Session;
 import org.apache.maven.shared.utils.io.FileUtils.FilterWrapper;
 import org.codehaus.plexus.component.annotations.Component;
 
@@ -37,8 +37,8 @@ public class DefaultMavenReaderFilter
     implements MavenReaderFilter
 {
     @Override
-    public Reader filter( Reader from, boolean filtering, MavenProject mavenProject, List<String> filters,
-                          boolean escapedBackslashesInFilePath, MavenSession mavenSession )
+    public Reader filter( Reader from, boolean filtering, Project mavenProject, List<String> filters,
+                          boolean escapedBackslashesInFilePath, Session mavenSession )
                               throws MavenFilteringException
     {
         MavenResourcesExecution mre = new MavenResourcesExecution();

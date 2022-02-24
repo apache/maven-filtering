@@ -24,8 +24,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.project.MavenProject;
+import org.apache.maven.api.Project;
+import org.apache.maven.api.Session;
 
 /**
  * @since 1.0-beta-3
@@ -33,13 +33,13 @@ import org.apache.maven.project.MavenProject;
 public class AbstractMavenFilteringRequest
 {
 
-    private MavenProject mavenProject;
+    private Project mavenProject;
 
     private List<String> filters;
 
     private boolean escapeWindowsPaths = true;
 
-    private MavenSession mavenSession;
+    private Session mavenSession;
 
     /**
      * List of Strings considered as expressions which contains values in the project/pom: pom project Default value
@@ -96,8 +96,8 @@ public class AbstractMavenFilteringRequest
      * @param filters The list of filters.
      * @param mavenSession The MavenSession.
      */
-    protected AbstractMavenFilteringRequest( MavenProject mavenProject, List<String> filters,
-                                             MavenSession mavenSession )
+    protected AbstractMavenFilteringRequest( Project mavenProject, List<String> filters,
+                                             Session mavenSession )
     {
         initDefaults();
         this.mavenProject = mavenProject;
@@ -117,7 +117,7 @@ public class AbstractMavenFilteringRequest
     /**
      * @return The MavenProject
      */
-    public MavenProject getMavenProject()
+    public Project getMavenProject()
     {
         return mavenProject;
     }
@@ -127,7 +127,7 @@ public class AbstractMavenFilteringRequest
      *
      * @param mavenProject The MavenProject to be set.
      */
-    public void setMavenProject( MavenProject mavenProject )
+    public void setMavenProject( Project mavenProject )
     {
         this.mavenProject = mavenProject;
     }
@@ -213,7 +213,7 @@ public class AbstractMavenFilteringRequest
     /**
      * @return Current value of mavenSession
      */
-    public MavenSession getMavenSession()
+    public Session getMavenSession()
     {
         return mavenSession;
     }
@@ -221,7 +221,7 @@ public class AbstractMavenFilteringRequest
     /**
      * @param mavenSession Set new value for the MavenSession of the instance.
      */
-    public void setMavenSession( MavenSession mavenSession )
+    public void setMavenSession( Session mavenSession )
     {
         this.mavenSession = mavenSession;
     }

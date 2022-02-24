@@ -56,7 +56,7 @@ public class InvalidMarkTest
         resource.setFiltering( true );
 
         MavenResourcesExecution mavenResourcesExecution =
-            new MavenResourcesExecution( Collections.singletonList( resource ), outputDirectory,
+            new MavenResourcesExecution( Collections.singletonList( resource ), outputDirectory.toPath(),
                                          new StubMavenProject( new File( "." ) ), "UTF-8",
                                          Collections.<String>emptyList(), Collections.<String>emptyList(),
                                          new StubMavenSession() );

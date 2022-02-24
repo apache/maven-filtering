@@ -182,7 +182,7 @@ public class IncrementalResourceFilteringTest
         Properties projectProperties = new Properties();
         projectProperties.put( "time", time );
         projectProperties.put( "java.version", "zloug" );
-        mavenProject.setProperties( projectProperties );
+        mavenProject.getModel().setProperties( projectProperties );
         MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
 
         String unitFilesDir = new File( unitDirectory, "files" ).getPath();
@@ -198,7 +198,7 @@ public class IncrementalResourceFilteringTest
 
         MavenResourcesExecution mre = new MavenResourcesExecution();
         mre.setResources( resources );
-        mre.setOutputDirectory( outputDirectory );
+        mre.setOutputDirectory( outputDirectory.toPath() );
         mre.setEncoding( "UTF-8" );
         mre.setMavenProject( mavenProject );
         mre.setFilters( filtersFile );

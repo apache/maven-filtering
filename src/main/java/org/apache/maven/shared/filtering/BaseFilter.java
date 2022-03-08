@@ -44,12 +44,19 @@ import org.codehaus.plexus.interpolation.SimpleRecursionInterceptor;
 import org.codehaus.plexus.interpolation.SingleResponseValueSource;
 import org.codehaus.plexus.interpolation.ValueSource;
 import org.codehaus.plexus.interpolation.multi.MultiDelimiterStringSearchInterpolator;
-import org.codehaus.plexus.logging.AbstractLogEnabled;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class BaseFilter
-    extends AbstractLogEnabled
     implements DefaultFilterInfo
 {
+
+    protected final Logger logger = LoggerFactory.getLogger( getClass() );
+
+    public Logger getLogger()
+    {
+        return logger;
+    }
 
     @Override
     public List<FileUtils.FilterWrapper> getDefaultFilterWrappers( final Project mavenProject,
@@ -118,7 +125,7 @@ class BaseFilter
 
         final Properties filterProperties = new Properties();
 
-        File basedir = request.getMavenProject() != null
+        File basedir = request.getMavenProject() != null && request.getMavenProject().getBasedir() != null
                 ? request.getMavenProject().getBasedir().toFile() : new File( "." );
 
         loadProperties( filterProperties, basedir, request.getFileFilters(), baseProps );
@@ -131,8 +138,9 @@ class BaseFilter
         {
             if ( request.isInjectProjectBuildFilters() )
             {
-                List<String> buildFilters =
-                        new ArrayList<>( request.getMavenProject().getModel().getBuild().getFilters() );
+                List<String> buildFilters = request.getMavenProject().getModel().getBuild() != null
+                        ? new ArrayList<>( request.getMavenProject().getModel().getBuild().getFilters() )
+                        : new ArrayList<>();
 
                 // JDK-8015656: (coll) unexpected NPE from removeAll
                 if ( request.getFileFilters() != null )

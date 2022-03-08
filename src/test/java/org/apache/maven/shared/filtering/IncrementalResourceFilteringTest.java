@@ -19,6 +19,8 @@ package org.apache.maven.shared.filtering;
  * under the License.
  */
 
+import javax.inject.Inject;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -32,23 +34,32 @@ import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.model.Resource;
-import org.codehaus.plexus.PlexusTestCase;
+import org.codehaus.plexus.testing.PlexusTest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.sonatype.plexus.build.incremental.ThreadBuildContext;
 import org.sonatype.plexus.build.incremental.test.TestIncrementalBuildContext;
 
+import static org.codehaus.plexus.testing.PlexusExtension.getBasedir;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+@PlexusTest
 public class IncrementalResourceFilteringTest
-    extends PlexusTestCase
 {
 
     File outputDirectory = new File( getBasedir(), "target/IncrementalResourceFilteringTest" );
 
     File unitDirectory = new File( getBasedir(), "src/test/units-files/incremental" );
 
-    @Override
+    @Inject
+    MavenResourcesFiltering mavenResourcesFiltering;
+
+    @BeforeEach
     protected void setUp()
         throws Exception
     {
-        super.setUp();
         if ( outputDirectory.exists() )
         {
             FileUtils.deleteDirectory( outputDirectory );
@@ -56,6 +67,7 @@ public class IncrementalResourceFilteringTest
         outputDirectory.mkdirs();
     }
 
+    @Test
     public void testSimpleIncrementalFiltering()
         throws Exception
     {
@@ -91,6 +103,7 @@ public class IncrementalResourceFilteringTest
 
     }
 
+    @Test
     public void testOutputChange()
         throws Exception
     {
@@ -113,6 +126,7 @@ public class IncrementalResourceFilteringTest
 
     }
 
+    @Test
     public void testFilterChange()
         throws Exception
     {
@@ -135,6 +149,7 @@ public class IncrementalResourceFilteringTest
 
     }
 
+    @Test
     public void testFilterDeleted()
         throws Exception
     {
@@ -183,7 +198,6 @@ public class IncrementalResourceFilteringTest
         projectProperties.put( "time", time );
         projectProperties.put( "java.version", "zloug" );
         mavenProject.getModel().setProperties( projectProperties );
-        MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
 
         String unitFilesDir = new File( unitDirectory, "files" ).getPath();
 

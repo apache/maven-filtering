@@ -41,8 +41,9 @@ public class StubMavenProject
 
     private Model model = new Model();
     private File basedir;
+    private boolean executionRoot;
 
-    protected StubMavenProject( File basedir )
+    public StubMavenProject( File basedir )
     {
         this.basedir = basedir;
     }
@@ -138,7 +139,17 @@ public class StubMavenProject
     @Override
     public Path getBasedir()
     {
-        return basedir.toPath();
+        return basedir != null ? basedir.toPath() : null;
     }
 
+    @Override
+    public boolean isExecutionRoot()
+    {
+        return executionRoot;
+    }
+
+    public void setExecutionRoot( boolean executionRoot )
+    {
+        this.executionRoot = executionRoot;
+    }
 }

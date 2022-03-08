@@ -19,6 +19,10 @@ package org.apache.maven.shared.filtering;
  * under the License.
  */
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -27,23 +31,22 @@ import org.apache.maven.api.Project;
 import org.apache.maven.api.Session;
 import org.apache.maven.shared.utils.io.FileUtils;
 import org.apache.maven.shared.utils.io.FileUtils.FilterWrapper;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
 /**
  * @author Olivier Lamy
  */
-@Component( role = org.apache.maven.shared.filtering.MavenFileFilter.class, hint = "default" )
+@Singleton
+@Named( "default" )
 public class DefaultMavenFileFilter
     extends BaseFilter
     implements MavenFileFilter
 {
 
-    @Requirement
+    @Inject
     private MavenReaderFilter readerFilter;
 
-    @Requirement
+    @Inject
     private BuildContext buildContext;
 
     @Override

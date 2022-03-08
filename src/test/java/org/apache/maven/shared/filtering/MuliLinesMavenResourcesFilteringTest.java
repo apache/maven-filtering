@@ -19,6 +19,8 @@ package org.apache.maven.shared.filtering;
  * under the License.
  */
 
+import javax.inject.Inject;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
@@ -29,22 +31,30 @@ import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.model.Resource;
 import org.codehaus.plexus.PlexusTestCase;
+import org.codehaus.plexus.testing.PlexusTest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.codehaus.plexus.testing.PlexusExtension.getBasedir;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Olivier Lamy
  *
  */
+@PlexusTest
 public class MuliLinesMavenResourcesFilteringTest
-    extends PlexusTestCase
 {
 
     File outputDirectory = new File( getBasedir(), "target/MuliLinesMavenResourcesFilteringTest" );
 
-    @Override
+    @Inject
+    MavenResourcesFiltering mavenResourcesFiltering;
+
+    @BeforeEach
     protected void setUp()
         throws Exception
     {
-        super.setUp();
         if ( outputDirectory.exists() )
         {
             FileUtils.deleteDirectory( outputDirectory );
@@ -55,6 +65,7 @@ public class MuliLinesMavenResourcesFilteringTest
     /**
      * @throws Exception
      */
+    @Test
     public void testFilteringTokenOnce()
         throws Exception
     {
@@ -68,7 +79,6 @@ public class MuliLinesMavenResourcesFilteringTest
         projectProperties.put( "foo", "bar" );
         projectProperties.put( "java.version", "zloug" );
         mavenProject.getModel().setProperties( projectProperties );
-        MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
 
         String unitFilesDir = getBasedir() + "/src/test/units-files/MRESOURCES-104";
 

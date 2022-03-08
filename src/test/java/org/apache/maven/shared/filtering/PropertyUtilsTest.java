@@ -25,19 +25,27 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Properties;
 
-import org.codehaus.plexus.PlexusTestCase;
-import org.codehaus.plexus.logging.Logger;
+import org.codehaus.plexus.testing.PlexusTest;
+import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.Marker;
+
+import static org.codehaus.plexus.testing.PlexusExtension.getBasedir;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Olivier Lamy
  * @since 1.0-beta-1
  *
  */
+@PlexusTest
 public class PropertyUtilsTest
-    extends PlexusTestCase
 {
     private static File testDirectory = new File( getBasedir(), "target/test-classes/" );
 
+    @Test
     public void testBasic()
         throws Exception
     {
@@ -62,6 +70,7 @@ public class PropertyUtilsTest
         assertTrue( prop.getProperty( "ghost" ).equals( "${non_existent}" ) );
     }
 
+    @Test
     public void testSystemProperties()
         throws Exception
     {
@@ -83,17 +92,18 @@ public class PropertyUtilsTest
         assertTrue( prop.getProperty( "key" ).equals( System.getProperty( "user.dir" ) ) );
     }
 
+    @Test
     public void testException()
         throws Exception
     {
         File nonExistent = new File( testDirectory, "not_existent_file" );
 
-        assertFalse( "property file exist: " + nonExistent.toString(), nonExistent.exists() );
+        assertFalse( nonExistent.exists(), "property file exist: " + nonExistent.toString() );
 
         try
         {
             PropertyUtils.loadPropertyFile( nonExistent, true, false );
-            assertTrue( "Exception failed", false );
+            assertTrue( false, "Exception failed" );
         }
         catch ( Exception ex )
         {
@@ -101,6 +111,7 @@ public class PropertyUtilsTest
         }
     }
 
+    @Test
     public void testloadpropertiesFile()
         throws Exception
     {
@@ -120,6 +131,7 @@ public class PropertyUtilsTest
      *
      * @throws IOException if problem writing file
      */
+    @Test
     public void testCircularReferences()
         throws IOException
     {
@@ -153,6 +165,7 @@ public class PropertyUtilsTest
      *
      * @throws IOException if problem writing file
      */
+    @Test
     public void testCircularReferences3Vars()
         throws IOException
     {
@@ -268,45 +281,297 @@ public class PropertyUtilsTest
         }
 
         @Override
-        public void fatalError( String message )
+        public String getName()
         {
-            // nothing
+            return null;
         }
 
         @Override
-        public void fatalError( String message, Throwable throwable )
-        {
-            // nothing
-        }
-
-        @Override
-        public boolean isFatalErrorEnabled()
+        public boolean isTraceEnabled()
         {
             return false;
         }
 
         @Override
-        public int getThreshold()
+        public void trace( String s )
         {
-            return 0;
+
         }
 
         @Override
-        public void setThreshold( int threshold )
+        public void trace( String s, Object o )
         {
-            // nothing
+
         }
 
         @Override
-        public Logger getChildLogger( String name )
+        public void trace( String s, Object o, Object o1 )
         {
-            return null;
+
         }
 
         @Override
-        public String getName()
+        public void trace( String s, Object... objects )
         {
-            return null;
+
+        }
+
+        @Override
+        public void trace( String s, Throwable throwable )
+        {
+
+        }
+
+        @Override
+        public boolean isTraceEnabled( Marker marker )
+        {
+            return false;
+        }
+
+        @Override
+        public void trace( Marker marker, String s )
+        {
+
+        }
+
+        @Override
+        public void trace( Marker marker, String s, Object o )
+        {
+
+        }
+
+        @Override
+        public void trace( Marker marker, String s, Object o, Object o1 )
+        {
+
+        }
+
+        @Override
+        public void trace( Marker marker, String s, Object... objects )
+        {
+
+        }
+
+        @Override
+        public void trace( Marker marker, String s, Throwable throwable )
+        {
+
+        }
+
+        @Override
+        public void debug( String s, Object o )
+        {
+
+        }
+
+        @Override
+        public void debug( String s, Object o, Object o1 )
+        {
+
+        }
+
+        @Override
+        public void debug( String s, Object... objects )
+        {
+
+        }
+
+        @Override
+        public boolean isDebugEnabled( Marker marker )
+        {
+            return false;
+        }
+
+        @Override
+        public void debug( Marker marker, String s )
+        {
+
+        }
+
+        @Override
+        public void debug( Marker marker, String s, Object o )
+        {
+
+        }
+
+        @Override
+        public void debug( Marker marker, String s, Object o, Object o1 )
+        {
+
+        }
+
+        @Override
+        public void debug( Marker marker, String s, Object... objects )
+        {
+
+        }
+
+        @Override
+        public void debug( Marker marker, String s, Throwable throwable )
+        {
+
+        }
+
+        @Override
+        public void info( String s, Object o )
+        {
+
+        }
+
+        @Override
+        public void info( String s, Object o, Object o1 )
+        {
+
+        }
+
+        @Override
+        public void info( String s, Object... objects )
+        {
+
+        }
+
+        @Override
+        public boolean isInfoEnabled( Marker marker )
+        {
+            return false;
+        }
+
+        @Override
+        public void info( Marker marker, String s )
+        {
+
+        }
+
+        @Override
+        public void info( Marker marker, String s, Object o )
+        {
+
+        }
+
+        @Override
+        public void info( Marker marker, String s, Object o, Object o1 )
+        {
+
+        }
+
+        @Override
+        public void info( Marker marker, String s, Object... objects )
+        {
+
+        }
+
+        @Override
+        public void info( Marker marker, String s, Throwable throwable )
+        {
+
+        }
+
+        @Override
+        public void warn( String s, Object o )
+        {
+
+        }
+
+        @Override
+        public void warn( String s, Object... objects )
+        {
+
+        }
+
+        @Override
+        public void warn( String s, Object o, Object o1 )
+        {
+
+        }
+
+        @Override
+        public boolean isWarnEnabled( Marker marker )
+        {
+            return false;
+        }
+
+        @Override
+        public void warn( Marker marker, String s )
+        {
+
+        }
+
+        @Override
+        public void warn( Marker marker, String s, Object o )
+        {
+
+        }
+
+        @Override
+        public void warn( Marker marker, String s, Object o, Object o1 )
+        {
+
+        }
+
+        @Override
+        public void warn( Marker marker, String s, Object... objects )
+        {
+
+        }
+
+        @Override
+        public void warn( Marker marker, String s, Throwable throwable )
+        {
+
+        }
+
+        @Override
+        public void error( String s, Object o )
+        {
+
+        }
+
+        @Override
+        public void error( String s, Object o, Object o1 )
+        {
+
+        }
+
+        @Override
+        public void error( String s, Object... objects )
+        {
+
+        }
+
+        @Override
+        public boolean isErrorEnabled( Marker marker )
+        {
+            return false;
+        }
+
+        @Override
+        public void error( Marker marker, String s )
+        {
+
+        }
+
+        @Override
+        public void error( Marker marker, String s, Object o )
+        {
+
+        }
+
+        @Override
+        public void error( Marker marker, String s, Object o, Object o1 )
+        {
+
+        }
+
+        @Override
+        public void error( Marker marker, String s, Object... objects )
+        {
+
+        }
+
+        @Override
+        public void error( Marker marker, String s, Throwable throwable )
+        {
+
         }
     }
 }

@@ -19,6 +19,10 @@ package org.apache.maven.shared.filtering;
  * under the License.
  */
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
@@ -37,33 +41,34 @@ import org.apache.maven.shared.utils.PathTool;
 import org.apache.maven.shared.utils.ReaderFactory;
 import org.apache.maven.shared.utils.StringUtils;
 import org.apache.maven.shared.utils.io.FileUtils.FilterWrapper;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.codehaus.plexus.util.Scanner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
 /**
  * @author Olivier Lamy
  */
-@Component( role = MavenResourcesFiltering.class, hint = "default" )
+@Named( "default" )
+@Singleton
 public class DefaultMavenResourcesFiltering
-    extends AbstractLogEnabled
     implements MavenResourcesFiltering, Initializable
 {
 
     private static final String[] EMPTY_STRING_ARRAY = {};
 
     private static final String[] DEFAULT_INCLUDES = { "**/**" };
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger( DefaultMavenResourcesFiltering.class );
 
     private List<String> defaultNonFilteredFileExtensions;
 
-    @Requirement
+    @Inject
     private BuildContext buildContext;
 
-    @Requirement
+    @Inject
     private MavenFileFilter mavenFileFilter;
 
     // ------------------------------------------------
@@ -92,9 +97,9 @@ public class DefaultMavenResourcesFiltering
         }
         String extension = StringUtils.lowerCase( FilenameUtils.getExtension( fileName ) );
         boolean filteredFileExtension = !nonFilteredFileExtensions.contains( extension );
-        if ( getLogger().isDebugEnabled() )
+        if ( LOGGER.isDebugEnabled() )
         {
-            getLogger().debug( "file " + fileName + " has a" + ( filteredFileExtension ? " " : " non " )
+            LOGGER.debug( "file " + fileName + " has a" + ( filteredFileExtension ? " " : " non " )
                 + "filtered file extension" );
         }
         return filteredFileExtension;
@@ -121,7 +126,7 @@ public class DefaultMavenResourcesFiltering
 
         if ( mavenResourcesExecution.getResources() == null )
         {
-            getLogger().info( "No resources configured skip copying/filtering" );
+            LOGGER.info( "No resources configured skip copying/filtering" );
             return;
         }
 
@@ -137,24 +142,24 @@ public class DefaultMavenResourcesFiltering
 
         if ( mavenResourcesExecution.getEncoding() == null || mavenResourcesExecution.getEncoding().length() < 1 )
         {
-            getLogger().warn( "Using platform encoding (" + ReaderFactory.FILE_ENCODING
+            LOGGER.warn( "Using platform encoding (" + ReaderFactory.FILE_ENCODING
                 + " actually) to copy filtered resources, i.e. build is platform dependent!" );
         }
         else
         {
-            getLogger().debug( "Using '" + mavenResourcesExecution.getEncoding()
+            LOGGER.debug( "Using '" + mavenResourcesExecution.getEncoding()
                 + "' encoding to copy filtered resources." );
         }
 
         if ( mavenResourcesExecution.getPropertiesEncoding() == null
             || mavenResourcesExecution.getPropertiesEncoding().length() < 1 )
         {
-            getLogger().debug( "Using '" + mavenResourcesExecution.getEncoding()
+            LOGGER.debug( "Using '" + mavenResourcesExecution.getEncoding()
                 + "' encoding to copy filtered properties files." );
         }
         else
         {
-            getLogger().debug( "Using '" + mavenResourcesExecution.getPropertiesEncoding()
+            LOGGER.debug( "Using '" + mavenResourcesExecution.getPropertiesEncoding()
                 + "' encoding to copy filtered properties files." );
         }
 
@@ -165,7 +170,7 @@ public class DefaultMavenResourcesFiltering
         for ( Resource resource : mavenResourcesExecution.getResources() )
         {
 
-            if ( getLogger().isDebugEnabled() )
+            if ( LOGGER.isDebugEnabled() )
             {
                 String ls = System.lineSeparator();
                 StringBuilder debugMessage =
@@ -179,7 +184,7 @@ public class DefaultMavenResourcesFiltering
                                 : resource.getIncludes().toString() );
 
                 // @formatter:on
-                getLogger().debug( debugMessage.toString() );
+                LOGGER.debug( debugMessage.toString() );
             }
 
             String targetPath = resource.getTargetPath();
@@ -194,7 +199,7 @@ public class DefaultMavenResourcesFiltering
 
             if ( resourceDirectory == null || !resourceDirectory.exists() )
             {
-                getLogger().info( "skip non existing resourceDirectory " + resourceDirectory );
+                LOGGER.info( "skip non existing resourceDirectory " + resourceDirectory );
                 continue;
             }
 
@@ -214,7 +219,7 @@ public class DefaultMavenResourcesFiltering
             }
             boolean ignoreDelta = !outputExists || buildContext.hasDelta( mavenResourcesExecution.getFileFilters() )
                 || buildContext.hasDelta( getRelativeOutputDirectory( mavenResourcesExecution ) );
-            getLogger().debug( "ignoreDelta " + ignoreDelta );
+            LOGGER.debug( "ignoreDelta " + ignoreDelta );
             Scanner scanner = buildContext.newScanner( resourceDirectory, ignoreDelta );
 
             setupScanner( resource, scanner, mavenResourcesExecution.isAddDefaultExcludes() );
@@ -238,13 +243,13 @@ public class DefaultMavenResourcesFiltering
 
             List<String> includedFiles = Arrays.asList( scanner.getIncludedFiles() );
 
-            getLogger().info( "Copying " + includedFiles.size() + " resource" + ( includedFiles.size() > 1 ? "s" : "" )
+            LOGGER.info( "Copying " + includedFiles.size() + " resource" + ( includedFiles.size() > 1 ? "s" : "" )
                 + ( targetPath == null ? "" : " to " + targetPath ) );
 
             for ( String name : includedFiles )
             {
 
-                getLogger().debug( "Copying file " + name );
+                LOGGER.debug( "Copying file " + name );
                 File source = new File( resourceDirectory, name );
 
                 File destinationFile = getDestinationFile( outputDirectory, targetPath, name, mavenResourcesExecution );
@@ -253,7 +258,7 @@ public class DefaultMavenResourcesFiltering
                 {
                     if ( mavenResourcesExecution.isOverwrite() )
                     {
-                        getLogger().warn( "existing file " + destinationFile.getName()
+                        LOGGER.warn( "existing file " + destinationFile.getName()
                                 + " will be overwritten by " + name );
                     }
                     else
@@ -272,7 +277,7 @@ public class DefaultMavenResourcesFiltering
                 // Determine which encoding to use when filtering this file
                 String encoding = getEncoding( source, mavenResourcesExecution.getEncoding(),
                                                mavenResourcesExecution.getPropertiesEncoding() );
-                getLogger().debug( "Using '" + encoding + "' encoding to copy filtered resource '"
+                LOGGER.debug( "Using '" + encoding + "' encoding to copy filtered resource '"
                                        + source.getName() + "'." );
                 mavenFileFilter.copyFile( source, destinationFile, resource.isFiltering() && filteredExt,
                                           mavenResourcesExecution.getFilterWrappers(),
@@ -313,7 +318,7 @@ public class DefaultMavenResourcesFiltering
             && propertiesFiles.size() > 0 )
         {
             // @todo Sometime in the future we should change this to be a warning
-            getLogger().info( "The encoding used to copy filtered properties files have not been set."
+            LOGGER.info( "The encoding used to copy filtered properties files have not been set."
                                   + " This means that the same encoding will be used to copy filtered properties files"
                                   + " as when copying other filtered resources. This might not be what you want!"
                                   + " Run your build with --debug to see which files might be affected."
@@ -328,7 +333,7 @@ public class DefaultMavenResourcesFiltering
             {
                 affectedFiles.append( System.lineSeparator() ).append( " - " ).append( propertiesFile.getPath() );
             }
-            getLogger().debug( affectedFiles.toString() );
+            LOGGER.debug( affectedFiles.toString() );
 
         }
 
@@ -534,9 +539,9 @@ public class DefaultMavenResourcesFiltering
             IOUtils.copy( reader, writer );
             String filteredFilename = writer.toString();
 
-            if ( getLogger().isDebugEnabled() )
+            if ( LOGGER.isDebugEnabled() )
             {
-                getLogger().debug( "renaming filename " + name + " to " + filteredFilename );
+                LOGGER.debug( "renaming filename " + name + " to " + filteredFilename );
             }
             return filteredFilename;
         }

@@ -19,21 +19,30 @@ package org.apache.maven.shared.filtering;
  * under the License.
  */
 
+import javax.inject.Inject;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Properties;
 
-import org.codehaus.plexus.PlexusTestCase;
+import org.codehaus.plexus.testing.PlexusTest;
+import org.junit.jupiter.api.Test;
+
+import static org.codehaus.plexus.testing.PlexusExtension.getBasedir;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Olivier Lamy
  * @since 1.0-beta-1
  *
  */
+@PlexusTest
 public class TestReflectionProperties
-    extends PlexusTestCase
 {
+    @Inject
+    MavenFileFilter mavenFileFilter;
 
+    @Test
     public void testSimpleFiltering()
         throws Exception
     {
@@ -42,7 +51,6 @@ public class TestReflectionProperties
         mavenProject.setGroupId( "org.apache" );
         Properties userProperties = new Properties();
         userProperties.setProperty( "foo", "bar" );
-        MavenFileFilter mavenFileFilter = lookup( MavenFileFilter.class );
 
         File from = new File( getBasedir() + "/src/test/units-files/reflection-test.properties" );
         File to = new File( getBasedir() + "/target/reflection-test.properties" );
@@ -68,6 +76,7 @@ public class TestReflectionProperties
         assertEquals( "none filtered", reading.get( "none" ) );
     }
 
+    @Test
     public void testSimpleNonFiltering()
         throws Exception
     {
@@ -77,7 +86,6 @@ public class TestReflectionProperties
         mavenProject.setGroupId( "org.apache" );
         Properties userProperties = new Properties();
         userProperties.setProperty( "foo", "bar" );
-        MavenFileFilter mavenFileFilter = lookup( MavenFileFilter.class );
 
         File from = new File( getBasedir() + "/src/test/units-files/reflection-test.properties" );
         File to = new File( getBasedir() + "/target/reflection-test.properties" );

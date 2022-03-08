@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.maven.shared.utils.StringUtils;
-import org.codehaus.plexus.logging.Logger;
+import org.slf4j.Logger;
 
 /**
  * @author <a href="mailto:kenney@neonics.com">Kenney Westerhof</a>

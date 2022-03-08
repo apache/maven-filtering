@@ -19,26 +19,36 @@ package org.apache.maven.shared.filtering;
  * under the License.
  */
 
+import javax.inject.Inject;
+
 import java.io.File;
 import java.util.Collections;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.model.Resource;
 import org.codehaus.plexus.PlexusTestCase;
+import org.codehaus.plexus.testing.PlexusTest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.codehaus.plexus.testing.PlexusExtension.getBasedir;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Mikolaj Izdebski
  */
+@PlexusTest
 public class InvalidMarkTest
-    extends PlexusTestCase
 {
     File outputDirectory = new File( getBasedir(), "target/LongLineTest" );
 
-    @Override
+    @Inject
+    MavenResourcesFiltering mavenResourcesFiltering;
+
+    @BeforeEach
     protected void setUp()
         throws Exception
     {
-        super.setUp();
         if ( outputDirectory.exists() )
         {
             FileUtils.deleteDirectory( outputDirectory );
@@ -46,11 +56,10 @@ public class InvalidMarkTest
         outputDirectory.mkdirs();
     }
 
+    @Test
     public void testEscape()
         throws Exception
     {
-        MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
-
         Resource resource = new Resource();
         resource.setDirectory( "src/test/units-files/MSHARED-325" );
         resource.setFiltering( true );

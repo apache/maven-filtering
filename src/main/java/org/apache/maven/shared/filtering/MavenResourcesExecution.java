@@ -34,7 +34,7 @@ import org.codehaus.plexus.interpolation.ValueSource;
 
 /**
  * A bean to configure a resources filtering execution.
- *
+ * @author <a href="mailto:BELMOUJAHID.I@Gmail.Com>Imad BELMOUJAHID</a> @ImadBL
  * @author Olivier Lamy
  */
 public class MavenResourcesExecution
@@ -119,11 +119,42 @@ public class MavenResourcesExecution
     private boolean flatten = false;
 
     /**
+     * rootNode
+     */
+    private String rootNode;
+
+    /**
      * Do nothing.
      */
     public MavenResourcesExecution()
     {
         // no op
+    }
+
+    /**
+     *
+     * @param resources The list of resources.
+     * @param outputDirectory The output directory.
+     * @param mavenProject The maven project.
+     * @param encoding The given encoding.
+     * @param fileFilters The file filters.
+     * @param nonFilteredFileExtensions The extensions which should not being filtered.
+     * @param mavenSession The maven session.
+     * @param rootNode param used for json files
+     */
+    public MavenResourcesExecution( List<Resource> resources, File outputDirectory, MavenProject mavenProject,
+                                    String encoding, List<String> fileFilters, List<String> nonFilteredFileExtensions,
+                                    MavenSession mavenSession, String rootNode )
+    {
+        super( mavenProject, fileFilters, mavenSession );
+        this.encoding = encoding;
+        this.resources = resources;
+        this.outputDirectory = outputDirectory;
+        this.nonFilteredFileExtensions = nonFilteredFileExtensions;
+        this.useDefaultFilterWrappers = true;
+        this.addDefaultExcludes = true;
+        this.resourcesBaseDirectory = mavenProject.getBasedir();
+        this.rootNode = rootNode;
     }
 
     /**
@@ -318,6 +349,24 @@ public class MavenResourcesExecution
                 return interpolatorFilterReader;
             }
         } );
+    }
+
+    /**
+     * get RootNode
+     * @return
+     */
+    public String getRootNode()
+    {
+        return rootNode;
+    }
+
+    /**
+     * set rootNode
+     * @param rootNode
+     */
+    public void setRootNode( String rootNode )
+    {
+        this.rootNode = rootNode;
     }
 
     /**

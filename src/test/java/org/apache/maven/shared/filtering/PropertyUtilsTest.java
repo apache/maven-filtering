@@ -29,6 +29,7 @@ import org.codehaus.plexus.PlexusTestCase;
 import org.codehaus.plexus.logging.Logger;
 
 /**
+ * @author <a href="mailto:BELMOUJAHID.I@Gmail.Com>Imad BELMOUJAHID</a> @ImadBL
  * @author Olivier Lamy
  * @since 1.0-beta-1
  *
@@ -37,6 +38,54 @@ public class PropertyUtilsTest
     extends PlexusTestCase
 {
     private static File testDirectory = new File( getBasedir(), "target/test-classes/" );
+
+    public void testBasicForJsonFile() throws IOException {
+
+        File basicProp = new File( testDirectory, "propertyutils-test.json" );
+        basicProp.deleteOnExit();
+
+        if ( basicProp.exists() )
+        {
+            basicProp.delete();
+        }
+
+        basicProp.createNewFile();
+        try ( FileWriter writer = new FileWriter( basicProp ) )
+        {
+            writer.write( "{ \"dev\" : { \"type\" : \"toto\", \"key2\" : \"value2\", " +
+                    "\"key3\" : {\"key4\" : \"value4\" } }, \"qualif\" : { \"type2\" : " +
+                    "\"toto1\", \"key5\" : \"value7\", \"key7\" : {\"key8\" : \"toto\"}}}\n" );
+            writer.flush();
+        }
+
+        Properties prop2 = PropertyUtils.loadPropertyFile( basicProp, false, false, null );
+        assertTrue( prop2.getProperty( "dev.type" ).equals( "toto" ) );
+        assertTrue( prop2.getProperty( "dev.key2" ).equals( "value2" ) );
+    }
+
+    public void testBasicForJsonFileWithrootNode() throws IOException {
+
+        File basicProp = new File( testDirectory, "propertyutils-test.json" );
+        basicProp.deleteOnExit();
+
+        if ( basicProp.exists() )
+        {
+            basicProp.delete();
+        }
+
+        basicProp.createNewFile();
+        try ( FileWriter writer = new FileWriter( basicProp ) )
+        {
+            writer.write( "{ \"dev\" : { \"type\" : \"toto\", \"key2\" : \"value2\", " +
+                    "\"key3\" : {\"key4\" : \"value4\" } }, \"qualif\" : { \"type2\" : " +
+                    "\"toto1\", \"key5\" : \"value7\", \"key7\" : {\"key8\" : \"toto\"}}}\n" );
+            writer.flush();
+        }
+
+        Properties prop2 = PropertyUtils.loadPropertyFile( basicProp, false, false, "dev" );
+        assertTrue( prop2.getProperty( "type" ).equals( "toto" ) );
+        assertTrue( prop2.getProperty( "key2" ).equals( "value2" ) );
+    }
 
     public void testBasic()
         throws Exception
@@ -57,11 +106,15 @@ public class PropertyUtilsTest
             writer.flush();
         }
 
-        Properties prop = PropertyUtils.loadPropertyFile( basicProp, false, false );
+        Properties prop = PropertyUtils.loadPropertyFile( basicProp, false, false, null );
         assertTrue( prop.getProperty( "key" ).equals( "gani_man" ) );
         assertTrue( prop.getProperty( "ghost" ).equals( "${non_existent}" ) );
     }
 
+    /**
+     * I added a null for this parameter (rootNode) because it is only used with json file @ImadBL
+     * @throws Exception
+     */
     public void testSystemProperties()
         throws Exception
     {
@@ -79,10 +132,14 @@ public class PropertyUtilsTest
             writer.flush();
         }
 
-        Properties prop = PropertyUtils.loadPropertyFile( systemProp, false, true );
+        Properties prop = PropertyUtils.loadPropertyFile( systemProp, false, true, null );
         assertTrue( prop.getProperty( "key" ).equals( System.getProperty( "user.dir" ) ) );
     }
 
+    /**
+     * I added a null for this parameter (rootNode) because it is only used with json file @ImadBL
+     * @throws Exception
+     */
     public void testException()
         throws Exception
     {
@@ -92,7 +149,7 @@ public class PropertyUtilsTest
 
         try
         {
-            PropertyUtils.loadPropertyFile( nonExistent, true, false );
+            PropertyUtils.loadPropertyFile( nonExistent, true, false, null );
             assertTrue( "Exception failed", false );
         }
         catch ( Exception ex )
@@ -101,6 +158,10 @@ public class PropertyUtilsTest
         }
     }
 
+    /**
+     * I added a null for rootNode parameter because it is only used with json file @ImadBL
+     * @throws Exception
+     */
     public void testloadpropertiesFile()
         throws Exception
     {
@@ -108,7 +169,7 @@ public class PropertyUtilsTest
         Properties baseProps = new Properties();
         baseProps.put( "pom.version", "realVersion" );
 
-        Properties interpolated = PropertyUtils.loadPropertyFile( propertyFile, baseProps );
+        Properties interpolated = PropertyUtils.loadPropertyFile( propertyFile, baseProps, null );
         assertEquals( "realVersion", interpolated.get( "version" ) );
         assertEquals( "${foo}", interpolated.get( "foo" ) );
         assertEquals( "realVersion", interpolated.get( "bar" ) );
@@ -117,7 +178,7 @@ public class PropertyUtilsTest
 
     /**
      * Test case to reproduce MSHARED-417
-     *
+     * I added a null for this parameter (rootNode) because it is only used with json file @ImadBL
      * @throws IOException if problem writing file
      */
     public void testCircularReferences()
@@ -140,7 +201,7 @@ public class PropertyUtilsTest
 
         MockLogger logger = new MockLogger();
 
-        Properties prop = PropertyUtils.loadPropertyFile( basicProp, null, logger );
+        Properties prop = PropertyUtils.loadPropertyFile( basicProp, null, logger, null );
         assertEquals( "${test2}", prop.getProperty( "test" ) );
         assertEquals( "${test2}", prop.getProperty( "test2" ) );
         assertEquals( 2, logger.warnMsgs.size() );
@@ -150,7 +211,7 @@ public class PropertyUtilsTest
 
     /**
      * Test case to reproduce MSHARED-417
-     *
+     * I added a null for this parameter (rootNode) because it is only used with json file @ImadBL
      * @throws IOException if problem writing file
      */
     public void testCircularReferences3Vars()
@@ -174,7 +235,7 @@ public class PropertyUtilsTest
 
         MockLogger logger = new MockLogger();
 
-        Properties prop = PropertyUtils.loadPropertyFile( basicProp, null, logger );
+        Properties prop = PropertyUtils.loadPropertyFile( basicProp, null, logger, null );
         assertEquals( "${test2}", prop.getProperty( "test" ) );
         assertEquals( "${test3}", prop.getProperty( "test2" ) );
         assertEquals( "${test}", prop.getProperty( "test3" ) );

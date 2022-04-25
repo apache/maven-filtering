@@ -46,6 +46,9 @@ import org.codehaus.plexus.interpolation.ValueSource;
 import org.codehaus.plexus.interpolation.multi.MultiDelimiterStringSearchInterpolator;
 import org.codehaus.plexus.logging.AbstractLogEnabled;
 
+/**
+ * @author <a href="mailto:BELMOUJAHID.I@Gmail.Com>Imad BELMOUJAHID</a> @ImadBL
+ */
 class BaseFilter
     extends AbstractLogEnabled
     implements DefaultFilterInfo
@@ -120,7 +123,7 @@ class BaseFilter
 
         File basedir = request.getMavenProject() != null ? request.getMavenProject().getBasedir() : new File( "." );
 
-        loadProperties( filterProperties, basedir, request.getFileFilters(), baseProps );
+        loadProperties( filterProperties, basedir, request.getFileFilters(), baseProps, request.getRootNode() );
         if ( filterProperties.size() < 1 )
         {
             filterProperties.putAll( baseProps );
@@ -138,7 +141,7 @@ class BaseFilter
                     buildFilters.removeAll( request.getFileFilters() );
                 }
 
-                loadProperties( filterProperties, basedir, buildFilters, baseProps );
+                loadProperties( filterProperties, basedir, buildFilters, baseProps, request.getRootNode() );
             }
 
             // Project properties
@@ -182,10 +185,11 @@ class BaseFilter
     }
 
     /**
+     * UseRootThisNode this parameter is null (used only for JSON files) for more information ### MRESOURCES-284 ###
      * default visibility only for testing reason !
      */
     void loadProperties( Properties filterProperties, File basedir, List<String> propertiesFilePaths,
-                         Properties baseProps )
+                         Properties baseProps, String rootNode )
                              throws MavenFilteringException
     {
         if ( propertiesFilePaths != null )
@@ -203,7 +207,8 @@ class BaseFilter
                 try
                 {
                     File propFile = FileUtils.resolveFile( basedir, filterFile );
-                    Properties properties = PropertyUtils.loadPropertyFile( propFile, workProperties, getLogger() );
+                    Properties properties = PropertyUtils.loadPropertyFile( propFile, workProperties, getLogger(),
+                            rootNode );
                     filterProperties.putAll( properties );
                     workProperties.putAll( properties );
                 }

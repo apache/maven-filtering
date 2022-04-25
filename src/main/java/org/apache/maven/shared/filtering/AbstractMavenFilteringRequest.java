@@ -28,12 +28,15 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 
 /**
+ * @author <a href="mailto:BELMOUJAHID.I@Gmail.Com>Imad BELMOUJAHID</a> @ImadBL
  * @since 1.0-beta-3
  */
 public class AbstractMavenFilteringRequest
 {
 
     private MavenProject mavenProject;
+
+    private String rootNode;
 
     private List<String> filters;
 
@@ -170,6 +173,24 @@ public class AbstractMavenFilteringRequest
     public void setFileFilters( List<String> paramfilters )
     {
         setFilters( paramfilters );
+    }
+
+    /**
+     * get RootNode
+     * @return String using with json file
+     */
+    public String getRootNode()
+    {
+        return rootNode;
+    }
+
+    /**
+     * set RootNode
+     * @param rootNode String using with json file
+     */
+    public void setRootNode( String rootNode )
+    {
+        this.rootNode = rootNode;
     }
 
     /**

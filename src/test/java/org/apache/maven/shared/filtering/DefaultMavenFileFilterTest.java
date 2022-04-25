@@ -37,7 +37,7 @@ import org.codehaus.plexus.PlexusTestCase;
 
 /**
  * @author Olivier Lamy
- *
+ * @author <a href="mailto:BELMOUJAHID.I@Gmail.Com>Imad BELMOUJAHID</a> @ImadBL
  */
 public class DefaultMavenFileFilterTest
     extends PlexusTestCase
@@ -53,6 +53,10 @@ public class DefaultMavenFileFilterTest
         Files.deleteIfExists( to.toPath() );
     }
 
+    /**
+     * I added a null for this parameter (rootNode) because it is only used with json file @ImadBL
+     * @throws Exception
+     */
     public void testNotOverwriteFile()
         throws Exception
     {
@@ -71,11 +75,15 @@ public class DefaultMavenFileFilterTest
 
         mavenFileFilter.copyFile( from, to, false, null, null );
 
-        Properties properties = PropertyUtils.loadPropertyFile( to, null );
+        Properties properties = PropertyUtils.loadPropertyFile( to, null, null );
         assertEquals( "${pom.version}", properties.getProperty( "version" ) );
 
     }
 
+    /**
+     * I added a null for this parameter (rootNode) because it is only used with json file @ImadBL
+     * @throws Exception
+     */
     public void testOverwriteFile()
         throws Exception
     {
@@ -94,7 +102,7 @@ public class DefaultMavenFileFilterTest
 
         mavenFileFilter.copyFile( from, to, false, null, null, true );
 
-        Properties properties = PropertyUtils.loadPropertyFile( to, null );
+        Properties properties = PropertyUtils.loadPropertyFile( to, null, null );
         assertEquals( "older file", properties.getProperty( "version" ) );
 
     }
@@ -124,7 +132,7 @@ public class DefaultMavenFileFilterTest
 
         final Properties filterProperties = new Properties();
 
-        mavenFileFilter.loadProperties( filterProperties, new File( getBasedir() ), filters, new Properties() );
+        mavenFileFilter.loadProperties( filterProperties, new File( getBasedir() ), filters, new Properties(), null );
 
         assertTrue( filterProperties.getProperty( "third_filter_key" ).equals( "first and second" ) );
     }

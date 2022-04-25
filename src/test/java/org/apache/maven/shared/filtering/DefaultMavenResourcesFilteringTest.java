@@ -39,7 +39,7 @@ import org.codehaus.plexus.interpolation.ValueSource;
 
 /**
  * @author Olivier Lamy
- *
+ * @author <a href="mailto:BELMOUJAHID.I@Gmail.Com>Imad BELMOUJAHID</a> @ImadBL
  * @since 1.0-beta-1
  */
 public class DefaultMavenResourcesFilteringTest
@@ -273,6 +273,10 @@ public class DefaultMavenResourcesFilteringTest
         assertTrue( filesAreIdentical( initialImageFile, imageFile ) );
     }
 
+    /**
+     * I added a null for rootNode parameter because it is only used with json file @ImadBL
+     * @throws Exception
+     */
     public void testAddingTokens()
         throws Exception
     {
@@ -307,12 +311,16 @@ public class DefaultMavenResourcesFilteringTest
 
         mavenResourcesFiltering.filterResources( mavenResourcesExecution );
         Properties result =
-            PropertyUtils.loadPropertyFile( new File( outputDirectory, "maven-resources-filtering.txt" ), null );
+            PropertyUtils.loadPropertyFile( new File( outputDirectory, "maven-resources-filtering.txt" ), null, null );
         assertFalse( result.isEmpty() );
         assertEquals( mavenProject.getName(), result.get( "pomName" ) );
         assertFiltering( initialImageFile, false, false );
     }
 
+    /**
+     * I added a null for rootNode parameter because it is only used with json file @ImadBL
+     * @throws Exception
+     */
     public void testNoFiltering()
         throws Exception
     {
@@ -340,10 +348,10 @@ public class DefaultMavenResourcesFilteringTest
 
         assertEquals( 7, outputDirectory.listFiles().length );
         Properties result =
-            PropertyUtils.loadPropertyFile( new File( outputDirectory, "empty-maven-resources-filtering.txt" ), null );
+            PropertyUtils.loadPropertyFile( new File( outputDirectory, "empty-maven-resources-filtering.txt" ), null, null );
         assertTrue( result.isEmpty() );
 
-        result = PropertyUtils.loadPropertyFile( new File( outputDirectory, "maven-resources-filtering.txt" ), null );
+        result = PropertyUtils.loadPropertyFile( new File( outputDirectory, "maven-resources-filtering.txt" ), null, null );
         assertFalse( result.isEmpty() );
 
         assertEquals( "${pom.version}", result.get( "version" ) );
@@ -774,6 +782,8 @@ public class DefaultMavenResourcesFilteringTest
 
     /**
      * unit test for MSHARED-81 : https://issues.apache.org/jira/browse/MSHARED-81
+     *
+     * I added a null for rootNode parameter because it is only used with json file @ImadBL
      */
     @SuppressWarnings( "serial" )
     public void testMSHARED81()
@@ -809,22 +819,22 @@ public class DefaultMavenResourcesFilteringTest
 
         mavenResourcesFiltering.filterResources( mavenResourcesExecution );
 
-        Properties filteredResult = PropertyUtils.loadPropertyFile( new File( output, "filtered.properties" ), null );
+        Properties filteredResult = PropertyUtils.loadPropertyFile( new File( output, "filtered.properties" ), null, null );
 
         Properties expectedFilteredResult =
             PropertyUtils.loadPropertyFile( new File( getBasedir() + "/src/test/units-files/MSHARED-81",
                                                       "expected-filtered.properties" ),
-                                            null );
+                                            null, null );
 
         assertEquals( expectedFilteredResult, filteredResult );
 
         Properties nonFilteredResult =
-            PropertyUtils.loadPropertyFile( new File( output, "unfiltered.properties" ), null );
+            PropertyUtils.loadPropertyFile( new File( output, "unfiltered.properties" ), null, null );
 
         Properties expectedNonFilteredResult =
             PropertyUtils.loadPropertyFile( new File( getBasedir() + "/src/test/units-files/MSHARED-81/resources",
                                                       "unfiltered.properties" ),
-                                            null );
+                                            null, null );
 
         assertTrue( nonFilteredResult.equals( expectedNonFilteredResult ) );
     }
@@ -868,6 +878,8 @@ public class DefaultMavenResourcesFilteringTest
 
     /**
      * unit test for edge cases : https://issues.apache.org/jira/browse/MSHARED-228
+     *
+     * I added a null for rootNode parameter because it is only used with json file @ImadBL
      */
     @SuppressWarnings( "serial" )
     public void testEdgeCases()
@@ -905,22 +917,22 @@ public class DefaultMavenResourcesFilteringTest
 
         mavenResourcesFiltering.filterResources( mavenResourcesExecution );
 
-        Properties filteredResult = PropertyUtils.loadPropertyFile( new File( output, "filtered.properties" ), null );
+        Properties filteredResult = PropertyUtils.loadPropertyFile( new File( output, "filtered.properties" ), null, null );
 
         Properties expectedFilteredResult =
             PropertyUtils.loadPropertyFile( new File( getBasedir() + "/src/test/units-files/edge-cases",
                                                       "expected-filtered.properties" ),
-                                            null );
+                                            null, null );
 
         assertEquals( expectedFilteredResult, filteredResult );
 
         Properties nonFilteredResult =
-            PropertyUtils.loadPropertyFile( new File( output, "unfiltered.properties" ), null );
+            PropertyUtils.loadPropertyFile( new File( output, "unfiltered.properties" ), null, null );
 
         Properties expectedNonFilteredResult =
             PropertyUtils.loadPropertyFile( new File( getBasedir() + "/src/test/units-files/edge-cases/resources",
                                                       "unfiltered.properties" ),
-                                            null );
+                                            null, null );
 
         assertTrue( nonFilteredResult.equals( expectedNonFilteredResult ) );
     }

@@ -32,6 +32,7 @@ import org.apache.maven.shared.utils.StringUtils;
 import org.codehaus.plexus.logging.Logger;
 
 /**
+ * @author <a href="mailto:BELMOUJAHID.I@Gmail.Com>Imad BELMOUJAHID</a> @ImadBL
  * @author <a href="mailto:kenney@neonics.com">Kenney Westerhof</a>
  * @author William Ferguson
  */
@@ -54,13 +55,14 @@ public final class PropertyUtils
      *
      * @param propFile The property file to load.
      * @param baseProps Properties containing the initial values to substitute into the properties file.
+     * @param rootNode I have added this parameter for new feature with JSON files ### MRESOURCES-284 ###
      * @return Properties object containing the properties in the file with their values fully resolved.
      * @throws IOException if profile does not exist, or cannot be read.
      */
-    public static Properties loadPropertyFile( File propFile, Properties baseProps )
+    public static Properties loadPropertyFile( File propFile, Properties baseProps, String rootNode )
         throws IOException
     {
-        return loadPropertyFile( propFile, baseProps, null );
+        return loadPropertyFile( propFile, baseProps, null, rootNode );
     }
 
     /**
@@ -73,12 +75,14 @@ public final class PropertyUtils
      * @param propFile The property file to load.
      * @param baseProps Properties containing the initial values to substitute into the properties file.
      * @param logger Logger instance
+     * @param rootNode I have added this parameter for new feature with JSON files ### MRESOURCES-284 ###
      * @return Properties object containing the properties in the file with their values fully resolved.
      * @throws IOException if profile does not exist, or cannot be read.
      *
      * @since 3.1.2
      */
-    public static Properties loadPropertyFile( File propFile, Properties baseProps, Logger logger )
+    public static Properties loadPropertyFile( File propFile, Properties baseProps, Logger logger,
+                                               String rootNode )
         throws IOException
     {
         if ( !propFile.exists() )
@@ -90,7 +94,17 @@ public final class PropertyUtils
         
         try ( InputStream inStream = Files.newInputStream( propFile.toPath() ) )
         {
-            fileProps.load( inStream );
+            // I added this control to support JSON files
+            if ( propFile.getName().endsWith( ".json" ) )
+            {
+                PropertiesJson propertiesJson = new PropertiesJson();
+                propertiesJson.load( propFile, rootNode );
+                fileProps.putAll( propertiesJson.getProperties() );
+            }
+            else
+            {
+                fileProps.load( inStream );
+            }
         }
 
         final Properties combinedProps = new Properties();
@@ -122,13 +136,15 @@ public final class PropertyUtils
      * @param propfile The property file to load
      * @param fail whether to throw an exception when the file cannot be loaded or to return null
      * @param useSystemProps whether to incorporate System.getProperties settings into the returned Properties object.
+     * @param rootNode I have added this parameter for new feature with JSON files ### MRESOURCES-284 ###
      * @return the loaded and fully resolved Properties object
      * @throws IOException if profile does not exist, or cannot be read.
      */
-    public static Properties loadPropertyFile( File propfile, boolean fail, boolean useSystemProps )
+    public static Properties loadPropertyFile( File propfile, boolean fail, boolean useSystemProps,
+                                               String rootNode )
         throws IOException
     {
-        return loadPropertyFile( propfile, fail, useSystemProps, null );
+        return loadPropertyFile( propfile, fail, useSystemProps, null, rootNode );
     }
 
     /**
@@ -138,12 +154,14 @@ public final class PropertyUtils
      * @param fail whether to throw an exception when the file cannot be loaded or to return null
      * @param useSystemProps whether to incorporate System.getProperties settings into the returned Properties object.
      * @param logger Logger instance
+     * @param rootNode I have added this parameter for new feature with JSON files ### MRESOURCES-284 ###
      * @return the loaded and fully resolved Properties object
      * @throws IOException if profile does not exist, or cannot be read.
      *
      * @since 3.1.2
      */
-    public static Properties loadPropertyFile( File propfile, boolean fail, boolean useSystemProps, Logger logger )
+    public static Properties loadPropertyFile( File propfile, boolean fail, boolean useSystemProps, Logger logger,
+                                               String rootNode )
         throws IOException
     {
 
@@ -157,7 +175,17 @@ public final class PropertyUtils
         final Properties resolvedProps = new Properties();
         try
         {
-            resolvedProps.putAll( loadPropertyFile( propfile, baseProps, logger ) );
+            // I added this control to support JSON files
+            if ( propfile.getName().endsWith( ".json" ) )
+            {
+                PropertiesJson propertiesJson = new PropertiesJson();
+                propertiesJson.load( propfile, rootNode );
+                resolvedProps.putAll( propertiesJson.getProperties() );
+            }
+            else
+            {
+                resolvedProps.putAll( loadPropertyFile( propfile, baseProps, logger, null ) );
+            }
         }
         catch ( FileNotFoundException e )
         {

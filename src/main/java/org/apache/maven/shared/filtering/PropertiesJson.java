@@ -74,7 +74,7 @@ public class PropertiesJson
     {
         try ( FileReader reader = new FileReader ( fr ) )
         {
-            for ( Map.Entry<String, String> e
+            for ( Map.Entry<String, Object> e
                     : getPropertiesFromString( IOUtils.toString( reader ), useThisRoot ).entrySet( ) )
             {
 
@@ -90,11 +90,11 @@ public class PropertiesJson
      * @return
      * @throws JsonProcessingException
      */
-    private HashMap<String, String> getPropertiesFromString( String json, String useThisRoot )
+    private HashMap<String, Object> getPropertiesFromString( String json, String useThisRoot )
             throws IOException
     {
         String str = "";
-        HashMap<String, String> hashMap = new HashMap<>();
+        HashMap<String, Object> hashMap = new HashMap<>();
         ObjectMapper mapper = new ObjectMapper();
         List<String> keys = new ArrayList<>();
         JsonNode jsonNode = mapper.readTree( json );
@@ -110,7 +110,7 @@ public class PropertiesJson
      * @param keys
      * @param useThisRoot
      */
-    private void getPropertiesFromJsonNode ( HashMap<String, String> result, String str,
+    private void getPropertiesFromJsonNode ( HashMap<String, Object> result, String str,
                                              JsonNode jsonNode, List<String> keys, String useThisRoot )
     {
         if ( jsonNode.isObject() )
@@ -122,20 +122,29 @@ public class PropertiesJson
                 keys.add ( fieldName );
                 if ( jsonNode.get( fieldName ).isObject() )
                 {
-                        if ( str.isEmpty() )
-                        {
-                            str = fieldName;
-                        }
-                        else
-                        {
-                            str = str.concat ( "." ).concat( fieldName );
-                        }
-                    getPropertiesFromJsonNode ( result, str, jsonNode.get( fieldName ), keys, useThisRoot );
-                    str = "";
+                    String r;
+                    if ( str != null && str.isEmpty () )
+                    {
+                        r = str.concat( fieldName );
+                    }
+                    else
+                    {
+                        r = str.concat( "." ).concat( fieldName );
+                    }
+                    getPropertiesFromJsonNode ( result, r, jsonNode.get( fieldName ), keys, useThisRoot );
                 }
                 else
                 {
-                    getPropertiesFromJsonNode ( result, str, jsonNode.get( fieldName ), keys, useThisRoot );
+                    String r;
+                    if ( str != null && str.isEmpty() )
+                    {
+                        r = str.concat( fieldName );
+                    }
+                    else
+                    {
+                        r = str.concat( "." ).concat( fieldName );
+                    }
+                    getPropertiesFromJsonNode ( result, r, jsonNode.get( fieldName ), keys, useThisRoot );
                 }
             }
         }
@@ -149,20 +158,19 @@ public class PropertiesJson
         }
         else
         {
-            String s = str.concat ( "." ).concat ( keys.get ( keys.size() - 1 ) );
 
             if ( null != useThisRoot && !useThisRoot.isEmpty() )
             {
-                if ( s.startsWith( useThisRoot + "." ) )
+                if ( str.startsWith( useThisRoot + "." ) )
                 {
-                    result.put ( s.replaceFirst( "^[a-zA-Z1-9]*.", "" ), jsonNode.textValue(  ) );
+                    result.put ( str.replaceFirst( "^[a-zA-Z1-9]*.", "" ), jsonNode.textValue(  ) );
                 }
             }
             else
             {
-                result.put ( s, jsonNode.textValue() );
+                result.put ( str, jsonNode.textValue() );
             }
-            str = "";
+
         }
     }
 }

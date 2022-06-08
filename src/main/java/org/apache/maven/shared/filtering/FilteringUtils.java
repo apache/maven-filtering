@@ -21,8 +21,6 @@ package org.apache.maven.shared.filtering;
 
 import java.util.regex.Pattern;
 
-import org.apache.maven.shared.utils.StringUtils;
-
 /**
  * @author Olivier Lamy
  * @author Dennis Lundberg
@@ -49,7 +47,7 @@ public final class FilteringUtils
      */
     public static String escapeWindowsPath( String val )
     {
-        if ( !StringUtils.isEmpty( val ) && PATTERN.matcher( val ).matches() )
+        if ( !isEmpty( val ) && PATTERN.matcher( val ).matches() )
         {
             // Adapted from StringUtils.replace in plexus-utils to accommodate pre-escaped backslashes.
             StringBuilder buf = new StringBuilder( val.length() );
@@ -72,4 +70,8 @@ public final class FilteringUtils
         return val;
     }
 
+    static boolean isEmpty( final String string )
+    {
+        return string == null || string.trim().isEmpty();
+    }
 }

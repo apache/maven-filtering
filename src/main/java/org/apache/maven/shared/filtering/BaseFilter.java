@@ -32,7 +32,6 @@ import java.util.TreeSet;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Settings;
-import org.apache.maven.shared.utils.StringUtils;
 import org.apache.maven.shared.utils.io.FileUtils;
 import org.codehaus.plexus.interpolation.InterpolationPostProcessor;
 import org.codehaus.plexus.interpolation.Interpolator;
@@ -195,7 +194,7 @@ class BaseFilter
 
             for ( String filterFile : propertiesFilePaths )
             {
-                if ( StringUtils.isEmpty( filterFile ) )
+                if (  filterFile == null || filterFile.trim().isEmpty() )
                 {
                     // skip empty file name
                     continue;

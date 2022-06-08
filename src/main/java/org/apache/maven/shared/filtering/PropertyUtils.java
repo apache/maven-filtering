@@ -28,8 +28,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.maven.shared.utils.StringUtils;
 import org.codehaus.plexus.logging.Logger;
+
+import static org.apache.maven.shared.filtering.FilteringUtils.isEmpty;
 
 /**
  * @author <a href="mailto:kenney@neonics.com">Kenney Westerhof</a>
@@ -234,7 +235,7 @@ public final class PropertyUtils
                 valueChain.add( nk );
 
                 // try global environment..
-                if ( nv == null && !StringUtils.isEmpty( nk ) )
+                if ( nv == null && !isEmpty( nk ) )
                 {
                     nv = System.getProperty( nk );
                 }

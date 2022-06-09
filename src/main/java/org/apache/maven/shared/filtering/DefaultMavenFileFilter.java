@@ -19,7 +19,6 @@ package org.apache.maven.shared.filtering;
  * under the License.
  */
 
-import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
@@ -29,10 +28,6 @@ import java.util.List;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.shared.utils.io.FileUtils;
-import org.apache.maven.shared.utils.io.FileUtils.FilterWrapper;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * @author Olivier Lamy
@@ -43,14 +38,6 @@ public class DefaultMavenFileFilter
     extends BaseFilter
     implements MavenFileFilter
 {
-    private final MavenReaderFilter readerFilter;
-
-    @Inject
-    public DefaultMavenFileFilter( MavenReaderFilter readerFilter )
-    {
-        this.readerFilter = requireNonNull( readerFilter );
-    }
-
     @Override
     public void copyFile( File from, File to, boolean filtering, MavenProject mavenProject, List<String> filters,
                           boolean escapedBackslashesInFilePath, String encoding, MavenSession mavenSession )
@@ -63,7 +50,7 @@ public class DefaultMavenFileFilter
         mre.setMavenSession( mavenSession );
         mre.setInjectProjectBuildFilters( true );
 
-        List<FileUtils.FilterWrapper> filterWrappers = getDefaultFilterWrappers( mre );
+        List<FilterWrapper> filterWrappers = getDefaultFilterWrappers( mre );
         copyFile( from, to, filtering, filterWrappers, encoding );
     }
 
@@ -78,7 +65,7 @@ public class DefaultMavenFileFilter
     }
 
     @Override
-    public void copyFile( File from, File to, boolean filtering, List<FileUtils.FilterWrapper> filterWrappers,
+    public void copyFile( File from, File to, boolean filtering, List<FilterWrapper> filterWrappers,
                           String encoding )
                               throws MavenFilteringException
     {
@@ -87,7 +74,7 @@ public class DefaultMavenFileFilter
     }
 
     @Override
-    public void copyFile( File from, File to, boolean filtering, List<FileUtils.FilterWrapper> filterWrappers,
+    public void copyFile( File from, File to, boolean filtering, List<FilterWrapper> filterWrappers,
                           String encoding, boolean overwrite )
                               throws MavenFilteringException
     {
@@ -108,7 +95,7 @@ public class DefaultMavenFileFilter
                 {
                     getLogger().debug( "copy " + from.getPath() + " to " + to.getPath() );
                 }
-                FileUtils.copyFile( from, to, encoding, new FileUtils.FilterWrapper[0], overwrite );
+                FileUtils.copyFile( from, to, encoding, new FilterWrapper[0], overwrite );
             }
         }
         catch ( IOException e )

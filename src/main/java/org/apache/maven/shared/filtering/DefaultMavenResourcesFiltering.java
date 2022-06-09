@@ -38,8 +38,7 @@ import java.util.Locale;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.model.Resource;
-import org.apache.maven.shared.utils.PathTool;
-import org.apache.maven.shared.utils.io.FileUtils.FilterWrapper;
+import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.Scanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -210,7 +209,9 @@ public class DefaultMavenResourcesFiltering
             boolean ignoreDelta = !outputExists || buildContext.hasDelta( mavenResourcesExecution.getFileFilters() )
                 || buildContext.hasDelta( getRelativeOutputDirectory( mavenResourcesExecution ) );
             getLogger().debug( "ignoreDelta " + ignoreDelta );
-            Scanner scanner = buildContext.newScanner( resourceDirectory, ignoreDelta );
+
+            DirectoryScanner scanner = new DirectoryScanner();
+            scanner.setBasedir( resourceDirectory );
 
             setupScanner( resource, scanner, mavenResourcesExecution.isAddDefaultExcludes() );
 

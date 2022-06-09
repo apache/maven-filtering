@@ -19,7 +19,11 @@ package org.apache.maven.shared.filtering;
  * under the License.
  */
 
+import java.io.File;
+import java.io.IOException;
 import java.util.regex.Pattern;
+
+import org.codehaus.plexus.util.Os;
 
 /**
  * @author Olivier Lamy
@@ -68,6 +72,87 @@ public final class FilteringUtils
             return buf.toString();
         }
         return val;
+    }
+
+
+    /**
+     * Resolve a file <code>filename</code> to its canonical form. If <code>filename</code> is
+     * relative (doesn't start with <code>/</code>), it is resolved relative to
+     * <code>baseFile</code>. Otherwise it is treated as a normal root-relative path.
+     *
+     * @param baseFile where to resolve <code>filename</code> from, if <code>filename</code> is relative
+     * @param filename absolute or relative file path to resolve
+     * @return the canonical <code>File</code> of <code>filename</code>
+     */
+    public static File resolveFile( final File baseFile, String filename )
+    {
+        String filenm = filename;
+        if ( '/' != File.separatorChar )
+        {
+            filenm = filename.replace( '/', File.separatorChar );
+        }
+
+        if ( '\\' != File.separatorChar )
+        {
+            filenm = filename.replace( '\\', File.separatorChar );
+        }
+
+        // deal with absolute files
+        if ( filenm.startsWith( File.separator ) || ( Os.isFamily( Os.FAMILY_WINDOWS ) && filenm.indexOf( ":" ) > 0 ) )
+        {
+            File file = new File( filenm );
+
+            try
+            {
+                file = file.getCanonicalFile();
+            }
+            catch ( final IOException ioe )
+            {
+                // nop
+            }
+
+            return file;
+        }
+        // FIXME: I'm almost certain this // removal is unnecessary, as getAbsoluteFile() strips
+        // them. However, I'm not sure about this UNC stuff. (JT)
+        final char[] chars = filename.toCharArray();
+        final StringBuilder sb = new StringBuilder();
+
+        //remove duplicate file separators in succession - except
+        //on win32 at start of filename as UNC filenames can
+        //be \\AComputer\AShare\myfile.txt
+        int start = 0;
+        if ( '\\' == File.separatorChar )
+        {
+            sb.append( filenm.charAt( 0 ) );
+            start++;
+        }
+
+        for ( int i = start; i < chars.length; i++ )
+        {
+            final boolean doubleSeparator = File.separatorChar == chars[i] && File.separatorChar == chars[i - 1];
+
+            if ( !doubleSeparator )
+            {
+                sb.append( chars[i] );
+            }
+        }
+
+        filenm = sb.toString();
+
+        //must be relative
+        File file = ( new File( baseFile, filenm ) ).getAbsoluteFile();
+
+        try
+        {
+            file = file.getCanonicalFile();
+        }
+        catch ( final IOException ioe )
+        {
+            // nop
+        }
+
+        return file;
     }
 
     static boolean isEmpty( final String string )

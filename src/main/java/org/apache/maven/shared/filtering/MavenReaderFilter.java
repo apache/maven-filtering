@@ -24,7 +24,6 @@ import java.util.List;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.shared.utils.io.FileUtils;
 
 /**
  * @author Olivier Lamy
@@ -71,5 +70,5 @@ public interface MavenReaderFilter
      * @param filterWrappers {@link java.util.List} of FileUtils.FilterWrapper
      * @return an input stream that applies the filter
      */
-    Reader filter( Reader from, boolean filtering, List<FileUtils.FilterWrapper> filterWrappers );
+    Reader filter( Reader from, boolean filtering, List<FilterWrapper> filterWrappers );
 }

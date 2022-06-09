@@ -28,7 +28,6 @@ import java.util.List;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.shared.utils.io.FileUtils.FilterWrapper;
 
 /**
  * @author Kristian Rosenvold

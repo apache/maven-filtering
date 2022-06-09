@@ -28,13 +28,12 @@ import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.model.Resource;
-import org.codehaus.plexus.PlexusTestCase;
 
 /**
  * @author Olivier Lamy
  */
 public class EscapeStringTest
-    extends PlexusTestCase
+    extends TestSupport
 {
 
     File outputDirectory = new File( getBasedir(), "target/EscapeStringTest" );

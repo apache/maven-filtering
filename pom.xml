@@ -97,15 +97,6 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.eclipse.sisu</groupId>
-      <artifactId>org.eclipse.sisu.plexus</artifactId>
-      <version>0.3.0.M1</version><!-- Maven 3.2.5 -->
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.plexus</groupId>
-      <artifactId>plexus-component-annotations</artifactId>
-    </dependency>    
-    <dependency>
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-utils</artifactId>
       <version>3.4.2</version>
@@ -143,6 +134,18 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
       <version>${slf4jVersion}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.sisu</groupId>
+      <artifactId>org.eclipse.sisu.plexus</artifactId>
+      <version>0.3.0.M1</version><!-- Maven 3.2.5 -->
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.sisu</groupId>
+      <artifactId>org.eclipse.sisu.inject</artifactId>
+      <version>0.3.0.M1</version><!-- Maven 3.2.5 -->
       <scope>test</scope>
     </dependency>
 

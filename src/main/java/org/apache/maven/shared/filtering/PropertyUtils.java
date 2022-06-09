@@ -28,7 +28,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
-import org.codehaus.plexus.logging.Logger;
+import org.slf4j.Logger;
 
 import static org.apache.maven.shared.filtering.FilteringUtils.isEmpty;
 

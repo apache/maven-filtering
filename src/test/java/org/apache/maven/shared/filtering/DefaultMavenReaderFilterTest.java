@@ -24,13 +24,12 @@ import java.io.StringReader;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
-import org.codehaus.plexus.PlexusTestCase;
 
 /**
  * @author Kristian Rosenvold
  */
 public class DefaultMavenReaderFilterTest
-    extends PlexusTestCase
+    extends TestSupport
 {
     public void testJustDoSomeFiltering()
         throws Exception

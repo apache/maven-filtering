@@ -32,14 +32,13 @@ import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.PlexusTestCase;
 
 /**
  * @author Olivier Lamy
  *
  */
 public class DefaultMavenFileFilterTest
-    extends PlexusTestCase
+    extends TestSupport
 {
 
     File to = new File( getBasedir(), "target/reflection-test.properties" );

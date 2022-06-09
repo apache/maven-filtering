@@ -87,7 +87,7 @@ public class DefaultMavenFileFilter
                     getLogger().debug( "filtering " + from.getPath() + " to " + to.getPath() );
                 }
                 FilterWrapper[] array = filterWrappers.toArray( new FilterWrapper[0] );
-                FileUtils.copyFile( from, to, encoding, array, false );
+                FilteringUtils.copyFile( from, to, encoding, array, false );
             }
             else
             {
@@ -95,7 +95,7 @@ public class DefaultMavenFileFilter
                 {
                     getLogger().debug( "copy " + from.getPath() + " to " + to.getPath() );
                 }
-                FileUtils.copyFile( from, to, encoding, new FilterWrapper[0], overwrite );
+                FilteringUtils.copyFile( from, to, encoding, new FilterWrapper[0], overwrite );
             }
         }
         catch ( IOException e )

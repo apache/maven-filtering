@@ -42,12 +42,18 @@ import org.codehaus.plexus.interpolation.SimpleRecursionInterceptor;
 import org.codehaus.plexus.interpolation.SingleResponseValueSource;
 import org.codehaus.plexus.interpolation.ValueSource;
 import org.codehaus.plexus.interpolation.multi.MultiDelimiterStringSearchInterpolator;
-import org.codehaus.plexus.logging.AbstractLogEnabled;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class BaseFilter
-    extends AbstractLogEnabled
     implements DefaultFilterInfo
 {
+    private final Logger logger = LoggerFactory.getLogger( getClass() );
+
+    protected Logger getLogger()
+    {
+        return logger;
+    }
 
     @Override
     public List<FilterWrapper> getDefaultFilterWrappers( final MavenProject mavenProject,

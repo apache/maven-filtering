@@ -24,7 +24,6 @@ import java.io.FileInputStream;
 import java.util.Properties;
 
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.PlexusTestCase;
 
 /**
  * @author Olivier Lamy
@@ -32,7 +31,7 @@ import org.codehaus.plexus.PlexusTestCase;
  *
  */
 public class TestReflectionProperties
-    extends PlexusTestCase
+    extends TestSupport
 {
 
     public void testSimpleFiltering()

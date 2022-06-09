@@ -206,9 +206,6 @@ public class DefaultMavenResourcesFiltering
             {
                 isFilteringUsed = true;
             }
-            boolean ignoreDelta = !outputExists || buildContext.hasDelta( mavenResourcesExecution.getFileFilters() )
-                || buildContext.hasDelta( getRelativeOutputDirectory( mavenResourcesExecution ) );
-            getLogger().debug( "ignoreDelta " + ignoreDelta );
 
             DirectoryScanner scanner = new DirectoryScanner();
             scanner.setBasedir( resourceDirectory );
@@ -275,26 +272,6 @@ public class DefaultMavenResourcesFiltering
                                           encoding,
                                           mavenResourcesExecution.isOverwrite() );
             }
-
-            // deal with deleted source files
-
-            scanner = buildContext.newDeleteScanner( resourceDirectory );
-
-            setupScanner( resource, scanner, mavenResourcesExecution.isAddDefaultExcludes() );
-
-            scanner.scan();
-
-            List<String> deletedFiles = Arrays.asList( scanner.getIncludedFiles() );
-
-            for ( String name : deletedFiles )
-            {
-                File destinationFile = getDestinationFile( outputDirectory, targetPath, name, mavenResourcesExecution );
-
-                destinationFile.delete();
-
-                buildContext.refresh( destinationFile );
-            }
-
         }
 
         // Warn the user if all of the following requirements are met, to avoid those that are not affected
@@ -497,7 +474,7 @@ public class DefaultMavenResourcesFiltering
         if ( execution.getMavenProject() != null && execution.getMavenProject().getBasedir() != null )
         {
             String basedir = execution.getMavenProject().getBasedir().getAbsolutePath();
-            relOutDir = PathTool.getRelativeFilePath( basedir, relOutDir );
+            relOutDir = FilteringUtils.getRelativeFilePath( basedir, relOutDir );
             if ( relOutDir == null )
             {
                 relOutDir = execution.getOutputDirectory().getPath();
@@ -529,9 +506,9 @@ public class DefaultMavenResourcesFiltering
             IOUtils.copy( reader, writer );
             String filteredFilename = writer.toString();
 
-            if ( getLogger().isDebugEnabled() )
+            if ( LOGGER.isDebugEnabled() )
             {
-                getLogger().debug( "renaming filename " + name + " to " + filteredFilename );
+                LOGGER.debug( "renaming filename " + name + " to " + filteredFilename );
             }
             return filteredFilename;
         }

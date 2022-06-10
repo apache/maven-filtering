@@ -57,6 +57,7 @@
   <properties>
     <mavenVersion>3.2.5</mavenVersion>
     <slf4jVersion>1.7.36</slf4jVersion>
+    <plexusBuildApiVersion>0.0.7</plexusBuildApiVersion>
     <javaVersion>8</javaVersion>
     <project.build.outputTimestamp>2020-08-05T15:18:01Z</project.build.outputTimestamp>
   </properties>
@@ -77,6 +78,11 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>${slf4jVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sonatype.plexus</groupId>
+      <artifactId>plexus-build-api</artifactId>
+      <version>${plexusBuildApiVersion}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
@@ -135,6 +141,13 @@
       <artifactId>slf4j-simple</artifactId>
       <version>${slf4jVersion}</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sonatype.plexus</groupId>
+      <artifactId>plexus-build-api</artifactId>
+      <version>${plexusBuildApiVersion}</version>
+      <scope>test</scope>
+      <classifier>tests</classifier>
     </dependency>
     <dependency>
       <groupId>org.eclipse.sisu</groupId>

@@ -32,6 +32,9 @@ import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.project.MavenProject;
+import org.sonatype.plexus.build.incremental.BuildContext;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * @author Olivier Lamy
@@ -110,7 +113,7 @@ public class DefaultMavenFileFilterTest
     public void testMultiFilterFileInheritance()
         throws Exception
     {
-        DefaultMavenFileFilter mavenFileFilter = new DefaultMavenFileFilter();
+        DefaultMavenFileFilter mavenFileFilter = new DefaultMavenFileFilter( mock( BuildContext.class ) );
 
         File testDir = new File( getBasedir(), "src/test/units-files/MSHARED-177" );
 

@@ -38,10 +38,12 @@ import java.util.Locale;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.model.Resource;
-import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.Scanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonatype.plexus.build.incremental.BuildContext;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * @author Olivier Lamy
@@ -61,10 +63,13 @@ public class DefaultMavenResourcesFiltering
 
     private final MavenFileFilter mavenFileFilter;
 
+    private final BuildContext buildContext;
+
     @Inject
-    public DefaultMavenResourcesFiltering( MavenFileFilter mavenFileFilter )
+    public DefaultMavenResourcesFiltering( MavenFileFilter mavenFileFilter, BuildContext buildContext )
     {
-        this.mavenFileFilter = mavenFileFilter;
+        this.mavenFileFilter = requireNonNull( mavenFileFilter );
+        this.buildContext = requireNonNull( buildContext );
         this.defaultNonFilteredFileExtensions = new ArrayList<>( 5 );
         this.defaultNonFilteredFileExtensions.add( "jpg" );
         this.defaultNonFilteredFileExtensions.add( "jpeg" );
@@ -207,8 +212,10 @@ public class DefaultMavenResourcesFiltering
                 isFilteringUsed = true;
             }
 
-            DirectoryScanner scanner = new DirectoryScanner();
-            scanner.setBasedir( resourceDirectory );
+            boolean ignoreDelta = !outputExists || buildContext.hasDelta( mavenResourcesExecution.getFileFilters() )
+                    || buildContext.hasDelta( getRelativeOutputDirectory( mavenResourcesExecution ) );
+            LOGGER.debug( "ignoreDelta " + ignoreDelta );
+            Scanner scanner = buildContext.newScanner( resourceDirectory, ignoreDelta );
 
             setupScanner( resource, scanner, mavenResourcesExecution.isAddDefaultExcludes() );
 
@@ -271,6 +278,25 @@ public class DefaultMavenResourcesFiltering
                                           mavenResourcesExecution.getFilterWrappers(),
                                           encoding,
                                           mavenResourcesExecution.isOverwrite() );
+            }
+
+            // deal with deleted source files
+
+            scanner = buildContext.newDeleteScanner( resourceDirectory );
+
+            setupScanner( resource, scanner, mavenResourcesExecution.isAddDefaultExcludes() );
+
+            scanner.scan();
+
+            List<String> deletedFiles = Arrays.asList( scanner.getIncludedFiles() );
+
+            for ( String name : deletedFiles )
+            {
+                File destinationFile = getDestinationFile( outputDirectory, targetPath, name, mavenResourcesExecution );
+
+                destinationFile.delete();
+
+                buildContext.refresh( destinationFile );
             }
         }
 

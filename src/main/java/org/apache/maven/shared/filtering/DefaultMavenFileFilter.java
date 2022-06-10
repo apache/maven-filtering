@@ -19,6 +19,7 @@ package org.apache.maven.shared.filtering;
  * under the License.
  */
 
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
@@ -28,6 +29,9 @@ import java.util.List;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
+import org.sonatype.plexus.build.incremental.BuildContext;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * @author Olivier Lamy
@@ -38,6 +42,14 @@ public class DefaultMavenFileFilter
     extends BaseFilter
     implements MavenFileFilter
 {
+    private final BuildContext buildContext;
+
+    @Inject
+    public DefaultMavenFileFilter( BuildContext buildContext )
+    {
+        this.buildContext = requireNonNull( buildContext );
+    }
+
     @Override
     public void copyFile( File from, File to, boolean filtering, MavenProject mavenProject, List<String> filters,
                           boolean escapedBackslashesInFilePath, String encoding, MavenSession mavenSession )
@@ -97,6 +109,8 @@ public class DefaultMavenFileFilter
                 }
                 FilteringUtils.copyFile( from, to, encoding, new FilterWrapper[0], overwrite );
             }
+
+            buildContext.refresh( to );
         }
         catch ( IOException e )
         {

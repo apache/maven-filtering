@@ -55,10 +55,10 @@
   </distributionManagement>
 
   <properties>
+    <javaVersion>8</javaVersion>
     <mavenVersion>3.2.5</mavenVersion>
     <slf4jVersion>1.7.36</slf4jVersion>
     <plexusBuildApiVersion>0.0.7</plexusBuildApiVersion>
-    <javaVersion>8</javaVersion>
     <project.build.outputTimestamp>2020-08-05T15:18:01Z</project.build.outputTimestamp>
   </properties>
 
@@ -152,13 +152,11 @@
     <dependency>
       <groupId>org.eclipse.sisu</groupId>
       <artifactId>org.eclipse.sisu.plexus</artifactId>
-      <version>0.3.0.M1</version><!-- Maven 3.2.5 -->
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.eclipse.sisu</groupId>
       <artifactId>org.eclipse.sisu.inject</artifactId>
-      <version>0.3.0.M1</version><!-- Maven 3.2.5 -->
       <scope>test</scope>
     </dependency>
 

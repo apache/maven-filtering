@@ -33,7 +33,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Resource;
 import org.apache.maven.settings.Settings;
-import org.codehaus.plexus.PlexusTestCase;
 import org.codehaus.plexus.interpolation.PrefixedObjectValueSource;
 import org.codehaus.plexus.interpolation.ValueSource;
 
@@ -43,7 +42,7 @@ import org.codehaus.plexus.interpolation.ValueSource;
  * @since 1.0-beta-1
  */
 public class DefaultMavenResourcesFilteringTest
-    extends PlexusTestCase
+    extends TestSupport
 {
 
     private File outputDirectory = new File( getBasedir(), "target/DefaultMavenResourcesFilteringTest" );

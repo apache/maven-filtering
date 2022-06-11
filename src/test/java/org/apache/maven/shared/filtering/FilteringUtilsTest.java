@@ -19,7 +19,9 @@ package org.apache.maven.shared.filtering;
  * under the License.
  */
 
-import org.codehaus.plexus.PlexusTestCase;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author John Casey
@@ -28,18 +30,20 @@ import org.codehaus.plexus.PlexusTestCase;
  *
  */
 public class FilteringUtilsTest
-    extends PlexusTestCase
 {
+    @Test
     public void testEscapeWindowsPathStartingWithDrive()
     {
         assertEquals( "C:\\\\Users\\\\Administrator", FilteringUtils.escapeWindowsPath( "C:\\Users\\Administrator" ) );
     }
 
+    @Test
     public void testEscapeWindowsPathMissingDriveLetter()
     {
         assertEquals( ":\\Users\\Administrator", FilteringUtils.escapeWindowsPath( ":\\Users\\Administrator" ) );
     }
 
+    @Test
     public void testEscapeWindowsPathInvalidDriveLetter()
     {
         assertEquals( "4:\\Users\\Administrator", FilteringUtils.escapeWindowsPath( "4:\\Users\\Administrator" ) );
@@ -62,6 +66,7 @@ public class FilteringUtilsTest
      */
 
     // MSHARED-179
+    @Test
     public void testEscapeWindowsPathNotAtBeginning()
         throws Exception
     {

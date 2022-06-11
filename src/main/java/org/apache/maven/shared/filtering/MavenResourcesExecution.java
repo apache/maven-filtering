@@ -27,8 +27,6 @@ import java.util.List;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Resource;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.shared.utils.io.FileUtils;
-import org.apache.maven.shared.utils.io.FileUtils.FilterWrapper;
 import org.codehaus.plexus.interpolation.StringSearchInterpolator;
 import org.codehaus.plexus.interpolation.ValueSource;
 
@@ -47,7 +45,7 @@ public class MavenResourcesExecution
 
     private List<String> nonFilteredFileExtensions;
 
-    private List<FileUtils.FilterWrapper> filterWrappers;
+    private List<FilterWrapper> filterWrappers;
 
     private File resourcesBaseDirectory;
 
@@ -161,7 +159,7 @@ public class MavenResourcesExecution
      * @param nonFilteredFileExtensions The list of extensions which should not being filtered.
      */
     public MavenResourcesExecution( List<Resource> resources, File outputDirectory, String encoding,
-                                    List<FileUtils.FilterWrapper> filterWrappers, File resourcesBaseDirectory,
+                                    List<FilterWrapper> filterWrappers, File resourcesBaseDirectory,
                                     List<String> nonFilteredFileExtensions )
     {
         this();
@@ -265,17 +263,17 @@ public class MavenResourcesExecution
     }
 
     /**
-     * @return List of {@link FileUtils.FilterWrapper}
+     * @return List of {@link FilterWrapper}
      */
-    public List<FileUtils.FilterWrapper> getFilterWrappers()
+    public List<FilterWrapper> getFilterWrappers()
     {
         return filterWrappers;
     }
 
     /**
-     * @param filterWrappers List of {@link FileUtils.FilterWrapper}
+     * @param filterWrappers List of {@link FilterWrapper}
      */
-    public void setFilterWrappers( List<FileUtils.FilterWrapper> filterWrappers )
+    public void setFilterWrappers( List<FilterWrapper> filterWrappers )
     {
         this.filterWrappers = filterWrappers;
     }
@@ -303,7 +301,7 @@ public class MavenResourcesExecution
     public void addFilerWrapperWithEscaping( final ValueSource valueSource, final String startExp, final String endExp,
                                              final String escapeString, final boolean multiLineFiltering )
     {
-        addFilterWrapper( new FileUtils.FilterWrapper()
+        addFilterWrapper( new FilterWrapper()
         {
             @Override
             public Reader getReader( Reader reader )

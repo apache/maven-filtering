@@ -37,7 +37,7 @@ import org.sonatype.plexus.build.incremental.ThreadBuildContext;
 import org.sonatype.plexus.build.incremental.test.TestIncrementalBuildContext;
 
 public class IncrementalResourceFilteringTest
-    extends PlexusTestCase
+    extends TestSupport
 {
 
     File outputDirectory = new File( getBasedir(), "target/IncrementalResourceFilteringTest" );

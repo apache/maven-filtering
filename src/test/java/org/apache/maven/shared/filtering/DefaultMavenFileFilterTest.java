@@ -32,15 +32,16 @@ import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.shared.utils.io.FileUtils.FilterWrapper;
-import org.codehaus.plexus.PlexusTestCase;
+import org.sonatype.plexus.build.incremental.BuildContext;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * @author Olivier Lamy
  *
  */
 public class DefaultMavenFileFilterTest
-    extends PlexusTestCase
+    extends TestSupport
 {
 
     File to = new File( getBasedir(), "target/reflection-test.properties" );
@@ -112,7 +113,7 @@ public class DefaultMavenFileFilterTest
     public void testMultiFilterFileInheritance()
         throws Exception
     {
-        DefaultMavenFileFilter mavenFileFilter = new DefaultMavenFileFilter();
+        DefaultMavenFileFilter mavenFileFilter = new DefaultMavenFileFilter( mock( BuildContext.class ) );
 
         File testDir = new File( getBasedir(), "src/test/units-files/MSHARED-177" );
 

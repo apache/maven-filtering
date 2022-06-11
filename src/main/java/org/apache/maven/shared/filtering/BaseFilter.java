@@ -32,8 +32,6 @@ import java.util.TreeSet;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Settings;
-import org.apache.maven.shared.utils.StringUtils;
-import org.apache.maven.shared.utils.io.FileUtils;
 import org.codehaus.plexus.interpolation.InterpolationPostProcessor;
 import org.codehaus.plexus.interpolation.Interpolator;
 import org.codehaus.plexus.interpolation.PrefixAwareRecursionInterceptor;
@@ -44,15 +42,21 @@ import org.codehaus.plexus.interpolation.SimpleRecursionInterceptor;
 import org.codehaus.plexus.interpolation.SingleResponseValueSource;
 import org.codehaus.plexus.interpolation.ValueSource;
 import org.codehaus.plexus.interpolation.multi.MultiDelimiterStringSearchInterpolator;
-import org.codehaus.plexus.logging.AbstractLogEnabled;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class BaseFilter
-    extends AbstractLogEnabled
     implements DefaultFilterInfo
 {
+    private final Logger logger = LoggerFactory.getLogger( getClass() );
+
+    protected Logger getLogger()
+    {
+        return logger;
+    }
 
     @Override
-    public List<FileUtils.FilterWrapper> getDefaultFilterWrappers( final MavenProject mavenProject,
+    public List<FilterWrapper> getDefaultFilterWrappers( final MavenProject mavenProject,
                                                                    List<String> filters,
                                                                    final boolean escapedBackslashesInFilePath,
                                                                    MavenSession mavenSession,
@@ -73,7 +77,7 @@ class BaseFilter
     }
 
     @Override
-    public List<FileUtils.FilterWrapper> getDefaultFilterWrappers( final AbstractMavenFilteringRequest request )
+    public List<FilterWrapper> getDefaultFilterWrappers( final AbstractMavenFilteringRequest request )
         throws MavenFilteringException
     {
         // backup values
@@ -158,7 +162,7 @@ class BaseFilter
             filterProperties.putAll( request.getAdditionalProperties() );
         }
 
-        List<FileUtils.FilterWrapper> defaultFilterWrappers = new ArrayList<>( request.getDelimiters().size() + 1 );
+        List<FilterWrapper> defaultFilterWrappers = new ArrayList<>( request.getDelimiters().size() + 1 );
 
         if ( getLogger().isDebugEnabled() )
         {
@@ -171,7 +175,7 @@ class BaseFilter
 
         final ValueSource propertiesValueSource = new PropertiesBasedValueSource( filterProperties );
 
-        FileUtils.FilterWrapper wrapper =
+        FilterWrapper wrapper =
             new Wrapper( request.getDelimiters(), request.getMavenProject(), request.getMavenSession(),
                          propertiesValueSource, request.getProjectStartExpressions(), request.getEscapeString(),
                          request.isEscapeWindowsPaths(), request.isSupportMultiLineFiltering() );
@@ -195,14 +199,14 @@ class BaseFilter
 
             for ( String filterFile : propertiesFilePaths )
             {
-                if ( StringUtils.isEmpty( filterFile ) )
+                if (  filterFile == null || filterFile.trim().isEmpty() )
                 {
                     // skip empty file name
                     continue;
                 }
                 try
                 {
-                    File propFile = FileUtils.resolveFile( basedir, filterFile );
+                    File propFile = FilteringUtils.resolveFile( basedir, filterFile );
                     Properties properties = PropertyUtils.loadPropertyFile( propFile, workProperties, getLogger() );
                     filterProperties.putAll( properties );
                     workProperties.putAll( properties );
@@ -216,7 +220,7 @@ class BaseFilter
     }
 
     private static final class Wrapper
-        extends FileUtils.FilterWrapper
+        extends FilterWrapper
     {
 
         private LinkedHashSet<String> delimiters;

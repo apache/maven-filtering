@@ -20,33 +20,17 @@ package org.apache.maven.shared.filtering;
  */
 
 import java.io.Reader;
-import java.io.StringReader;
-import java.util.Properties;
-
-import org.apache.commons.io.IOUtils;
 
 /**
- * @author Kristian Rosenvold
+ * Wrapper class for Filter.
+ *
+ * @since TBD
  */
-public class DefaultMavenReaderFilterTest
-    extends TestSupport
+public abstract class FilterWrapper
 {
-    public void testJustDoSomeFiltering()
-        throws Exception
-    {
-        MavenReaderFilter readerFilter = lookup( MavenReaderFilter.class );
-
-        StringReader src = new StringReader( "toto@titi.com ${foo}" );
-        MavenReaderFilterRequest req = new MavenReaderFilterRequest();
-        Properties additionalProperties = new Properties();
-        additionalProperties.setProperty( "foo", "bar" );
-        req.setFrom( src );
-        req.setFiltering( true );
-        req.setAdditionalProperties( additionalProperties );
-
-        try ( Reader filter = readerFilter.filter( req ) )
-        {
-            assertEquals( "toto@titi.com bar", IOUtils.toString( filter ) );
-        }
-    }
+    /**
+     * @param fileReader {@link Reader}
+     * @return the Reader instance
+     */
+    public abstract Reader getReader( Reader fileReader );
 }

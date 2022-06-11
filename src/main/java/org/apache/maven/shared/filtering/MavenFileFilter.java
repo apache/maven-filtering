@@ -24,7 +24,6 @@ import java.util.List;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.shared.utils.io.FileUtils;
 
 /**
  * @author Olivier Lamy
@@ -67,7 +66,7 @@ public interface MavenFileFilter
      * @param encoding The encoding used during the filtering.
      * @throws MavenFilteringException In case of an error.
      */
-    void copyFile( File from, final File to, boolean filtering, List<FileUtils.FilterWrapper> filterWrappers,
+    void copyFile( File from, final File to, boolean filtering, List<FilterWrapper> filterWrappers,
                    String encoding )
                        throws MavenFilteringException;
 
@@ -81,7 +80,7 @@ public interface MavenFileFilter
      * @throws MavenFilteringException In case of an error.
      * @since 1.0-beta-2
      */
-    void copyFile( File from, final File to, boolean filtering, List<FileUtils.FilterWrapper> filterWrappers,
+    void copyFile( File from, final File to, boolean filtering, List<FilterWrapper> filterWrappers,
                    String encoding, boolean overwrite )
                        throws MavenFilteringException;
 }

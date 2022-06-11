@@ -22,24 +22,27 @@ package org.apache.maven.shared.filtering;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
-import org.codehaus.plexus.PlexusTestCase;
-import org.codehaus.plexus.logging.Logger;
+import org.mockito.ArgumentCaptor;
+import org.slf4j.Logger;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Olivier Lamy
  * @since 1.0-beta-1
- *
  */
 public class PropertyUtilsTest
-    extends PlexusTestCase
+        extends TestSupport
 {
     private static File testDirectory = new File( getBasedir(), "target/test-classes/" );
 
     public void testBasic()
-        throws Exception
+            throws Exception
     {
         File basicProp = new File( testDirectory, "basic.properties" );
 
@@ -63,7 +66,7 @@ public class PropertyUtilsTest
     }
 
     public void testSystemProperties()
-        throws Exception
+            throws Exception
     {
         File systemProp = new File( testDirectory, "system.properties" );
 
@@ -84,7 +87,7 @@ public class PropertyUtilsTest
     }
 
     public void testException()
-        throws Exception
+            throws Exception
     {
         File nonExistent = new File( testDirectory, "not_existent_file" );
 
@@ -102,7 +105,7 @@ public class PropertyUtilsTest
     }
 
     public void testloadpropertiesFile()
-        throws Exception
+            throws Exception
     {
         File propertyFile = new File( getBasedir() + "/src/test/units-files/propertyutils-test.properties" );
         Properties baseProps = new Properties();
@@ -121,7 +124,7 @@ public class PropertyUtilsTest
      * @throws IOException if problem writing file
      */
     public void testCircularReferences()
-        throws IOException
+            throws IOException
     {
         File basicProp = new File( testDirectory, "circular.properties" );
 
@@ -131,21 +134,21 @@ public class PropertyUtilsTest
         }
 
         basicProp.createNewFile();
-        try( FileWriter writer = new FileWriter( basicProp ) )
+        try ( FileWriter writer = new FileWriter( basicProp ) )
         {
             writer.write( "test=${test2}\n" );
             writer.write( "test2=${test2}\n" );
             writer.flush();
         }
 
-        MockLogger logger = new MockLogger();
+        Logger logger = mock( Logger.class );
 
         Properties prop = PropertyUtils.loadPropertyFile( basicProp, null, logger );
         assertEquals( "${test2}", prop.getProperty( "test" ) );
         assertEquals( "${test2}", prop.getProperty( "test2" ) );
-        assertEquals( 2, logger.warnMsgs.size() );
-        assertWarn( "Circular reference between properties detected: test2 => test2", logger );
-        assertWarn( "Circular reference between properties detected: test => test2 => test2", logger );
+        assertWarn( logger,
+                "Circular reference between properties detected: test2 => test2",
+                "Circular reference between properties detected: test => test2 => test2" );
     }
 
     /**
@@ -154,7 +157,7 @@ public class PropertyUtilsTest
      * @throws IOException if problem writing file
      */
     public void testCircularReferences3Vars()
-        throws IOException
+            throws IOException
     {
         File basicProp = new File( testDirectory, "circular.properties" );
 
@@ -172,141 +175,26 @@ public class PropertyUtilsTest
             writer.flush();
         }
 
-        MockLogger logger = new MockLogger();
+        Logger logger = mock( Logger.class );
 
         Properties prop = PropertyUtils.loadPropertyFile( basicProp, null, logger );
         assertEquals( "${test2}", prop.getProperty( "test" ) );
         assertEquals( "${test3}", prop.getProperty( "test2" ) );
         assertEquals( "${test}", prop.getProperty( "test3" ) );
-        assertEquals( 3, logger.warnMsgs.size() );
-        assertWarn( "Circular reference between properties detected: test3 => test => test2 => test3", logger );
-        assertWarn( "Circular reference between properties detected: test2 => test3 => test => test2", logger );
-        assertWarn( "Circular reference between properties detected: test => test2 => test3 => test", logger );
+        assertWarn( logger,
+                "Circular reference between properties detected: test3 => test => test2 => test3",
+                "Circular reference between properties detected: test2 => test3 => test => test2",
+                "Circular reference between properties detected: test => test2 => test3 => test" );
     }
 
-    private void assertWarn( String expected, MockLogger logger )
+    private void assertWarn( Logger mock, String... expected )
     {
-        assertTrue( logger.warnMsgs.contains( expected ) );
-    }
-
-    private static class MockLogger
-        implements Logger
-    {
-
-        ArrayList<String> warnMsgs = new ArrayList<>();
-
-        @Override
-        public void debug( String message )
+        ArgumentCaptor<String> argument = ArgumentCaptor.forClass( String.class );
+        verify( mock, times( expected.length ) ).warn( argument.capture() );
+        List<String> messages = argument.getAllValues();
+        for ( String str : expected )
         {
-            // nothing
-        }
-
-        @Override
-        public void debug( String message, Throwable throwable )
-        {
-            // nothing
-        }
-
-        @Override
-        public boolean isDebugEnabled()
-        {
-            return false;
-        }
-
-        @Override
-        public void info( String message )
-        {
-            // nothing
-        }
-
-        @Override
-        public void info( String message, Throwable throwable )
-        {
-            // nothing
-        }
-
-        @Override
-        public boolean isInfoEnabled()
-        {
-            return false;
-        }
-
-        @Override
-        public void warn( String message )
-        {
-            warnMsgs.add( message );
-        }
-
-        @Override
-        public void warn( String message, Throwable throwable )
-        {
-            // nothing
-        }
-
-        @Override
-        public boolean isWarnEnabled()
-        {
-            return false;
-        }
-
-        @Override
-        public void error( String message )
-        {
-            // nothing
-        }
-
-        @Override
-        public void error( String message, Throwable throwable )
-        {
-            // nothing
-        }
-
-        @Override
-        public boolean isErrorEnabled()
-        {
-            return false;
-        }
-
-        @Override
-        public void fatalError( String message )
-        {
-            // nothing
-        }
-
-        @Override
-        public void fatalError( String message, Throwable throwable )
-        {
-            // nothing
-        }
-
-        @Override
-        public boolean isFatalErrorEnabled()
-        {
-            return false;
-        }
-
-        @Override
-        public int getThreshold()
-        {
-            return 0;
-        }
-
-        @Override
-        public void setThreshold( int threshold )
-        {
-            // nothing
-        }
-
-        @Override
-        public Logger getChildLogger( String name )
-        {
-            return null;
-        }
-
-        @Override
-        public String getName()
-        {
-            return null;
+            assertTrue( messages.contains( str ) );
         }
     }
 }

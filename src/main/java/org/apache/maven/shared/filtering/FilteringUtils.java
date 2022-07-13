@@ -82,7 +82,7 @@ public final class FilteringUtils {
             StringBuilder buf = new StringBuilder(val.length());
             int start = 0, end = 0;
             while ((end = val.indexOf('\\', start)) != -1) {
-                buf.append(val.substring(start, end)).append("\\\\");
+                buf.append(val, start, end).append("\\\\");
                 start = end + 1;
 
                 if (val.indexOf('\\', end + 1) == end + 1) {
@@ -334,9 +334,7 @@ public final class FilteringUtils {
                 } else {
                     CharsetEncoder encoder = charset.newEncoder();
 
-                    int totalBufferSize = FILE_COPY_BUFFER_SIZE;
-
-                    int charBufferSize = (int) Math.floor(totalBufferSize / (2 + 2 * encoder.maxBytesPerChar()));
+                    int charBufferSize = (int) Math.floor(FILE_COPY_BUFFER_SIZE / (2 + 2 * encoder.maxBytesPerChar()));
                     int byteBufferSize = (int) Math.ceil(charBufferSize * encoder.maxBytesPerChar());
 
                     CharBuffer newChars = CharBuffer.allocate(charBufferSize);

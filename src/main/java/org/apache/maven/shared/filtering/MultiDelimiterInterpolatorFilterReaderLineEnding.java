@@ -174,7 +174,7 @@ public class MultiDelimiterInterpolatorFilterReaderLineEnding extends AbstractFi
      * @throws IOException If an I/O error occurs
      */
     @Override
-    public int read(char cbuf[], int off, int len) throws IOException {
+    public int read(char[] cbuf, int off, int len) throws IOException {
         for (int i = 0; i < len; i++) {
             int ch = read();
             if (ch == -1) {
@@ -220,7 +220,7 @@ public class MultiDelimiterInterpolatorFilterReaderLineEnding extends AbstractFi
             for (int i = 0; i < getEscapeString().length(); i++) {
                 key.append((char) ch);
 
-                if (ch != getEscapeString().charAt(i) || ch == -1 || (ch == '\n' && !supportMultiLineFiltering)) {
+                if (ch != getEscapeString().charAt(i) || ch == '\n' && !supportMultiLineFiltering) {
                     // mismatch, EOF or EOL, no escape string here
                     in.reset();
                     inEscape = false;
@@ -238,12 +238,9 @@ public class MultiDelimiterInterpolatorFilterReaderLineEnding extends AbstractFi
             String begin = spec.getBegin();
 
             // longest match wins
-            if (begin.length() < max) {
-                continue;
-            }
 
             for (int i = 0; i < begin.length(); i++) {
-                if (ch != begin.charAt(i) || ch == -1 || (ch == '\n' && !supportMultiLineFiltering)) {
+                if (ch != begin.charAt(i) || ch == '\n' && !supportMultiLineFiltering) {
                     // mismatch, EOF or EOL, no match
                     break;
                 }
@@ -326,7 +323,7 @@ public class MultiDelimiterInterpolatorFilterReaderLineEnding extends AbstractFi
         endToken = null;
 
         // found endtoken? interpolate our key resolved above
-        String value = null;
+        String value;
         if (end == 0) {
             try {
                 if (interpolateWithPrefixPattern) {

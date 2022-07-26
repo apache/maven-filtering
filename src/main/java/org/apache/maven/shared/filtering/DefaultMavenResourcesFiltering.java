@@ -440,17 +440,26 @@ public class DefaultMavenResourcesFiltering
         }
         scanner.setIncludes( includes );
 
-        String[] excludes = null;
-        if ( resource.getExcludes() != null && !resource.getExcludes().isEmpty() )
+        List<String> excludes = resource.getExcludes();
+        if ( !resource.getExcludes().isEmpty() )
         {
-            excludes = resource.getExcludes().toArray( EMPTY_STRING_ARRAY );
-            scanner.setExcludes( excludes );
+            scanner.setExcludes( excludes.toArray( EMPTY_STRING_ARRAY ) );
         }
 
         if ( addDefaultExcludes )
         {
+            // Additional default excludes, keep ignoring the following
+            // files after https://github.com/codehaus-plexus/plexus-utils/pull/174
+            final ArrayList<String> defaultExcludes = new ArrayList<>( excludes );
+            defaultExcludes.add( "**/.gitignore" );
+            defaultExcludes.add( "**/.gitattributes" );
+            defaultExcludes.add( "**/.gitkeep" );
+            defaultExcludes.add( "**/.hgignore" );
+            scanner.setExcludes( defaultExcludes.toArray( EMPTY_STRING_ARRAY ) );
+
             scanner.addDefaultExcludes();
         }
+
         return includes;
     }
 

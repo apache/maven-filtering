@@ -637,7 +637,8 @@ public class DefaultMavenResourcesFilteringTest
         {
             {
                 setDirectory( getBasedir() + "/src/test/units-files/includeEmptyDirs" );
-                setExcludes( Arrays.asList( "**/.gitignore" ) );
+                // "**/.gitignore" ignored by default
+                // setExcludes( Arrays.asList( "**/.gitignore" ) );
             }
         } );
         MavenResourcesExecution mavenResourcesExecution =

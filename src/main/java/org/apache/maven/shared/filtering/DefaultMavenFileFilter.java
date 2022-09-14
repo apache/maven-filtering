@@ -115,7 +115,7 @@ public class DefaultMavenFileFilter
         catch ( IOException e )
         {
             throw new MavenFilteringException( ( filtering ? "filtering " : "copying " ) + from.getPath() + " to "
-                + to.getPath() + " failed with " + e.getClass().getSimpleName() + ": " + e.getMessage(), e );
+                + to.getPath() + " failed with " + e.getClass().getSimpleName(), e );
         }
     }
 }

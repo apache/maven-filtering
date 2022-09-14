@@ -347,10 +347,7 @@ public class InterpolatorFilterReaderLineEnding
             }
             catch ( InterpolationException e )
             {
-                IllegalArgumentException error = new IllegalArgumentException( e.getMessage() );
-                error.initCause( e );
-
-                throw error;
+                throw new IllegalArgumentException( e );
             }
         }
 

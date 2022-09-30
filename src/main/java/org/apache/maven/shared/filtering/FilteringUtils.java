@@ -404,7 +404,7 @@ public final class FilteringUtils
                     int existingRead;
                     boolean writing = false;
 
-                    try ( final RandomAccessFile existing = new RandomAccessFile( to, "rw" ) )
+                    try ( RandomAccessFile existing = new RandomAccessFile( to, "rw" ) )
                     {
                         int n;
                         while ( -1 != ( n = wrapped.read( newChars ) ) )

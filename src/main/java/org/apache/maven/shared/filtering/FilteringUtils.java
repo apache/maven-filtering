@@ -32,6 +32,7 @@ import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.StandardCopyOption;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
@@ -478,6 +479,10 @@ public final class FilteringUtils
                     destination.toPath(),
                     Files.getPosixFilePermissions( source.toPath() )
             );
+        }
+        catch ( NoSuchFileException nsfe )
+        {
+            // ignore if destination file or symlink does not exist
         }
         catch ( UnsupportedOperationException e )
         {

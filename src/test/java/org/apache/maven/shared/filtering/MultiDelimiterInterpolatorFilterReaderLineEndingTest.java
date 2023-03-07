@@ -1,5 +1,3 @@
-package org.apache.maven.shared.filtering;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -9,7 +7,7 @@ package org.apache.maven.shared.filtering;
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -18,11 +16,7 @@ package org.apache.maven.shared.filtering;
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isA;
-import static org.mockito.Mockito.when;
+package org.apache.maven.shared.filtering;
 
 import java.io.Reader;
 import java.io.StringReader;
@@ -38,88 +32,87 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.when;
+
 public class MultiDelimiterInterpolatorFilterReaderLineEndingTest
-    extends AbstractInterpolatorFilterReaderLineEndingTest
-{
+        extends AbstractInterpolatorFilterReaderLineEndingTest {
 
     @Mock
     private Interpolator interpolator;
 
     @Override
     @Before
-    public void onSetup()
-    {
-        MockitoAnnotations.initMocks( this );
+    public void onSetup() {
+        MockitoAnnotations.initMocks(this);
     }
 
     @Override
-    protected Reader getAaa_AaaReader( Reader in, Interpolator interpolator )
-    {
+    protected Reader getAaa_AaaReader(Reader in, Interpolator interpolator) {
         MultiDelimiterInterpolatorFilterReaderLineEnding reader =
-            new MultiDelimiterInterpolatorFilterReaderLineEnding( in, interpolator, true );
-        reader.setDelimiterSpecs( Collections.singleton( "aaa*aaa" ) );
+                new MultiDelimiterInterpolatorFilterReaderLineEnding(in, interpolator, true);
+        reader.setDelimiterSpecs(Collections.singleton("aaa*aaa"));
         return reader;
     }
 
     @Override
-    protected Reader getAbc_AbcReader( Reader in, Interpolator interpolator )
-    {
+    protected Reader getAbc_AbcReader(Reader in, Interpolator interpolator) {
         MultiDelimiterInterpolatorFilterReaderLineEnding reader =
-            new MultiDelimiterInterpolatorFilterReaderLineEnding( in, interpolator, true );
-        reader.setDelimiterSpecs( Collections.singleton( "abc*abc" ) );
+                new MultiDelimiterInterpolatorFilterReaderLineEnding(in, interpolator, true);
+        reader.setDelimiterSpecs(Collections.singleton("abc*abc"));
         return reader;
     }
 
     @Override
-    protected Reader getDollarBracesReader( Reader in, Interpolator interpolator, String escapeString )
-    {
+    protected Reader getDollarBracesReader(Reader in, Interpolator interpolator, String escapeString) {
         MultiDelimiterInterpolatorFilterReaderLineEnding reader =
-            new MultiDelimiterInterpolatorFilterReaderLineEnding( in, interpolator, true );
-        reader.setDelimiterSpecs( Collections.singleton( "${*}" ) );
-        reader.setEscapeString( escapeString );
+                new MultiDelimiterInterpolatorFilterReaderLineEnding(in, interpolator, true);
+        reader.setDelimiterSpecs(Collections.singleton("${*}"));
+        reader.setEscapeString(escapeString);
         return reader;
     }
 
     @Override
-    protected Reader getAtReader( Reader in, Interpolator interpolator, String escapeString )
-    {
+    protected Reader getAtReader(Reader in, Interpolator interpolator, String escapeString) {
         MultiDelimiterInterpolatorFilterReaderLineEnding reader =
-            new MultiDelimiterInterpolatorFilterReaderLineEnding( in, interpolator, true );
-        reader.setDelimiterSpecs( Collections.singleton( "@" ) );
-        reader.setEscapeString( escapeString );
+                new MultiDelimiterInterpolatorFilterReaderLineEnding(in, interpolator, true);
+        reader.setDelimiterSpecs(Collections.singleton("@"));
+        reader.setEscapeString(escapeString);
         return reader;
     }
 
     // MSHARED-199: Filtering doesn't work if 2 delimiters are used on the same line, the first one being left open
     @Test
-    public void testLineWithSingleAtAndExpression()
-        throws Exception
-    {
-        when( interpolator.interpolate( eq( "${foo}" ), eq( "" ), isA( RecursionInterceptor.class ) ) ).thenReturn( "bar" );
+    public void testLineWithSingleAtAndExpression() throws Exception {
+        when(interpolator.interpolate(eq("${foo}"), eq(""), isA(RecursionInterceptor.class)))
+                .thenReturn("bar");
 
-        Reader in = new StringReader( "toto@titi.com ${foo}" );
+        Reader in = new StringReader("toto@titi.com ${foo}");
         MultiDelimiterInterpolatorFilterReaderLineEnding reader =
-            new MultiDelimiterInterpolatorFilterReaderLineEnding( in, interpolator, true );
-        reader.setDelimiterSpecs( new HashSet<>( Arrays.asList( "${*}", "@" ) ) );
+                new MultiDelimiterInterpolatorFilterReaderLineEnding(in, interpolator, true);
+        reader.setDelimiterSpecs(new HashSet<>(Arrays.asList("${*}", "@")));
 
-        assertEquals( "toto@titi.com bar", IOUtils.toString( reader ) );
+        assertEquals("toto@titi.com bar", IOUtils.toString(reader));
     }
 
     // http://stackoverflow.com/questions/21786805/maven-war-plugin-customize-filter-delimitters-in-webresources/
     @Test
-    public void testAtDollarExpression()
-        throws Exception
-    {
-        when( interpolator.interpolate( eq( "${db.server}" ), eq( "" ), isA( RecursionInterceptor.class ) ) ).thenReturn( "DB_SERVER" );
-        when( interpolator.interpolate( eq( "${db.port}" ), eq( "" ), isA( RecursionInterceptor.class ) ) ).thenReturn( "DB_PORT" );
-        when( interpolator.interpolate( eq( "${db.name}" ), eq( "" ), isA( RecursionInterceptor.class ) ) ).thenReturn( "DB_NAME" );
+    public void testAtDollarExpression() throws Exception {
+        when(interpolator.interpolate(eq("${db.server}"), eq(""), isA(RecursionInterceptor.class)))
+                .thenReturn("DB_SERVER");
+        when(interpolator.interpolate(eq("${db.port}"), eq(""), isA(RecursionInterceptor.class)))
+                .thenReturn("DB_PORT");
+        when(interpolator.interpolate(eq("${db.name}"), eq(""), isA(RecursionInterceptor.class)))
+                .thenReturn("DB_NAME");
 
-        Reader in = new StringReader( "  url=\"jdbc:oracle:thin:\\@${db.server}:${db.port}:${db.name}\"" );
+        Reader in = new StringReader("  url=\"jdbc:oracle:thin:\\@${db.server}:${db.port}:${db.name}\"");
         MultiDelimiterInterpolatorFilterReaderLineEnding reader =
-            new MultiDelimiterInterpolatorFilterReaderLineEnding( in, interpolator, true );
-        reader.setEscapeString( "\\" );
-        reader.setDelimiterSpecs( new HashSet<>( Arrays.asList( "${*}", "@" ) ) );
+                new MultiDelimiterInterpolatorFilterReaderLineEnding(in, interpolator, true);
+        reader.setEscapeString("\\");
+        reader.setDelimiterSpecs(new HashSet<>(Arrays.asList("${*}", "@")));
 
-        assertEquals( "  url=\"jdbc:oracle:thin:@DB_SERVER:DB_PORT:DB_NAME\"", IOUtils.toString( reader ) );
+        assertEquals("  url=\"jdbc:oracle:thin:@DB_SERVER:DB_PORT:DB_NAME\"", IOUtils.toString(reader));
     }
 }

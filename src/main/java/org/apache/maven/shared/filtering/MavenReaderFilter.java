@@ -1,5 +1,3 @@
-package org.apache.maven.shared.filtering;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -9,7 +7,7 @@ package org.apache.maven.shared.filtering;
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -18,6 +16,7 @@ package org.apache.maven.shared.filtering;
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.maven.shared.filtering;
 
 import java.io.Reader;
 import java.util.List;
@@ -30,9 +29,7 @@ import org.apache.maven.project.MavenProject;
  * @author Kristian Rosenvold
  * @since 1.3
  */
-public interface MavenReaderFilter
-    extends DefaultFilterInfo
-{
+public interface MavenReaderFilter extends DefaultFilterInfo {
     /**
      * Provides a new reader that applies filtering using defaultFilterWrappers.
      *
@@ -47,9 +44,14 @@ public interface MavenReaderFilter
      * @see #getDefaultFilterWrappers(org.apache.maven.project.MavenProject, java.util.List, boolean,
      *      org.apache.maven.execution.MavenSession, org.apache.maven.shared.filtering.MavenResourcesExecution)
      */
-    Reader filter( Reader from, boolean filtering, MavenProject mavenProject, List<String> filters,
-                   boolean escapedBackslashesInFilePath, MavenSession mavenSession )
-                       throws MavenFilteringException;
+    Reader filter(
+            Reader from,
+            boolean filtering,
+            MavenProject mavenProject,
+            List<String> filters,
+            boolean escapedBackslashesInFilePath,
+            MavenSession mavenSession)
+            throws MavenFilteringException;
 
     /**
      * Provides a new reader that applies filtering using defaultFilterWrappers.
@@ -59,8 +61,7 @@ public interface MavenReaderFilter
      * @return an input stream that applies the filter
      * @since 1.0-beta-3
      */
-    Reader filter( MavenReaderFilterRequest mavenFileFilterRequest )
-        throws MavenFilteringException;
+    Reader filter(MavenReaderFilterRequest mavenFileFilterRequest) throws MavenFilteringException;
 
     /**
      * Provides a new reader that applies filtering using defaultFilterWrappers.
@@ -70,5 +71,5 @@ public interface MavenReaderFilter
      * @param filterWrappers {@link java.util.List} of FileUtils.FilterWrapper
      * @return an input stream that applies the filter
      */
-    Reader filter( Reader from, boolean filtering, List<FilterWrapper> filterWrappers );
+    Reader filter(Reader from, boolean filtering, List<FilterWrapper> filterWrappers);
 }

@@ -1,5 +1,3 @@
-package org.apache.maven.shared.filtering;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -9,7 +7,7 @@ package org.apache.maven.shared.filtering;
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -18,13 +16,12 @@ package org.apache.maven.shared.filtering;
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.maven.shared.filtering;
 
 /**
  * @author Olivier Lamy
  */
-public class MavenFilteringException
-    extends Exception
-{
+public class MavenFilteringException extends Exception {
 
     /**
      *
@@ -34,34 +31,29 @@ public class MavenFilteringException
     /**
      *
      */
-    public MavenFilteringException()
-    {
+    public MavenFilteringException() {
         // nothing
     }
 
     /**
      * @param message the message
      */
-    public MavenFilteringException( String message )
-    {
-        super( message );
+    public MavenFilteringException(String message) {
+        super(message);
     }
 
     /**
      * @param cause the cause of the exception
      */
-    public MavenFilteringException( Throwable cause )
-    {
-        super( cause );
+    public MavenFilteringException(Throwable cause) {
+        super(cause);
     }
 
     /**
      * @param message a message
      * @param cause a worthy cause
      */
-    public MavenFilteringException( String message, Throwable cause )
-    {
-        super( message, cause );
+    public MavenFilteringException(String message, Throwable cause) {
+        super(message, cause);
     }
-
 }

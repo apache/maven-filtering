@@ -1,5 +1,3 @@
-package org.apache.maven.shared.filtering;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -9,7 +7,7 @@ package org.apache.maven.shared.filtering;
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -18,6 +16,7 @@ package org.apache.maven.shared.filtering;
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.maven.shared.filtering;
 
 import java.io.Reader;
 
@@ -26,11 +25,10 @@ import java.io.Reader;
  *
  * @since TBD
  */
-public abstract class FilterWrapper
-{
+public abstract class FilterWrapper {
     /**
      * @param fileReader {@link Reader}
      * @return the Reader instance
      */
-    public abstract Reader getReader( Reader fileReader );
+    public abstract Reader getReader(Reader fileReader);
 }

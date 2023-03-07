@@ -1,5 +1,3 @@
-package org.apache.maven.shared.filtering;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -9,7 +7,7 @@ package org.apache.maven.shared.filtering;
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -18,6 +16,7 @@ package org.apache.maven.shared.filtering;
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.maven.shared.filtering;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -36,13 +35,11 @@ import static org.apache.maven.shared.filtering.FilteringUtils.isEmpty;
  * @author <a href="mailto:kenney@neonics.com">Kenney Westerhof</a>
  * @author William Ferguson
  */
-public final class PropertyUtils
-{
+public final class PropertyUtils {
     /**
      * Private empty constructor to prevent instantiation.
      */
-    private PropertyUtils()
-    {
+    private PropertyUtils() {
         // prevent instantiation
     }
 
@@ -58,10 +55,8 @@ public final class PropertyUtils
      * @return Properties object containing the properties in the file with their values fully resolved.
      * @throws IOException if profile does not exist, or cannot be read.
      */
-    public static Properties loadPropertyFile( File propFile, Properties baseProps )
-        throws IOException
-    {
-        return loadPropertyFile( propFile, baseProps, null );
+    public static Properties loadPropertyFile(File propFile, Properties baseProps) throws IOException {
+        return loadPropertyFile(propFile, baseProps, null);
     }
 
     /**
@@ -79,24 +74,20 @@ public final class PropertyUtils
      *
      * @since 3.1.2
      */
-    public static Properties loadPropertyFile( File propFile, Properties baseProps, Logger logger )
-        throws IOException
-    {
-        if ( !propFile.exists() )
-        {
-            throw new FileNotFoundException( propFile.toString() );
+    public static Properties loadPropertyFile(File propFile, Properties baseProps, Logger logger) throws IOException {
+        if (!propFile.exists()) {
+            throw new FileNotFoundException(propFile.toString());
         }
 
         final Properties fileProps = new Properties();
-        
-        try ( InputStream inStream = Files.newInputStream( propFile.toPath() ) )
-        {
-            fileProps.load( inStream );
+
+        try (InputStream inStream = Files.newInputStream(propFile.toPath())) {
+            fileProps.load(inStream);
         }
 
         final Properties combinedProps = new Properties();
-        combinedProps.putAll( baseProps == null ? new Properties() : baseProps );
-        combinedProps.putAll( fileProps );
+        combinedProps.putAll(baseProps == null ? new Properties() : baseProps);
+        combinedProps.putAll(fileProps);
 
         // The algorithm iterates only over the fileProps which is all that is required to resolve
         // the properties defined within the file. This is slightly different to current, however
@@ -107,11 +98,10 @@ public final class PropertyUtils
         // as can be verified by replacing the implementation of #loadPropertyFile(File, boolean, boolean)
         // with the commented variant I have provided that reuses this method.
 
-        for ( Object o : fileProps.keySet() )
-        {
+        for (Object o : fileProps.keySet()) {
             final String k = (String) o;
-            final String propValue = getPropertyValue( k, combinedProps, logger );
-            fileProps.setProperty( k, propValue );
+            final String propValue = getPropertyValue(k, combinedProps, logger);
+            fileProps.setProperty(k, propValue);
         }
 
         return fileProps;
@@ -126,10 +116,8 @@ public final class PropertyUtils
      * @return the loaded and fully resolved Properties object
      * @throws IOException if profile does not exist, or cannot be read.
      */
-    public static Properties loadPropertyFile( File propfile, boolean fail, boolean useSystemProps )
-        throws IOException
-    {
-        return loadPropertyFile( propfile, fail, useSystemProps, null );
+    public static Properties loadPropertyFile(File propfile, boolean fail, boolean useSystemProps) throws IOException {
+        return loadPropertyFile(propfile, fail, useSystemProps, null);
     }
 
     /**
@@ -144,33 +132,26 @@ public final class PropertyUtils
      *
      * @since 3.1.2
      */
-    public static Properties loadPropertyFile( File propfile, boolean fail, boolean useSystemProps, Logger logger )
-        throws IOException
-    {
+    public static Properties loadPropertyFile(File propfile, boolean fail, boolean useSystemProps, Logger logger)
+            throws IOException {
 
         final Properties baseProps = new Properties();
 
-        if ( useSystemProps )
-        {
-            baseProps.putAll( System.getProperties() );
+        if (useSystemProps) {
+            baseProps.putAll(System.getProperties());
         }
 
         final Properties resolvedProps = new Properties();
-        try
-        {
-            resolvedProps.putAll( loadPropertyFile( propfile, baseProps, logger ) );
-        }
-        catch ( FileNotFoundException e )
-        {
-            if ( fail )
-            {
-                throw new FileNotFoundException( propfile.toString() );
+        try {
+            resolvedProps.putAll(loadPropertyFile(propfile, baseProps, logger));
+        } catch (FileNotFoundException e) {
+            if (fail) {
+                throw new FileNotFoundException(propfile.toString());
             }
         }
 
-        if ( useSystemProps )
-        {
-            resolvedProps.putAll( baseProps );
+        if (useSystemProps) {
+            resolvedProps.putAll(baseProps);
         }
 
         return resolvedProps;
@@ -186,58 +167,50 @@ public final class PropertyUtils
      * @param logger Logger instance
      * @return The filtered property value.
      */
-    private static String getPropertyValue( String k, Properties p, Logger logger )
-    {
+    private static String getPropertyValue(String k, Properties p, Logger logger) {
         // This can also be done using InterpolationFilterReader,
         // but it requires reparsing the file over and over until
         // it doesn't change.
 
         // for cycle detection
         List<String> valueChain = new LinkedList<>();
-        valueChain.add( k );
+        valueChain.add(k);
 
-        String v = p.getProperty( k );
+        String v = p.getProperty(k);
         String defaultValue = v;
         String ret = "";
         int idx, idx2;
 
-        while ( ( idx = v.indexOf( "${" ) ) >= 0 )
-        {
+        while ((idx = v.indexOf("${")) >= 0) {
             // append prefix to result
-            ret += v.substring( 0, idx );
+            ret += v.substring(0, idx);
 
             // strip prefix from original
-            v = v.substring( idx + 2 );
+            v = v.substring(idx + 2);
 
             // if no matching } then bail
-            idx2 = v.indexOf( '}' );
-            if ( idx2 < 0 )
-            {
+            idx2 = v.indexOf('}');
+            if (idx2 < 0) {
                 break;
             }
 
             // strip out the key and resolve it
             // resolve the key/value for the ${statement}
-            String nk = v.substring( 0, idx2 );
-            v = v.substring( idx2 + 1 );
-            String nv = p.getProperty( nk );
+            String nk = v.substring(0, idx2);
+            v = v.substring(idx2 + 1);
+            String nv = p.getProperty(nk);
 
-            if ( valueChain.contains( nk ) )
-            {
-                if ( logger != null )
-                {
-                    logCircularDetection( valueChain, nk, logger );
+            if (valueChain.contains(nk)) {
+                if (logger != null) {
+                    logCircularDetection(valueChain, nk, logger);
                 }
                 return defaultValue;
-            }
-            else
-            {
-                valueChain.add( nk );
+            } else {
+                valueChain.add(nk);
 
                 // try global environment..
-                if ( nv == null && !isEmpty( nk ) )
-                {
-                    nv = System.getProperty( nk );
+                if (nv == null && !isEmpty(nk)) {
+                    nv = System.getProperty(nk);
                 }
 
                 // if the key cannot be resolved,
@@ -245,12 +218,9 @@ public final class PropertyUtils
                 // else prefix the original string with the
                 // resolved property ( so it can be parsed further )
                 // taking recursion into account.
-                if ( nv == null || nv.equals( k ) || k.equals( nk ) )
-                {
+                if (nv == null || nv.equals(k) || k.equals(nk)) {
                     ret += "${" + nk + "}";
-                }
-                else
-                {
+                } else {
                     v = nv + v;
                 }
             }
@@ -265,14 +235,12 @@ public final class PropertyUtils
      * @param nk the key the closes the cycle
      * @param logger Logger instance
      */
-    private static void logCircularDetection( List<String> valueChain, String nk, Logger logger )
-    {
-        StringBuilder sb = new StringBuilder( "Circular reference between properties detected: " );
-        for ( String key : valueChain )
-        {
-            sb.append( key ).append( " => " );
+    private static void logCircularDetection(List<String> valueChain, String nk, Logger logger) {
+        StringBuilder sb = new StringBuilder("Circular reference between properties detected: ");
+        for (String key : valueChain) {
+            sb.append(key).append(" => ");
         }
-        sb.append( nk );
-        logger.warn( sb.toString() );
+        sb.append(nk);
+        logger.warn(sb.toString());
     }
 }

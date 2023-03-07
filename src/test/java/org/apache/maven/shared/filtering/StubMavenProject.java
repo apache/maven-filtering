@@ -1,5 +1,3 @@
-package org.apache.maven.shared.filtering;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -9,7 +7,7 @@ package org.apache.maven.shared.filtering;
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -18,6 +16,7 @@ package org.apache.maven.shared.filtering;
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.maven.shared.filtering;
 
 import java.io.File;
 import java.util.Properties;
@@ -29,42 +28,33 @@ import org.apache.maven.project.MavenProject;
  * @since 1.0-beta-1
  *
  */
-public class StubMavenProject
-    extends MavenProject
-{
+public class StubMavenProject extends MavenProject {
     private Properties properties;
 
     private File basedir;
 
-    protected StubMavenProject( File basedir )
-    {
+    protected StubMavenProject(File basedir) {
         this.basedir = basedir;
     }
 
     @Override
-    public Properties getProperties()
-    {
+    public Properties getProperties() {
         return this.properties;
     }
 
-    public void setProperties( Properties properties )
-    {
+    public void setProperties(Properties properties) {
         this.properties = properties;
     }
 
-    public void addProperty( String key, String value )
-    {
-        if ( this.properties == null )
-        {
+    public void addProperty(String key, String value) {
+        if (this.properties == null) {
             this.properties = new Properties();
         }
-        this.properties.put( key, value );
+        this.properties.put(key, value);
     }
 
     @Override
-    public File getBasedir()
-    {
+    public File getBasedir() {
         return basedir;
     }
-
 }

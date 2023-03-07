@@ -1,5 +1,3 @@
-package org.apache.maven.shared.filtering;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -9,7 +7,7 @@ package org.apache.maven.shared.filtering;
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -18,6 +16,7 @@ package org.apache.maven.shared.filtering;
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.maven.shared.filtering;
 
 import java.io.Reader;
 import java.util.List;
@@ -31,9 +30,7 @@ import org.apache.maven.project.MavenProject;
  * @author Kristian Rosenvold
  * @since 1.0-beta-3
  */
-public class MavenReaderFilterRequest
-    extends AbstractMavenFilteringRequest
-{
+public class MavenReaderFilterRequest extends AbstractMavenFilteringRequest {
 
     private Reader from;
 
@@ -42,8 +39,7 @@ public class MavenReaderFilterRequest
     /**
      * Default constructor.
      */
-    public MavenReaderFilterRequest()
-    {
+    public MavenReaderFilterRequest() {
         // nothing
     }
 
@@ -56,47 +52,46 @@ public class MavenReaderFilterRequest
      * @param mavenSession The Maven Session.
      * @param additionalProperties supplemental properties.
      */
-    public MavenReaderFilterRequest( Reader from, boolean filtering, MavenProject mavenProject, List<String> filters,
-                                     boolean escapedBackslashesInFilePath, MavenSession mavenSession,
-                                     Properties additionalProperties )
-    {
-        super( mavenProject, filters, mavenSession );
+    public MavenReaderFilterRequest(
+            Reader from,
+            boolean filtering,
+            MavenProject mavenProject,
+            List<String> filters,
+            boolean escapedBackslashesInFilePath,
+            MavenSession mavenSession,
+            Properties additionalProperties) {
+        super(mavenProject, filters, mavenSession);
         this.from = from;
         this.filtering = filtering;
-        setAdditionalProperties( additionalProperties );
-        setEscapeWindowsPaths( escapedBackslashesInFilePath );
+        setAdditionalProperties(additionalProperties);
+        setEscapeWindowsPaths(escapedBackslashesInFilePath);
     }
 
     /**
      * @return where we read from.
      */
-    public Reader getFrom()
-    {
+    public Reader getFrom() {
         return from;
     }
 
     /**
      * @param from set where to read from.
      */
-    public void setFrom( Reader from )
-    {
+    public void setFrom(Reader from) {
         this.from = from;
     }
 
     /**
      * @return is filtering active ({@code true}) false otherwise.
      */
-    public boolean isFiltering()
-    {
+    public boolean isFiltering() {
         return filtering;
     }
 
     /**
      * @param filtering turn filtering on {@code true}) or off ({@code false}).
      */
-    public void setFiltering( boolean filtering )
-    {
+    public void setFiltering(boolean filtering) {
         this.filtering = filtering;
     }
-
 }

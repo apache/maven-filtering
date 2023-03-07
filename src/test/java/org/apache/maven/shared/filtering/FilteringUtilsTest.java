@@ -1,5 +1,3 @@
-package org.apache.maven.shared.filtering;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -9,7 +7,7 @@ package org.apache.maven.shared.filtering;
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -18,6 +16,7 @@ package org.apache.maven.shared.filtering;
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.maven.shared.filtering;
 
 import org.junit.Test;
 
@@ -29,24 +28,20 @@ import static org.junit.Assert.assertEquals;
  * @since 1.0
  *
  */
-public class FilteringUtilsTest
-{
+public class FilteringUtilsTest {
     @Test
-    public void testEscapeWindowsPathStartingWithDrive()
-    {
-        assertEquals( "C:\\\\Users\\\\Administrator", FilteringUtils.escapeWindowsPath( "C:\\Users\\Administrator" ) );
+    public void testEscapeWindowsPathStartingWithDrive() {
+        assertEquals("C:\\\\Users\\\\Administrator", FilteringUtils.escapeWindowsPath("C:\\Users\\Administrator"));
     }
 
     @Test
-    public void testEscapeWindowsPathMissingDriveLetter()
-    {
-        assertEquals( ":\\Users\\Administrator", FilteringUtils.escapeWindowsPath( ":\\Users\\Administrator" ) );
+    public void testEscapeWindowsPathMissingDriveLetter() {
+        assertEquals(":\\Users\\Administrator", FilteringUtils.escapeWindowsPath(":\\Users\\Administrator"));
     }
 
     @Test
-    public void testEscapeWindowsPathInvalidDriveLetter()
-    {
-        assertEquals( "4:\\Users\\Administrator", FilteringUtils.escapeWindowsPath( "4:\\Users\\Administrator" ) );
+    public void testEscapeWindowsPathInvalidDriveLetter() {
+        assertEquals("4:\\Users\\Administrator", FilteringUtils.escapeWindowsPath("4:\\Users\\Administrator"));
     }
 
     // This doesn't work, see MSHARED-121
@@ -67,10 +62,9 @@ public class FilteringUtilsTest
 
     // MSHARED-179
     @Test
-    public void testEscapeWindowsPathNotAtBeginning()
-        throws Exception
-    {
-        assertEquals( "jdbc:derby:C:\\\\Users\\\\Administrator/test;create=true",
-                      FilteringUtils.escapeWindowsPath( "jdbc:derby:C:\\Users\\Administrator/test;create=true" ) );
+    public void testEscapeWindowsPathNotAtBeginning() throws Exception {
+        assertEquals(
+                "jdbc:derby:C:\\\\Users\\\\Administrator/test;create=true",
+                FilteringUtils.escapeWindowsPath("jdbc:derby:C:\\Users\\Administrator/test;create=true"));
     }
 }

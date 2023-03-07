@@ -1,5 +1,3 @@
-package org.apache.maven.shared.filtering;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -9,7 +7,7 @@ package org.apache.maven.shared.filtering;
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -18,6 +16,7 @@ package org.apache.maven.shared.filtering;
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.maven.shared.filtering;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -30,8 +29,7 @@ import org.apache.maven.project.MavenProject;
 /**
  * @since 1.0-beta-3
  */
-public class AbstractMavenFilteringRequest
-{
+public class AbstractMavenFilteringRequest {
 
     private MavenProject mavenProject;
 
@@ -84,8 +82,7 @@ public class AbstractMavenFilteringRequest
     /**
      * Create instance.
      */
-    protected AbstractMavenFilteringRequest()
-    {
+    protected AbstractMavenFilteringRequest() {
         initDefaults();
     }
 
@@ -96,29 +93,26 @@ public class AbstractMavenFilteringRequest
      * @param filters The list of filters.
      * @param mavenSession The MavenSession.
      */
-    protected AbstractMavenFilteringRequest( MavenProject mavenProject, List<String> filters,
-                                             MavenSession mavenSession )
-    {
+    protected AbstractMavenFilteringRequest(
+            MavenProject mavenProject, List<String> filters, MavenSession mavenSession) {
         initDefaults();
         this.mavenProject = mavenProject;
         this.filters = filters;
         this.mavenSession = mavenSession;
     }
 
-    private void initDefaults()
-    {
-        projectStartExpressions.add( "pom" );
-        projectStartExpressions.add( "project" );
+    private void initDefaults() {
+        projectStartExpressions.add("pom");
+        projectStartExpressions.add("project");
 
-        delimiters.add( "${*}" );
-        delimiters.add( "@" );
+        delimiters.add("${*}");
+        delimiters.add("@");
     }
 
     /**
      * @return The MavenProject
      */
-    public MavenProject getMavenProject()
-    {
+    public MavenProject getMavenProject() {
         return mavenProject;
     }
 
@@ -127,8 +121,7 @@ public class AbstractMavenFilteringRequest
      *
      * @param mavenProject The MavenProject to be set.
      */
-    public void setMavenProject( MavenProject mavenProject )
-    {
+    public void setMavenProject(MavenProject mavenProject) {
         this.mavenProject = mavenProject;
     }
 
@@ -137,8 +130,7 @@ public class AbstractMavenFilteringRequest
      *
      * @return The list of currently set filters.
      */
-    public List<String> getFilters()
-    {
+    public List<String> getFilters() {
         return filters;
     }
 
@@ -147,8 +139,7 @@ public class AbstractMavenFilteringRequest
      *
      * @param filters Set the list of filters
      */
-    public void setFilters( List<String> filters )
-    {
+    public void setFilters(List<String> filters) {
         this.filters = filters;
     }
 
@@ -157,8 +148,7 @@ public class AbstractMavenFilteringRequest
      *
      * @return The list of filters.
      */
-    public List<String> getFileFilters()
-    {
+    public List<String> getFileFilters() {
         return getFilters();
     }
 
@@ -167,17 +157,15 @@ public class AbstractMavenFilteringRequest
      *
      * @param paramfilters The list of filters to be set.
      */
-    public void setFileFilters( List<String> paramfilters )
-    {
-        setFilters( paramfilters );
+    public void setFileFilters(List<String> paramfilters) {
+        setFilters(paramfilters);
     }
 
     /**
      * @since 1.0-beta-3
      * @return true if escape is activated false otherwise.
      */
-    public boolean isEscapeWindowsPaths()
-    {
+    public boolean isEscapeWindowsPaths() {
         return escapeWindowsPaths;
     }
 
@@ -185,8 +173,7 @@ public class AbstractMavenFilteringRequest
      * @since 1.0-beta-3
      * @param escapedBackslashesInFilePath true or false.
      */
-    public void setEscapeWindowsPaths( boolean escapedBackslashesInFilePath )
-    {
+    public void setEscapeWindowsPaths(boolean escapedBackslashesInFilePath) {
         this.escapeWindowsPaths = escapedBackslashesInFilePath;
     }
 
@@ -195,8 +182,7 @@ public class AbstractMavenFilteringRequest
      *
      * @return The current value of {@link #isEscapeWindowsPaths()}
      */
-    public boolean isEscapedBackslashesInFilePath()
-    {
+    public boolean isEscapedBackslashesInFilePath() {
         return isEscapeWindowsPaths();
     }
 
@@ -205,24 +191,21 @@ public class AbstractMavenFilteringRequest
      *
      * @param escape activate or deactivate escaping.
      */
-    public void setEscapedBackslashesInFilePath( boolean escape )
-    {
-        setEscapeWindowsPaths( escape );
+    public void setEscapedBackslashesInFilePath(boolean escape) {
+        setEscapeWindowsPaths(escape);
     }
 
     /**
      * @return Current value of mavenSession
      */
-    public MavenSession getMavenSession()
-    {
+    public MavenSession getMavenSession() {
         return mavenSession;
     }
 
     /**
      * @param mavenSession Set new value for the MavenSession of the instance.
      */
-    public void setMavenSession( MavenSession mavenSession )
-    {
+    public void setMavenSession(MavenSession mavenSession) {
         this.mavenSession = mavenSession;
     }
 
@@ -230,8 +213,7 @@ public class AbstractMavenFilteringRequest
      * @return the additional properties.
      * @since 1.0-beta-3
      */
-    public Properties getAdditionalProperties()
-    {
+    public Properties getAdditionalProperties() {
         return additionalProperties;
     }
 
@@ -239,8 +221,7 @@ public class AbstractMavenFilteringRequest
      * @param additionalProperties The additional properties to be set.
      * @since 1.0-beta-3
      */
-    public void setAdditionalProperties( Properties additionalProperties )
-    {
+    public void setAdditionalProperties(Properties additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -248,8 +229,7 @@ public class AbstractMavenFilteringRequest
      * @return the current value of injectProjectBuildFilters.
      * @since 1.0-beta-3
      */
-    public boolean isInjectProjectBuildFilters()
-    {
+    public boolean isInjectProjectBuildFilters() {
         return injectProjectBuildFilters;
     }
 
@@ -257,8 +237,7 @@ public class AbstractMavenFilteringRequest
      * @param injectProjectBuildFilters true or false.
      * @since 1.0-beta-3
      */
-    public void setInjectProjectBuildFilters( boolean injectProjectBuildFilters )
-    {
+    public void setInjectProjectBuildFilters(boolean injectProjectBuildFilters) {
         this.injectProjectBuildFilters = injectProjectBuildFilters;
     }
 
@@ -266,8 +245,7 @@ public class AbstractMavenFilteringRequest
      * @return Current value of escapeString.
      * @since 1.0-beta-2
      */
-    public String getEscapeString()
-    {
+    public String getEscapeString() {
         return escapeString;
     }
 
@@ -275,8 +253,7 @@ public class AbstractMavenFilteringRequest
      * @param escapeString The escape string to use
      * @since 1.0-beta-2
      */
-    public void setEscapeString( String escapeString )
-    {
+    public void setEscapeString(String escapeString) {
         this.escapeString = escapeString;
     }
 
@@ -284,8 +261,7 @@ public class AbstractMavenFilteringRequest
      * @return The list of project start expressions.
      * @since 1.0-beta-2
      */
-    public List<String> getProjectStartExpressions()
-    {
+    public List<String> getProjectStartExpressions() {
         return projectStartExpressions;
     }
 
@@ -293,8 +269,7 @@ public class AbstractMavenFilteringRequest
      * @param projectStartExpressions The start expressions
      * @since 1.0-beta-2
      */
-    public void setProjectStartExpressions( List<String> projectStartExpressions )
-    {
+    public void setProjectStartExpressions(List<String> projectStartExpressions) {
         this.projectStartExpressions = projectStartExpressions;
     }
 
@@ -304,8 +279,7 @@ public class AbstractMavenFilteringRequest
      * @return Not allowed to be <code>null</code> or empty.
      * @since 1.0-beta-3
      */
-    public LinkedHashSet<String> getDelimiters()
-    {
+    public LinkedHashSet<String> getDelimiters() {
         return delimiters;
     }
 
@@ -317,15 +291,11 @@ public class AbstractMavenFilteringRequest
      * @param delimiters If <code>null</code>, reset delimiters to '${*}' only. Otherwise, use the provided value.
      * @since 1.0-beta-3
      */
-    public void setDelimiters( LinkedHashSet<String> delimiters )
-    {
-        if ( delimiters == null || delimiters.isEmpty() )
-        {
+    public void setDelimiters(LinkedHashSet<String> delimiters) {
+        if (delimiters == null || delimiters.isEmpty()) {
             this.delimiters.clear();
-            this.delimiters.add( "${*}" );
-        }
-        else
-        {
+            this.delimiters.add("${*}");
+        } else {
             this.delimiters = delimiters;
         }
     }
@@ -335,48 +305,37 @@ public class AbstractMavenFilteringRequest
      *            according to the contents. If delimiter entries are {@code null} those entries will be set to '${*}'.
      * @param useDefaultDelimiters true if the default delimiters will be used false otherwise.
      */
-    public void setDelimiters( LinkedHashSet<String> delimiters, boolean useDefaultDelimiters )
-    {
-        if ( delimiters != null && !delimiters.isEmpty() )
-        {
+    public void setDelimiters(LinkedHashSet<String> delimiters, boolean useDefaultDelimiters) {
+        if (delimiters != null && !delimiters.isEmpty()) {
             LinkedHashSet<String> delims = new LinkedHashSet<>();
-            if ( useDefaultDelimiters )
-            {
-                delims.addAll( this.getDelimiters() );
+            if (useDefaultDelimiters) {
+                delims.addAll(this.getDelimiters());
             }
 
-            for ( String delim : delimiters )
-            {
-                if ( delim == null )
-                {
+            for (String delim : delimiters) {
+                if (delim == null) {
                     // FIXME: ${filter:*} could also trigger this condition. Need a better long-term solution.
-                    delims.add( "${*}" );
-                }
-                else
-                {
-                    delims.add( delim );
+                    delims.add("${*}");
+                } else {
+                    delims.add(delim);
                 }
             }
 
-            this.setDelimiters( delims );
+            this.setDelimiters(delims);
         }
-
     }
 
     /**
      * @return If support multiple line filtering is active or not.
      */
-    public boolean isSupportMultiLineFiltering()
-    {
+    public boolean isSupportMultiLineFiltering() {
         return supportMultiLineFiltering;
     }
 
     /**
      * @param supportMultiLineFiltering activate or deactivate multiple line filtering support.
      */
-    public void setSupportMultiLineFiltering( boolean supportMultiLineFiltering )
-    {
+    public void setSupportMultiLineFiltering(boolean supportMultiLineFiltering) {
         this.supportMultiLineFiltering = supportMultiLineFiltering;
     }
-
 }

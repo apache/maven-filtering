@@ -1,5 +1,3 @@
-package org.apache.maven.shared.filtering;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -9,7 +7,7 @@ package org.apache.maven.shared.filtering;
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -18,6 +16,7 @@ package org.apache.maven.shared.filtering;
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.maven.shared.filtering;
 
 import java.util.Properties;
 
@@ -33,9 +32,7 @@ import org.eclipse.aether.RepositorySystemSession;
  * @since 1.0-beta-1
  *
  */
-public class StubMavenSession
-    extends MavenSession
-{
+public class StubMavenSession extends MavenSession {
 
     private Properties userProperties;
 
@@ -43,59 +40,52 @@ public class StubMavenSession
 
     private final Settings settings;
 
-    public StubMavenSession( Settings settings )
-    {
-        this( null, null, settings );
+    public StubMavenSession(Settings settings) {
+        this(null, null, settings);
     }
 
-    public StubMavenSession()
-    {
-        this( null, null, null );
+    public StubMavenSession() {
+        this(null, null, null);
     }
 
-    public StubMavenSession( Properties userProperties )
-    {
-        this( null, userProperties, null );
+    public StubMavenSession(Properties userProperties) {
+        this(null, userProperties, null);
     }
 
-    public StubMavenSession( Properties systemProperties, Properties userProperties, Settings settings )
-    {
+    public StubMavenSession(Properties systemProperties, Properties userProperties, Settings settings) {
 
-        super( (PlexusContainer) null, (RepositorySystemSession) null, new DefaultMavenExecutionRequest(),
-               (MavenExecutionResult) null );
+        super(
+                (PlexusContainer) null,
+                (RepositorySystemSession) null,
+                new DefaultMavenExecutionRequest(),
+                (MavenExecutionResult) null);
 
         this.settings = settings;
 
         this.systemProperties = new Properties();
-        if ( systemProperties != null )
-        {
-            this.systemProperties.putAll( systemProperties );
+        if (systemProperties != null) {
+            this.systemProperties.putAll(systemProperties);
         }
-        this.systemProperties.putAll( System.getProperties() );
+        this.systemProperties.putAll(System.getProperties());
 
         this.userProperties = new Properties();
-        if ( userProperties != null )
-        {
-            this.userProperties.putAll( userProperties );
+        if (userProperties != null) {
+            this.userProperties.putAll(userProperties);
         }
     }
 
     @Override
-    public Settings getSettings()
-    {
+    public Settings getSettings() {
         return settings;
     }
 
     @Override
-    public Properties getSystemProperties()
-    {
+    public Properties getSystemProperties() {
         return this.systemProperties;
     }
 
     @Override
-    public Properties getUserProperties()
-    {
+    public Properties getUserProperties() {
         return this.userProperties;
     }
-
 }

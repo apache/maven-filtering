@@ -1,5 +1,3 @@
-package org.apache.maven.shared.filtering;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -9,7 +7,7 @@ package org.apache.maven.shared.filtering;
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -18,6 +16,7 @@ package org.apache.maven.shared.filtering;
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.maven.shared.filtering;
 
 import java.io.FilterReader;
 import java.io.Reader;
@@ -28,9 +27,7 @@ import org.codehaus.plexus.interpolation.multi.DelimiterSpecification;
 /**
  * @author Karl Heinz Marbaise <a href="mailto:khmarbaise@apache.org">khmarbaise@apache.org</a>
  */
-public abstract class AbstractFilterReaderLineEnding
-    extends FilterReader
-{
+public abstract class AbstractFilterReaderLineEnding extends FilterReader {
 
     private String escapeString;
 
@@ -53,27 +50,23 @@ public abstract class AbstractFilterReaderLineEnding
     protected int markLength = 255;
     // CHECKSTYLE_ON: MagicNumber
 
-    protected AbstractFilterReaderLineEnding( Reader in )
-    {
-        super( in );
+    protected AbstractFilterReaderLineEnding(Reader in) {
+        super(in);
     }
 
     /**
      * @return the escapce string.
      */
-    public String getEscapeString()
-    {
+    public String getEscapeString() {
         return escapeString;
     }
 
     /**
      * @param escapeString Set the value of the escape string.
      */
-    public void setEscapeString( String escapeString )
-    {
+    public void setEscapeString(String escapeString) {
         // TODO NPE if escapeString is null ?
-        if ( escapeString != null && escapeString.length() >= 1 )
-        {
+        if (escapeString != null && escapeString.length() >= 1) {
             this.escapeString = escapeString;
             this.useEscape = true;
             calculateMarkLength();
@@ -83,34 +76,28 @@ public abstract class AbstractFilterReaderLineEnding
     /**
      * @return state of preserve escape string.
      */
-    public boolean isPreserveEscapeString()
-    {
+    public boolean isPreserveEscapeString() {
         return preserveEscapeString;
     }
 
     /**
      * @param preserveEscapeString preserve escape string {@code true} or {@code false}.
      */
-    public void setPreserveEscapeString( boolean preserveEscapeString )
-    {
+    public void setPreserveEscapeString(boolean preserveEscapeString) {
         this.preserveEscapeString = preserveEscapeString;
     }
 
-    protected void calculateMarkLength()
-    {
+    protected void calculateMarkLength() {
         // CHECKSTYLE_OFF: MagicNumber
         markLength = 255;
         // CHECKSTYLE_ON: MagicNumber
 
-        if ( escapeString != null )
-        {
+        if (escapeString != null) {
             markLength += escapeString.length();
         }
-        for ( DelimiterSpecification spec : delimiters )
-        {
+        for (DelimiterSpecification spec : delimiters) {
             markLength += spec.getBegin().length();
             markLength += spec.getEnd().length();
-
         }
     }
 }

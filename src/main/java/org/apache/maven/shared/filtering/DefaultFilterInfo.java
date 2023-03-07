@@ -1,5 +1,3 @@
-package org.apache.maven.shared.filtering;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -9,7 +7,7 @@ package org.apache.maven.shared.filtering;
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -18,6 +16,7 @@ package org.apache.maven.shared.filtering;
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.maven.shared.filtering;
 
 import java.util.List;
 
@@ -27,8 +26,7 @@ import org.apache.maven.project.MavenProject;
 /**
  * @author Kristian Rosenvold
  */
-public interface DefaultFilterInfo
-{
+public interface DefaultFilterInfo {
 
     /**
      * @param mavenProject The maven project
@@ -40,11 +38,13 @@ public interface DefaultFilterInfo
      * @return {@link java.util.List} of FileUtils.FilterWrapper
      * @since 1.0-beta-2
      */
-    List<FilterWrapper> getDefaultFilterWrappers( MavenProject mavenProject, List<String> filters,
-                                                            boolean escapedBackslashesInFilePath,
-                                                            MavenSession mavenSession,
-                                                            MavenResourcesExecution mavenResourcesExecution )
-                                                                throws MavenFilteringException;
+    List<FilterWrapper> getDefaultFilterWrappers(
+            MavenProject mavenProject,
+            List<String> filters,
+            boolean escapedBackslashesInFilePath,
+            MavenSession mavenSession,
+            MavenResourcesExecution mavenResourcesExecution)
+            throws MavenFilteringException;
 
     /**
      * @param request The filtering request
@@ -52,6 +52,5 @@ public interface DefaultFilterInfo
      * @return {@link java.util.List} of FileUtils.FilterWrapper
      * @since 1.0-beta-3
      */
-    List<FilterWrapper> getDefaultFilterWrappers( AbstractMavenFilteringRequest request )
-        throws MavenFilteringException;
+    List<FilterWrapper> getDefaultFilterWrappers(AbstractMavenFilteringRequest request) throws MavenFilteringException;
 }

@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
   Licensed to the Apache Software Foundation (ASF) under one
   or more contributor license agreements. See the NOTICE file
@@ -33,11 +33,17 @@
   <name>Apache Maven Filtering</name>
   <description>A component to assist in filtering of resource files with properties from a Maven project.</description>
 
+  <contributors>
+    <contributor>
+      <name>Graham Leggett</name>
+    </contributor>
+  </contributors>
+
   <scm>
     <connection>scm:git:https://gitbox.apache.org/repos/asf/maven-filtering.git</connection>
     <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/maven-filtering.git</developerConnection>
-    <url>https://github.com/apache/maven-filtering/tree/${project.scm.tag}</url>
     <tag>maven-filtering-3.2.0</tag>
+    <url>https://github.com/apache/maven-filtering/tree/${project.scm.tag}</url>
   </scm>
   <issueManagement>
     <system>JIRA</system>
@@ -61,12 +67,6 @@
     <plexusBuildApiVersion>0.0.7</plexusBuildApiVersion>
     <project.build.outputTimestamp>2022-06-11T13:41:41Z</project.build.outputTimestamp>
   </properties>
-
-  <contributors>
-    <contributor>
-      <name>Graham Leggett</name>
-    </contributor>
-  </contributors>
 
   <dependencies>
     <dependency>
@@ -146,8 +146,8 @@
       <groupId>org.sonatype.plexus</groupId>
       <artifactId>plexus-build-api</artifactId>
       <version>${plexusBuildApiVersion}</version>
-      <scope>test</scope>
       <classifier>tests</classifier>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.eclipse.sisu</groupId>

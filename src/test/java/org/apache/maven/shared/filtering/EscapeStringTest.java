@@ -1,5 +1,3 @@
-package org.apache.maven.shared.filtering;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -9,7 +7,7 @@ package org.apache.maven.shared.filtering;
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -18,6 +16,7 @@ package org.apache.maven.shared.filtering;
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.maven.shared.filtering;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -32,64 +31,63 @@ import org.apache.maven.model.Resource;
 /**
  * @author Olivier Lamy
  */
-public class EscapeStringTest
-    extends TestSupport
-{
+public class EscapeStringTest extends TestSupport {
 
-    File outputDirectory = new File( getBasedir(), "target/EscapeStringTest" );
+    File outputDirectory = new File(getBasedir(), "target/EscapeStringTest");
 
-    File unitDirectory = new File( getBasedir(), "src/test/units-files/escape-remove-char" );
+    File unitDirectory = new File(getBasedir(), "src/test/units-files/escape-remove-char");
 
     @Override
-    protected void setUp()
-        throws Exception
-    {
+    protected void setUp() throws Exception {
         super.setUp();
-        if ( outputDirectory.exists() )
-        {
-            FileUtils.deleteDirectory( outputDirectory );
+        if (outputDirectory.exists()) {
+            FileUtils.deleteDirectory(outputDirectory);
         }
         outputDirectory.mkdirs();
     }
 
-    public void testEscape()
-        throws Exception
-    {
-        File baseDir = new File( "c:\\foo\\bar" );
-        StubMavenProject mavenProject = new StubMavenProject( baseDir );
-        mavenProject.setVersion( "1.0" );
-        mavenProject.setGroupId( "org.apache" );
-        mavenProject.setName( "test project" );
+    public void testEscape() throws Exception {
+        File baseDir = new File("c:\\foo\\bar");
+        StubMavenProject mavenProject = new StubMavenProject(baseDir);
+        mavenProject.setVersion("1.0");
+        mavenProject.setGroupId("org.apache");
+        mavenProject.setName("test project");
 
         Properties projectProperties = new Properties();
-        projectProperties.put( "foo", "bar" );
-        projectProperties.put( "java.version", "zloug" );
-        projectProperties.put( "replaceThis", "I am the replacement" );
-        mavenProject.setProperties( projectProperties );
-        MavenResourcesFiltering mavenResourcesFiltering = lookup( MavenResourcesFiltering.class );
+        projectProperties.put("foo", "bar");
+        projectProperties.put("java.version", "zloug");
+        projectProperties.put("replaceThis", "I am the replacement");
+        mavenProject.setProperties(projectProperties);
+        MavenResourcesFiltering mavenResourcesFiltering = lookup(MavenResourcesFiltering.class);
 
         Resource resource = new Resource();
         List<Resource> resources = new ArrayList<>();
-        resources.add( resource );
-        resource.setDirectory( unitDirectory.getPath() );
-        resource.setFiltering( true );
+        resources.add(resource);
+        resource.setDirectory(unitDirectory.getPath());
+        resource.setFiltering(true);
 
         List<String> filtersFile = new ArrayList<>();
 
-        List<String> nonFilteredFileExtensions = Collections.singletonList( "gif" );
+        List<String> nonFilteredFileExtensions = Collections.singletonList("gif");
 
-        MavenResourcesExecution mavenResourcesExecution =
-            new MavenResourcesExecution( resources, outputDirectory, mavenProject, "UTF-8", filtersFile,
-                                         nonFilteredFileExtensions, new StubMavenSession() );
-        mavenResourcesExecution.setUseDefaultFilterWrappers( true );
+        MavenResourcesExecution mavenResourcesExecution = new MavenResourcesExecution(
+                resources,
+                outputDirectory,
+                mavenProject,
+                "UTF-8",
+                filtersFile,
+                nonFilteredFileExtensions,
+                new StubMavenSession());
+        mavenResourcesExecution.setUseDefaultFilterWrappers(true);
 
-        mavenResourcesExecution.setEscapeString( "!" );
+        mavenResourcesExecution.setEscapeString("!");
 
-        mavenResourcesFiltering.filterResources( mavenResourcesExecution );
-        
-        File file = new File( outputDirectory, "content.xml" );
-        String content = FileUtils.readFileToString( file, StandardCharsets.UTF_8 );
-        assertTrue( content.contains( "<broken-tag>Content with replacement: I am the replacement !</broken-tag>" ) );
-        assertTrue( content.contains( "<broken-tag>Content with escaped replacement: Do not ${replaceThis} !</broken-tag>" ) );
+        mavenResourcesFiltering.filterResources(mavenResourcesExecution);
+
+        File file = new File(outputDirectory, "content.xml");
+        String content = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
+        assertTrue(content.contains("<broken-tag>Content with replacement: I am the replacement !</broken-tag>"));
+        assertTrue(
+                content.contains("<broken-tag>Content with escaped replacement: Do not ${replaceThis} !</broken-tag>"));
     }
 }

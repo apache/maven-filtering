@@ -32,6 +32,8 @@ import java.nio.charset.CoderResult;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
@@ -106,7 +108,7 @@ public final class FilteringUtils {
      * @param filename absolute or relative file path to resolve
      * @return the canonical <code>File</code> of <code>filename</code>
      */
-    public static File resolveFile(final File baseFile, String filename) {
+    public static Path resolveFile(final Path baseFile, String filename) {
         String filenm = filename;
         if ('/' != File.separatorChar) {
             filenm = filename.replace('/', File.separatorChar);
@@ -118,16 +120,9 @@ public final class FilteringUtils {
 
         // deal with absolute files
         if (filenm.startsWith(File.separator) || (Os.isFamily(Os.FAMILY_WINDOWS) && filenm.indexOf(":") > 0)) {
-            File file = new File(filenm);
-
-            try {
-                file = file.getCanonicalFile();
-            } catch (final IOException ioe) {
-                // nop
-            }
-
-            return file;
+            return Paths.get(filenm).toAbsolutePath().normalize();
         }
+
         // FIXME: I'm almost certain this // removal is unnecessary, as getAbsoluteFile() strips
         // them. However, I'm not sure about this UNC stuff. (JT)
         final char[] chars = filename.toCharArray();
@@ -153,15 +148,7 @@ public final class FilteringUtils {
         filenm = sb.toString();
 
         // must be relative
-        File file = (new File(baseFile, filenm)).getAbsoluteFile();
-
-        try {
-            file = file.getCanonicalFile();
-        } catch (final IOException ioe) {
-            // nop
-        }
-
-        return file;
+        return baseFile.resolve(filenm).toAbsolutePath().normalize();
     }
 
     /**
@@ -311,24 +298,24 @@ public final class FilteringUtils {
      *         to.lastModified() &lt; from.lastModified()
      * @throws IOException if an IO error occurs during copying or filtering
      */
-    public static void copyFile(File from, File to, String encoding, FilterWrapper[] wrappers, boolean overwrite)
+    public static void copyFile(Path from, Path to, String encoding, FilterWrapper[] wrappers, boolean overwrite)
             throws IOException {
         if (wrappers == null || wrappers.length == 0) {
-            if (overwrite || to.lastModified() < from.lastModified()) {
-                Files.copy(from.toPath(), to.toPath(), LinkOption.NOFOLLOW_LINKS, StandardCopyOption.REPLACE_EXISTING);
+            if (overwrite || lastModified(to) < lastModified(from)) {
+                Files.copy(from, to, LinkOption.NOFOLLOW_LINKS, StandardCopyOption.REPLACE_EXISTING);
             }
         } else {
             Charset charset = charset(encoding);
 
             // buffer so it isn't reading a byte at a time!
-            try (Reader fileReader = Files.newBufferedReader(from.toPath(), charset)) {
+            try (Reader fileReader = Files.newBufferedReader(from, charset)) {
                 Reader wrapped = fileReader;
                 for (FilterWrapper wrapper : wrappers) {
                     wrapped = wrapper.getReader(wrapped);
                 }
 
-                if (overwrite || !to.exists()) {
-                    try (Writer fileWriter = Files.newBufferedWriter(to.toPath(), charset)) {
+                if (overwrite || !Files.exists(to)) {
+                    try (Writer fileWriter = Files.newBufferedWriter(to, charset)) {
                         IOUtils.copy(wrapped, fileWriter);
                     }
                 } else {
@@ -347,7 +334,7 @@ public final class FilteringUtils {
                     int existingRead;
                     boolean writing = false;
 
-                    try (RandomAccessFile existing = new RandomAccessFile(to, "rw")) {
+                    try (RandomAccessFile existing = new RandomAccessFile(to.toFile(), "rw")) {
                         int n;
                         while (-1 != (n = wrapped.read(newChars))) {
                             ((Buffer) newChars).flip();
@@ -392,6 +379,14 @@ public final class FilteringUtils {
         copyFilePermissions(from, to);
     }
 
+    private static long lastModified(Path to) {
+        try {
+            return Files.getLastModifiedTime(to).toMillis();
+        } catch (IOException e) {
+            return 0;
+        }
+    }
+
     /**
      * Attempts to copy file permissions from the source to the destination file.
      * Initially attempts to copy posix file permissions, assuming that the files are both on posix filesystems.
@@ -402,17 +397,19 @@ public final class FilteringUtils {
      * @param source the file to copy permissions from.
      * @param destination the file to copy permissions to.
      */
-    private static void copyFilePermissions(File source, File destination) throws IOException {
+    private static void copyFilePermissions(Path source, Path destination) throws IOException {
         try {
             // attempt to copy posix file permissions
-            Files.setPosixFilePermissions(destination.toPath(), Files.getPosixFilePermissions(source.toPath()));
+            Files.setPosixFilePermissions(destination, Files.getPosixFilePermissions(source));
         } catch (NoSuchFileException nsfe) {
             // ignore if destination file or symlink does not exist
         } catch (UnsupportedOperationException e) {
             // fallback to setting partial permissions
-            destination.setExecutable(source.canExecute());
-            destination.setReadable(source.canRead());
-            destination.setWritable(source.canWrite());
+            File sf = source.toFile();
+            File df = destination.toFile();
+            df.setExecutable(sf.canExecute());
+            df.setReadable(sf.canRead());
+            df.setWritable(sf.canWrite());
         }
     }
 

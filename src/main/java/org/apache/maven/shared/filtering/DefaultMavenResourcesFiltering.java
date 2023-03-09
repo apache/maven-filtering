@@ -22,15 +22,14 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -138,7 +137,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
 
         // Keep track of filtering being used and the properties files being filtered
         boolean isFilteringUsed = false;
-        List<File> propertiesFiles = new ArrayList<>();
+        List<Path> propertiesFiles = new ArrayList<>();
 
         for (Resource resource : mavenResourcesExecution.getResources()) {
 
@@ -173,14 +172,14 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
 
             String targetPath = resource.getTargetPath();
 
-            File resourceDirectory = (resource.getDirectory() == null) ? null : new File(resource.getDirectory());
+            Path resourceDirectory = (resource.getDirectory() == null) ? null : Paths.get(resource.getDirectory());
 
             if (resourceDirectory != null && !resourceDirectory.isAbsolute()) {
                 resourceDirectory =
-                        new File(mavenResourcesExecution.getResourcesBaseDirectory(), resourceDirectory.getPath());
+                        mavenResourcesExecution.getResourcesBaseDirectory().resolve(resourceDirectory);
             }
 
-            if (resourceDirectory == null || !resourceDirectory.exists()) {
+            if (resourceDirectory == null || !Files.exists(resourceDirectory)) {
                 LOGGER.info("skip non existing resourceDirectory " + resourceDirectory);
                 continue;
             }
@@ -188,10 +187,14 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
             // this part is required in case the user specified "../something"
             // as destination
             // see MNG-1345
-            File outputDirectory = mavenResourcesExecution.getOutputDirectory();
-            boolean outputExists = outputDirectory.exists();
-            if (!outputExists && !outputDirectory.mkdirs()) {
-                throw new MavenFilteringException("Cannot create resource output directory: " + outputDirectory);
+            Path outputDirectory = mavenResourcesExecution.getOutputDirectory();
+            boolean outputExists = Files.exists(outputDirectory);
+            if (!outputExists) {
+                try {
+                    Files.createDirectories(outputDirectory);
+                } catch (IOException e) {
+                    throw new MavenFilteringException("Cannot create resource output directory: " + outputDirectory, e);
+                }
             }
 
             if (resource.isFiltering()) {
@@ -202,7 +205,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
                     || buildContext.hasDelta(mavenResourcesExecution.getFileFilters())
                     || buildContext.hasDelta(getRelativeOutputDirectory(mavenResourcesExecution));
             LOGGER.debug("ignoreDelta " + ignoreDelta);
-            Scanner scanner = buildContext.newScanner(resourceDirectory, ignoreDelta);
+            Scanner scanner = buildContext.newScanner(resourceDirectory.toFile(), ignoreDelta);
 
             setupScanner(resource, scanner, mavenResourcesExecution.isAddDefaultExcludes());
 
@@ -210,36 +213,37 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
 
             if (mavenResourcesExecution.isIncludeEmptyDirs()) {
                 try {
-                    File targetDirectory = targetPath == null ? outputDirectory : new File(outputDirectory, targetPath);
+                    Path targetDirectory = targetPath == null ? outputDirectory : outputDirectory.resolve(targetPath);
                     copyDirectoryLayout(resourceDirectory, targetDirectory, scanner);
                 } catch (IOException e) {
-                    throw new MavenFilteringException("Cannot copy directory structure from "
-                            + resourceDirectory.getPath() + " to " + outputDirectory.getPath());
+                    throw new MavenFilteringException(
+                            "Cannot copy directory structure from " + resourceDirectory + " to " + outputDirectory);
                 }
             }
 
-            List<String> includedFiles = Arrays.asList(scanner.getIncludedFiles());
+            String[] includedFiles = scanner.getIncludedFiles();
 
-            LOGGER.info("Copying " + includedFiles.size() + " resource" + (includedFiles.size() > 1 ? "s" : "")
+            LOGGER.info("Copying " + includedFiles.length + " resource" + (includedFiles.length > 1 ? "s" : "")
                     + (targetPath == null ? "" : " to " + targetPath));
 
             for (String name : includedFiles) {
 
                 LOGGER.debug("Copying file " + name);
-                File source = new File(resourceDirectory, name);
+                Path source = resourceDirectory.resolve(name);
 
-                File destinationFile = getDestinationFile(outputDirectory, targetPath, name, mavenResourcesExecution);
+                Path destinationFile = getDestinationFile(outputDirectory, targetPath, name, mavenResourcesExecution);
 
-                if (mavenResourcesExecution.isFlatten() && destinationFile.exists()) {
+                if (mavenResourcesExecution.isFlatten() && Files.exists(destinationFile)) {
                     if (mavenResourcesExecution.isOverwrite()) {
-                        LOGGER.warn("existing file " + destinationFile.getName() + " will be overwritten by " + name);
+                        LOGGER.warn(
+                                "existing file " + destinationFile.getFileName() + " will be overwritten by " + name);
                     } else {
-                        throw new MavenFilteringException("existing file " + destinationFile.getName()
+                        throw new MavenFilteringException("existing file " + destinationFile.getFileName()
                                 + " will be overwritten by " + name + " and overwrite was not set to true");
                     }
                 }
-                boolean filteredExt =
-                        filteredFileExtension(source.getName(), mavenResourcesExecution.getNonFilteredFileExtensions());
+                boolean filteredExt = filteredFileExtension(
+                        source.getFileName().toString(), mavenResourcesExecution.getNonFilteredFileExtensions());
                 if (resource.isFiltering() && isPropertiesFile(source)) {
                     propertiesFiles.add(source);
                 }
@@ -247,7 +251,8 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
                 // Determine which encoding to use when filtering this file
                 String encoding = getEncoding(
                         source, mavenResourcesExecution.getEncoding(), mavenResourcesExecution.getPropertiesEncoding());
-                LOGGER.debug("Using '" + encoding + "' encoding to copy filtered resource '" + source.getName() + "'.");
+                LOGGER.debug(
+                        "Using '" + encoding + "' encoding to copy filtered resource '" + source.getFileName() + "'.");
                 mavenFileFilter.copyFile(
                         source,
                         destinationFile,
@@ -259,20 +264,24 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
 
             // deal with deleted source files
 
-            scanner = buildContext.newDeleteScanner(resourceDirectory);
+            scanner = buildContext.newDeleteScanner(resourceDirectory.toFile());
 
             setupScanner(resource, scanner, mavenResourcesExecution.isAddDefaultExcludes());
 
             scanner.scan();
 
-            List<String> deletedFiles = Arrays.asList(scanner.getIncludedFiles());
+            String[] deletedFiles = scanner.getIncludedFiles();
 
             for (String name : deletedFiles) {
-                File destinationFile = getDestinationFile(outputDirectory, targetPath, name, mavenResourcesExecution);
+                Path destinationFile = getDestinationFile(outputDirectory, targetPath, name, mavenResourcesExecution);
 
-                destinationFile.delete();
+                try {
+                    Files.deleteIfExists(destinationFile);
+                } catch (IOException e) {
+                    // ignore
+                }
 
-                buildContext.refresh(destinationFile);
+                buildContext.refresh(destinationFile.toFile());
             }
         }
 
@@ -298,8 +307,8 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
             StringBuilder affectedFiles = new StringBuilder();
             affectedFiles.append("Here is a list of the filtered properties files in you project that might be"
                     + " affected by encoding problems: ");
-            for (File propertiesFile : propertiesFiles) {
-                affectedFiles.append(System.lineSeparator()).append(" - ").append(propertiesFile.getPath());
+            for (Path propertiesFile : propertiesFiles) {
+                affectedFiles.append(System.lineSeparator()).append(" - ").append(propertiesFile);
             }
             LOGGER.debug(affectedFiles.toString());
         }
@@ -315,7 +324,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
      * @return The encoding to use when filtering the specified file
      * @since 3.2.0
      */
-    static String getEncoding(File file, String encoding, String propertiesEncoding) {
+    static String getEncoding(Path file, String encoding, String propertiesEncoding) {
         if (isPropertiesFile(file)) {
             if (propertiesEncoding == null) {
                 // Since propertiesEncoding is a new feature, not all plugins will have implemented support for it.
@@ -336,8 +345,8 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
      * @return <code>true</code> if the file name has an extension of "properties", otherwise <code>false</code>
      * @since 3.2.0
      */
-    static boolean isPropertiesFile(File file) {
-        return "properties".equals(getExtension(file.getName()));
+    static boolean isPropertiesFile(Path file) {
+        return "properties".equals(getExtension(file.getFileName().toString()));
     }
 
     private void handleDefaultFilterWrappers(MavenResourcesExecution mavenResourcesExecution)
@@ -350,8 +359,8 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
         mavenResourcesExecution.setFilterWrappers(filterWrappers);
     }
 
-    private File getDestinationFile(
-            File outputDirectory, String targetPath, String name, MavenResourcesExecution mavenResourcesExecution)
+    private Path getDestinationFile(
+            Path outputDirectory, String targetPath, String name, MavenResourcesExecution mavenResourcesExecution)
             throws MavenFilteringException {
         String destination;
         if (!mavenResourcesExecution.isFlatten()) {
@@ -371,14 +380,14 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
             destination = targetPath + "/" + destination;
         }
 
-        File destinationFile = new File(destination);
-        if (!destinationFile.isAbsolute()) {
-            destinationFile = new File(outputDirectory, destination);
+        Path destinationFile = outputDirectory.resolve(destination);
+
+        try {
+            Files.createDirectories(destinationFile.getParent());
+        } catch (IOException e) {
+            throw new MavenFilteringException("Unable to create directory " + destinationFile.getParent(), e);
         }
 
-        if (!destinationFile.getParentFile().exists()) {
-            destinationFile.getParentFile().mkdirs();
-        }
         return destinationFile;
     }
 
@@ -391,9 +400,8 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
         }
         scanner.setIncludes(includes);
 
-        String[] excludes = null;
         if (resource.getExcludes() != null && !resource.getExcludes().isEmpty()) {
-            excludes = resource.getExcludes().toArray(EMPTY_STRING_ARRAY);
+            String[] excludes = resource.getExcludes().toArray(EMPTY_STRING_ARRAY);
             scanner.setExcludes(excludes);
         }
 
@@ -403,7 +411,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
         return includes;
     }
 
-    private void copyDirectoryLayout(File sourceDirectory, File destinationDirectory, Scanner scanner)
+    private void copyDirectoryLayout(Path sourceDirectory, Path destinationDirectory, Scanner scanner)
             throws IOException {
         if (sourceDirectory == null) {
             throw new IOException("source directory can't be null.");
@@ -417,32 +425,38 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
             throw new IOException("source and destination are the same directory.");
         }
 
-        if (!sourceDirectory.exists()) {
-            throw new IOException("Source directory doesn't exists (" + sourceDirectory.getAbsolutePath() + ").");
+        if (!Files.exists(sourceDirectory)) {
+            throw new IOException("Source directory doesn't exists (" + sourceDirectory.toAbsolutePath() + ").");
         }
 
-        List<String> includedDirectories = Arrays.asList(scanner.getIncludedDirectories());
+        String[] includedDirectories = scanner.getIncludedDirectories();
 
         for (String name : includedDirectories) {
-            File source = new File(sourceDirectory, name);
+            Path source = sourceDirectory.resolve(name);
 
             if (source.equals(sourceDirectory)) {
                 continue;
             }
 
-            File destination = new File(destinationDirectory, name);
-            destination.mkdirs();
+            Path destination = destinationDirectory.resolve(name);
+            Files.createDirectories(destination);
         }
     }
 
     private String getRelativeOutputDirectory(MavenResourcesExecution execution) {
-        String relOutDir = execution.getOutputDirectory().getAbsolutePath();
+        String relOutDir = execution.getOutputDirectory().toAbsolutePath().toString();
 
-        if (execution.getMavenProject() != null && execution.getMavenProject().getBasedir() != null) {
-            String basedir = execution.getMavenProject().getBasedir().getAbsolutePath();
+        if (execution.getMavenProject() != null
+                && execution.getMavenProject().getBasedir().isPresent()) {
+            String basedir = execution
+                    .getMavenProject()
+                    .getBasedir()
+                    .get()
+                    .toAbsolutePath()
+                    .toString();
             relOutDir = FilteringUtils.getRelativeFilePath(basedir, relOutDir);
             if (relOutDir == null) {
-                relOutDir = execution.getOutputDirectory().getPath();
+                relOutDir = execution.getOutputDirectory().toString();
             } else {
                 relOutDir = relOutDir.replace('\\', '/');
             }

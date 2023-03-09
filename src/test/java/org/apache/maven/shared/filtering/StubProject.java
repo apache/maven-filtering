@@ -18,43 +18,27 @@
  */
 package org.apache.maven.shared.filtering;
 
-import java.io.File;
-import java.util.Properties;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.apache.maven.project.MavenProject;
+import org.apache.maven.api.plugin.testing.stubs.ProjectStub;
 
-/**
- * @author Olivier Lamy
- * @since 1.0-beta-1
- *
- */
-public class StubMavenProject extends MavenProject {
-    private Properties properties;
+public class StubProject extends ProjectStub {
+    public StubProject() {}
 
-    private File basedir;
-
-    protected StubMavenProject(File basedir) {
-        this.basedir = basedir;
+    public StubProject(Path basedir) {
+        setBasedir(basedir);
     }
 
-    @Override
-    public Properties getProperties() {
-        return this.properties;
-    }
-
-    public void setProperties(Properties properties) {
-        this.properties = properties;
+    public void setProperties(Map<String, String> properties) {
+        setModel(getModel().withProperties(properties));
     }
 
     public void addProperty(String key, String value) {
-        if (this.properties == null) {
-            this.properties = new Properties();
-        }
-        this.properties.put(key, value);
-    }
-
-    @Override
-    public File getBasedir() {
-        return basedir;
+        Map<String, String> props = new HashMap<>();
+        props.putAll(getModel().getProperties());
+        props.put(key, value);
+        setProperties(props);
     }
 }

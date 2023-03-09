@@ -18,11 +18,11 @@
  */
 package org.apache.maven.shared.filtering;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
@@ -55,7 +55,7 @@ public final class PropertyUtils {
      * @return Properties object containing the properties in the file with their values fully resolved.
      * @throws IOException if profile does not exist, or cannot be read.
      */
-    public static Properties loadPropertyFile(File propFile, Properties baseProps) throws IOException {
+    public static Properties loadPropertyFile(Path propFile, Properties baseProps) throws IOException {
         return loadPropertyFile(propFile, baseProps, null);
     }
 
@@ -74,14 +74,14 @@ public final class PropertyUtils {
      *
      * @since 3.1.2
      */
-    public static Properties loadPropertyFile(File propFile, Properties baseProps, Logger logger) throws IOException {
-        if (!propFile.exists()) {
+    public static Properties loadPropertyFile(Path propFile, Properties baseProps, Logger logger) throws IOException {
+        if (!Files.exists(propFile)) {
             throw new FileNotFoundException(propFile.toString());
         }
 
         final Properties fileProps = new Properties();
 
-        try (InputStream inStream = Files.newInputStream(propFile.toPath())) {
+        try (InputStream inStream = Files.newInputStream(propFile)) {
             fileProps.load(inStream);
         }
 
@@ -116,7 +116,7 @@ public final class PropertyUtils {
      * @return the loaded and fully resolved Properties object
      * @throws IOException if profile does not exist, or cannot be read.
      */
-    public static Properties loadPropertyFile(File propfile, boolean fail, boolean useSystemProps) throws IOException {
+    public static Properties loadPropertyFile(Path propfile, boolean fail, boolean useSystemProps) throws IOException {
         return loadPropertyFile(propfile, fail, useSystemProps, null);
     }
 
@@ -132,7 +132,7 @@ public final class PropertyUtils {
      *
      * @since 3.1.2
      */
-    public static Properties loadPropertyFile(File propfile, boolean fail, boolean useSystemProps, Logger logger)
+    public static Properties loadPropertyFile(Path propfile, boolean fail, boolean useSystemProps, Logger logger)
             throws IOException {
 
         final Properties baseProps = new Properties();

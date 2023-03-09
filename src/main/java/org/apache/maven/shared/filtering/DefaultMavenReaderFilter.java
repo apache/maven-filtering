@@ -25,8 +25,8 @@ import java.io.Reader;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.project.MavenProject;
+import org.apache.maven.api.Project;
+import org.apache.maven.api.Session;
 
 /**
  * @author Kristian Rosenvold
@@ -38,10 +38,10 @@ public class DefaultMavenReaderFilter extends BaseFilter implements MavenReaderF
     public Reader filter(
             Reader from,
             boolean filtering,
-            MavenProject mavenProject,
+            Project mavenProject,
             List<String> filters,
             boolean escapedBackslashesInFilePath,
-            MavenSession mavenSession)
+            Session mavenSession)
             throws MavenFilteringException {
         MavenResourcesExecution mre = new MavenResourcesExecution();
         mre.setMavenProject(mavenProject);

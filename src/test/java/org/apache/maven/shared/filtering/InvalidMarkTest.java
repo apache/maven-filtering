@@ -18,7 +18,9 @@
  */
 package org.apache.maven.shared.filtering;
 
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 
 import org.apache.commons.io.FileUtils;
@@ -28,15 +30,15 @@ import org.apache.maven.model.Resource;
  * @author Mikolaj Izdebski
  */
 public class InvalidMarkTest extends TestSupport {
-    File outputDirectory = new File(getBasedir(), "target/LongLineTest");
+    Path outputDirectory = Paths.get(getBasedir(), "target/LongLineTest");
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        if (outputDirectory.exists()) {
-            FileUtils.deleteDirectory(outputDirectory);
+        if (Files.exists(outputDirectory)) {
+            FileUtils.deleteDirectory(outputDirectory.toFile());
         }
-        outputDirectory.mkdirs();
+        Files.createDirectories(outputDirectory);
     }
 
     public void testEscape() throws Exception {
@@ -49,11 +51,11 @@ public class InvalidMarkTest extends TestSupport {
         MavenResourcesExecution mavenResourcesExecution = new MavenResourcesExecution(
                 Collections.singletonList(resource),
                 outputDirectory,
-                new StubMavenProject(new File(".")),
+                new StubProject(Paths.get(".")),
                 "UTF-8",
                 Collections.<String>emptyList(),
                 Collections.<String>emptyList(),
-                new StubMavenSession());
+                new StubSession());
 
         try {
             mavenResourcesFiltering.filterResources(mavenResourcesExecution);

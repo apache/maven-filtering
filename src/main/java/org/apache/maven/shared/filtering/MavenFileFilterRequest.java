@@ -18,12 +18,12 @@
  */
 package org.apache.maven.shared.filtering;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.project.MavenProject;
+import org.apache.maven.api.Project;
+import org.apache.maven.api.Session;
 
 /**
  * @author Olivier Lamy
@@ -31,9 +31,9 @@ import org.apache.maven.project.MavenProject;
  */
 public class MavenFileFilterRequest extends AbstractMavenFilteringRequest {
 
-    private File from;
+    private Path from;
 
-    private File to;
+    private Path to;
 
     private boolean filtering;
 
@@ -58,14 +58,14 @@ public class MavenFileFilterRequest extends AbstractMavenFilteringRequest {
      * @param additionalProperties Supplemental properties.
      */
     public MavenFileFilterRequest(
-            File from,
-            File to,
+            Path from,
+            Path to,
             boolean filtering,
-            MavenProject mavenProject,
+            Project mavenProject,
             List<String> filters,
             boolean escapedBackslashesInFilePath,
             String encoding,
-            MavenSession mavenSession,
+            Session mavenSession,
             Properties additionalProperties) {
         super(mavenProject, filters, mavenSession);
         this.encoding = encoding;
@@ -97,28 +97,28 @@ public class MavenFileFilterRequest extends AbstractMavenFilteringRequest {
     /**
      * @return to filter from.
      */
-    public File getFrom() {
+    public Path getFrom() {
         return from;
     }
 
     /**
      * @param from set filter from.
      */
-    public void setFrom(File from) {
+    public void setFrom(Path from) {
         this.from = from;
     }
 
     /**
      * @return The filter to
      */
-    public File getTo() {
+    public Path getTo() {
         return to;
     }
 
     /**
      * @param to Set the target.
      */
-    public void setTo(File to) {
+    public void setTo(Path to) {
         this.to = to;
     }
 

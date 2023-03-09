@@ -22,12 +22,12 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.project.MavenProject;
+import org.apache.maven.api.Project;
+import org.apache.maven.api.Session;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
 import static java.util.Objects.requireNonNull;
@@ -47,14 +47,14 @@ public class DefaultMavenFileFilter extends BaseFilter implements MavenFileFilte
 
     @Override
     public void copyFile(
-            File from,
-            File to,
+            Path from,
+            Path to,
             boolean filtering,
-            MavenProject mavenProject,
+            Project mavenProject,
             List<String> filters,
             boolean escapedBackslashesInFilePath,
             String encoding,
-            MavenSession mavenSession)
+            Session mavenSession)
             throws MavenFilteringException {
         MavenResourcesExecution mre = new MavenResourcesExecution();
         mre.setMavenProject(mavenProject);
@@ -80,7 +80,7 @@ public class DefaultMavenFileFilter extends BaseFilter implements MavenFileFilte
     }
 
     @Override
-    public void copyFile(File from, File to, boolean filtering, List<FilterWrapper> filterWrappers, String encoding)
+    public void copyFile(Path from, Path to, boolean filtering, List<FilterWrapper> filterWrappers, String encoding)
             throws MavenFilteringException {
         // overwrite forced to false to preserve backward comp
         copyFile(from, to, filtering, filterWrappers, encoding, false);
@@ -88,8 +88,8 @@ public class DefaultMavenFileFilter extends BaseFilter implements MavenFileFilte
 
     @Override
     public void copyFile(
-            File from,
-            File to,
+            Path from,
+            Path to,
             boolean filtering,
             List<FilterWrapper> filterWrappers,
             String encoding,
@@ -98,22 +98,22 @@ public class DefaultMavenFileFilter extends BaseFilter implements MavenFileFilte
         try {
             if (filtering) {
                 if (getLogger().isDebugEnabled()) {
-                    getLogger().debug("filtering " + from.getPath() + " to " + to.getPath());
+                    getLogger().debug("filtering " + from + " to " + to);
                 }
                 FilterWrapper[] array = filterWrappers.toArray(new FilterWrapper[0]);
                 FilteringUtils.copyFile(from, to, encoding, array, false);
             } else {
                 if (getLogger().isDebugEnabled()) {
-                    getLogger().debug("copy " + from.getPath() + " to " + to.getPath());
+                    getLogger().debug("copy " + from + " to " + to);
                 }
                 FilteringUtils.copyFile(from, to, encoding, new FilterWrapper[0], overwrite);
             }
 
-            buildContext.refresh(to);
+            buildContext.refresh(to.toFile());
         } catch (IOException e) {
             throw new MavenFilteringException(
-                    (filtering ? "filtering " : "copying ") + from.getPath() + " to " + to.getPath() + " failed with "
-                            + e.getClass().getSimpleName(),
+                    (filtering ? "filtering " : "copying ") + from + " to " + to + " failed with "
+                            + e.getClass().getSimpleName() + ": " + e.getMessage(),
                     e);
         }
     }

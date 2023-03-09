@@ -288,16 +288,18 @@ class BaseFilter implements DefaultFilterInfo {
         interpolator.addValueSource(propertiesValueSource);
 
         if (project != null) {
-            interpolator.addValueSource(new PrefixedObjectValueSource(projectStartExpressions, project, true) {
-                @Override
-                public Object getValue(String expression) {
-                    Object value = super.getValue(expression);
-                    if (value instanceof Optional) {
-                        value = ((Optional) value).orElse(null);
+            for (Object root : new Object[] {project, project.getModel()}) {
+                interpolator.addValueSource(new PrefixedObjectValueSource(projectStartExpressions, root, true) {
+                    @Override
+                    public Object getValue(String expression) {
+                        Object value = super.getValue(expression);
+                        if (value instanceof Optional) {
+                            value = ((Optional) value).orElse(null);
+                        }
+                        return value;
                     }
-                    return value;
-                }
-            });
+                });
+            }
         }
 
         if (mavenSession != null) {

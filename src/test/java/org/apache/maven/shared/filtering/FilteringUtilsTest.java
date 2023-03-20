@@ -22,9 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.CopyOption;
 import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 
 import org.junit.Test;
 
@@ -40,10 +38,10 @@ public class FilteringUtilsTest extends TestSupport {
     private static File testDirectory = new File(getBasedir(), "target/test-classes/");
 
     @Test
-    public void testCopy() throws IOException {
+    public void testMSHARED1213CopyWithTargetAlreadyExisting0ByteFile() throws IOException {
         File fromFile = new File(getBasedir() + "/src/test/units-files/MSHARED-1213/enunciate.xml");
         File toFile = new File(testDirectory, "MSHARED-1213-enunciate.xml");
-        Files.copy(fromFile.toPath(), toFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        Files.write(toFile.toPath(), "".getBytes(StandardCharsets.UTF_8));
         FilteringUtils.copyFile(
                 fromFile,
                 toFile,

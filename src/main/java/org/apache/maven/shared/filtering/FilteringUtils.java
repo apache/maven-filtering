@@ -361,13 +361,17 @@ public final class FilteringUtils {
 
                             if (!writing) {
                                 existingRead = existing.read(existingBytes.array(), 0, newBytes.remaining());
-                                ((Buffer) existingBytes).position(existingRead);
-                                ((Buffer) existingBytes).flip();
+                                if (existingRead == -1) {
+                                    writing = true; // EOF
+                                } else {
+                                    ((Buffer) existingBytes).position(existingRead);
+                                    ((Buffer) existingBytes).flip();
 
-                                if (newBytes.compareTo(existingBytes) != 0) {
-                                    writing = true;
-                                    if (existingRead > 0) {
-                                        existing.seek(existing.getFilePointer() - existingRead);
+                                    if (newBytes.compareTo(existingBytes) != 0) {
+                                        writing = true;
+                                        if (existingRead > 0) {
+                                            existing.seek(existing.getFilePointer() - existingRead);
+                                        }
                                     }
                                 }
                             }

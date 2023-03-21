@@ -179,34 +179,4 @@
       </plugin>
     </plugins>
   </build>
-
-  <profiles>
-    <profile>
-      <id>reporting</id>
-      <reporting>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-changes-plugin</artifactId>
-            <configuration>
-              <columnNames>Type,Key,Summary,Assignee,Status,Resolution,Created</columnNames>
-              <maxEntries>200</maxEntries>
-              <onlyCurrentVersion>true</onlyCurrentVersion>
-              <sortColumnNames>Key</sortColumnNames>
-              <versionPrefix>maven-filtering-</versionPrefix>
-              <fixVersionIds>12335751</fixVersionIds>
-              <onlyCurrentVersion>true</onlyCurrentVersion>
-            </configuration>
-            <reportSets>
-              <reportSet>
-                <reports>
-                  <report>jira-report</report>
-                </reports>
-              </reportSet>
-            </reportSets>
-          </plugin>
-        </plugins>
-      </reporting>
-    </profile>
-  </profiles>
 </project>

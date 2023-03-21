@@ -238,6 +238,9 @@ public class MultiDelimiterInterpolatorFilterReaderLineEnding extends AbstractFi
             String begin = spec.getBegin();
 
             // longest match wins
+            if (begin.length() < max) {
+                continue;
+            }
 
             for (int i = 0; i < begin.length(); i++) {
                 if (ch != begin.charAt(i) || ch == '\n' && !supportMultiLineFiltering) {

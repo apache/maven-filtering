@@ -49,7 +49,7 @@ public class MuliLinesMavenResourcesFilteringTest extends TestSupport {
      * @throws Exception
      */
     public void testFilteringTokenOnce() throws Exception {
-        File baseDir = new File("c:\\foo\\bar");
+        File baseDir = new File(getBasedir());
         StubMavenProject mavenProject = new StubMavenProject(baseDir);
         mavenProject.setVersion("1.0");
         mavenProject.setGroupId("org.apache");

@@ -47,7 +47,7 @@ public class EscapeStringTest extends TestSupport {
     }
 
     public void testEscape() throws Exception {
-        File baseDir = new File("c:\\foo\\bar");
+        File baseDir = new File(getBasedir());
         StubMavenProject mavenProject = new StubMavenProject(baseDir);
         mavenProject.setVersion("1.0");
         mavenProject.setGroupId("org.apache");

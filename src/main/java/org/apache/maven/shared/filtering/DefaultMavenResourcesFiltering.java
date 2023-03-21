@@ -220,8 +220,25 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
 
             List<String> includedFiles = Arrays.asList(scanner.getIncludedFiles());
 
-            LOGGER.info("Copying " + includedFiles.size() + " resource" + (includedFiles.size() > 1 ? "s" : "")
-                    + (targetPath == null ? "" : " to " + targetPath));
+            try {
+                Path basedir = mavenResourcesExecution
+                        .getMavenProject()
+                        .getBasedir()
+                        .getAbsoluteFile()
+                        .toPath();
+                Path destination = getDestinationFile(outputDirectory, targetPath, "", mavenResourcesExecution)
+                        .getAbsoluteFile()
+                        .toPath();
+                LOGGER.info("Copying " + includedFiles.size() + " resource" + (includedFiles.size() > 1 ? "s" : "")
+                        + " from "
+                        + basedir.relativize(resourceDirectory.getAbsoluteFile().toPath())
+                        + " to "
+                        + basedir.relativize(destination));
+            } catch (Exception e) {
+                // be foolproof: if for ANY reason throws, do not abort, just fall back to old message
+                LOGGER.info("Copying " + includedFiles.size() + " resource" + (includedFiles.size() > 1 ? "s" : "")
+                        + (targetPath == null ? "" : " to " + targetPath));
+            }
 
             for (String name : includedFiles) {
 

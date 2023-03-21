@@ -43,7 +43,7 @@ import org.codehaus.plexus.interpolation.ValueSource;
 public class DefaultMavenResourcesFilteringTest extends TestSupport {
 
     private File outputDirectory = new File(getBasedir(), "target/DefaultMavenResourcesFilteringTest");
-    private File baseDir = new File("c:\\foo\\bar");
+    private File baseDir = new File(getBasedir());
     private StubMavenProject mavenProject = new StubMavenProject(baseDir);
     private MavenResourcesFiltering mavenResourcesFiltering;
 
@@ -431,7 +431,7 @@ public class DefaultMavenResourcesFilteringTest extends TestSupport {
     }
 
     public void testFlattenDirectoryStructure() throws Exception {
-        File baseDir = new File("c:\\foo\\bar");
+        File baseDir = new File(getBasedir());
         StubMavenProject mavenProject = new StubMavenProject(baseDir);
         mavenProject.setVersion("1.0");
         mavenProject.setGroupId("org.apache");
@@ -476,7 +476,7 @@ public class DefaultMavenResourcesFilteringTest extends TestSupport {
     }
 
     public void testFlattenDirectoryStructureWithoutOverride() throws Exception {
-        File baseDir = new File("c:\\foo\\bar");
+        File baseDir = new File(getBasedir());
         StubMavenProject mavenProject = new StubMavenProject(baseDir);
         mavenProject.setVersion("1.0");
         mavenProject.setGroupId("org.apache");

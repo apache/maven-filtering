@@ -28,7 +28,7 @@
   </parent>
 
   <artifactId>maven-filtering</artifactId>
-  <version>3.3.1</version>
+  <version>3.3.2-SNAPSHOT</version>
 
   <name>Apache Maven Filtering</name>
   <description>A component to assist in filtering of resource files with properties from a Maven project.</description>
@@ -42,7 +42,7 @@
   <scm>
     <connection>scm:git:https://gitbox.apache.org/repos/asf/maven-filtering.git</connection>
     <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/maven-filtering.git</developerConnection>
-    <tag>maven-filtering-3.3.1</tag>
+    <tag>maven-filtering-3.2.0</tag>
     <url>https://github.com/apache/maven-filtering/tree/${project.scm.tag}</url>
   </scm>
   <issueManagement>
@@ -65,7 +65,7 @@
     <mavenVersion>3.2.5</mavenVersion>
     <slf4jVersion>1.7.36</slf4jVersion>
     <plexusBuildApiVersion>0.0.7</plexusBuildApiVersion>
-    <project.build.outputTimestamp>2023-03-21T10:53:39Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2023-03-21T10:54:20Z</project.build.outputTimestamp>
   </properties>
 
   <dependencies>

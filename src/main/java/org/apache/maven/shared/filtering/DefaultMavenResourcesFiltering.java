@@ -282,9 +282,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
 
             scanner.scan();
 
-            List<String> deletedFiles = Arrays.asList(scanner.getIncludedFiles());
-
-            for (String name : deletedFiles) {
+            for (String name : scanner.getIncludedFiles()) {
                 File destinationFile = getDestinationFile(outputDirectory, targetPath, name, mavenResourcesExecution);
 
                 destinationFile.delete();
@@ -400,7 +398,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
     }
 
     private String[] setupScanner(Resource resource, Scanner scanner, boolean addDefaultExcludes) {
-        String[] includes = null;
+        String[] includes;
         if (resource.getIncludes() != null && !resource.getIncludes().isEmpty()) {
             includes = resource.getIncludes().toArray(EMPTY_STRING_ARRAY);
         } else {
@@ -438,9 +436,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
             throw new IOException("Source directory doesn't exists (" + sourceDirectory.getAbsolutePath() + ").");
         }
 
-        List<String> includedDirectories = Arrays.asList(scanner.getIncludedDirectories());
-
-        for (String name : includedDirectories) {
+        for (String name : scanner.getIncludedDirectories()) {
             File source = new File(sourceDirectory, name);
 
             if (source.equals(sourceDirectory)) {

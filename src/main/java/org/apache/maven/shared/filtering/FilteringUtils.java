@@ -84,7 +84,7 @@ public final class FilteringUtils {
             StringBuilder buf = new StringBuilder(val.length());
             int start = 0, end = 0;
             while ((end = val.indexOf('\\', start)) != -1) {
-                buf.append(val.substring(start, end)).append("\\\\");
+                buf.append(val, start, end).append("\\\\");
                 start = end + 1;
 
                 if (val.indexOf('\\', end + 1) == end + 1) {
@@ -321,9 +321,7 @@ public final class FilteringUtils {
                 } else {
                     CharsetEncoder encoder = charset.newEncoder();
 
-                    int totalBufferSize = FILE_COPY_BUFFER_SIZE;
-
-                    int charBufferSize = (int) Math.floor(totalBufferSize / (2 + 2 * encoder.maxBytesPerChar()));
+                    int charBufferSize = (int) Math.floor(FILE_COPY_BUFFER_SIZE / (2 + 2 * encoder.maxBytesPerChar()));
                     int byteBufferSize = (int) Math.ceil(charBufferSize * encoder.maxBytesPerChar());
 
                     CharBuffer newChars = CharBuffer.allocate(charBufferSize);
@@ -348,13 +346,17 @@ public final class FilteringUtils {
 
                             if (!writing) {
                                 existingRead = existing.read(existingBytes.array(), 0, newBytes.remaining());
-                                ((Buffer) existingBytes).position(existingRead);
-                                ((Buffer) existingBytes).flip();
+                                if (existingRead == -1) {
+                                    writing = true; // EOF
+                                } else {
+                                    ((Buffer) existingBytes).position(existingRead);
+                                    ((Buffer) existingBytes).flip();
 
-                                if (newBytes.compareTo(existingBytes) != 0) {
-                                    writing = true;
-                                    if (existingRead > 0) {
-                                        existing.seek(existing.getFilePointer() - existingRead);
+                                    if (newBytes.compareTo(existingBytes) != 0) {
+                                        writing = true;
+                                        if (existingRead > 0) {
+                                            existing.seek(existing.getFilePointer() - existingRead);
+                                        }
                                     }
                                 }
                             }

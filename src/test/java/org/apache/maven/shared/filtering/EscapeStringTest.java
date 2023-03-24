@@ -52,7 +52,7 @@ public class EscapeStringTest extends TestSupport {
 
     @Test
     public void testEscape() throws Exception {
-        Path baseDir = Paths.get("c:\\foo\\bar");
+        Path baseDir = Paths.get(getBasedir());
         StubProject mavenProject = new StubProject(baseDir);
         mavenProject.setVersion("1.0");
         mavenProject.setGroupId("org.apache");

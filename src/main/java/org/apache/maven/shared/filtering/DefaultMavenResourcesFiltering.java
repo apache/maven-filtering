@@ -30,6 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -221,10 +222,26 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
                 }
             }
 
-            String[] includedFiles = scanner.getIncludedFiles();
+            List<String> includedFiles = Arrays.asList(scanner.getIncludedFiles());
 
-            LOGGER.info("Copying " + includedFiles.length + " resource" + (includedFiles.length > 1 ? "s" : "")
-                    + (targetPath == null ? "" : " to " + targetPath));
+            try {
+                Path basedir = mavenResourcesExecution
+                        .getMavenProject()
+                        .getBasedir()
+                        .get()
+                        .toAbsolutePath();
+                Path destination = getDestinationFile(outputDirectory, targetPath, "", mavenResourcesExecution)
+                        .toAbsolutePath();
+                LOGGER.info("Copying " + includedFiles.size() + " resource" + (includedFiles.size() > 1 ? "s" : "")
+                        + " from "
+                        + basedir.relativize(resourceDirectory.toAbsolutePath())
+                        + " to "
+                        + basedir.relativize(destination));
+            } catch (Exception e) {
+                // be foolproof: if for ANY reason throws, do not abort, just fall back to old message
+                LOGGER.info("Copying " + includedFiles.size() + " resource" + (includedFiles.size() > 1 ? "s" : "")
+                        + (targetPath == null ? "" : " to " + targetPath));
+            }
 
             for (String name : includedFiles) {
 
@@ -270,9 +287,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
 
             scanner.scan();
 
-            String[] deletedFiles = scanner.getIncludedFiles();
-
-            for (String name : deletedFiles) {
+            for (String name : scanner.getIncludedFiles()) {
                 Path destinationFile = getDestinationFile(outputDirectory, targetPath, name, mavenResourcesExecution);
 
                 try {
@@ -392,7 +407,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
     }
 
     private String[] setupScanner(Resource resource, Scanner scanner, boolean addDefaultExcludes) {
-        String[] includes = null;
+        String[] includes;
         if (resource.getIncludes() != null && !resource.getIncludes().isEmpty()) {
             includes = resource.getIncludes().toArray(EMPTY_STRING_ARRAY);
         } else {
@@ -429,9 +444,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
             throw new IOException("Source directory doesn't exists (" + sourceDirectory.toAbsolutePath() + ").");
         }
 
-        String[] includedDirectories = scanner.getIncludedDirectories();
-
-        for (String name : includedDirectories) {
+        for (String name : scanner.getIncludedDirectories()) {
             Path source = sourceDirectory.resolve(name);
 
             if (source.equals(sourceDirectory)) {

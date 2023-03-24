@@ -63,7 +63,7 @@ public class MuliLinesMavenResourcesFilteringTest {
      */
     @Test
     public void testFilteringTokenOnce() throws Exception {
-        Path baseDir = Paths.get("c:\\foo\\bar");
+        Path baseDir = Paths.get(getBasedir());
         StubProject mavenProject = new StubProject(baseDir);
         mavenProject.setVersion("1.0");
         mavenProject.setGroupId("org.apache");

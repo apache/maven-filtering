@@ -18,9 +18,15 @@
  */
 package org.apache.maven.shared.filtering;
 
-import org.junit.jupiter.api.Test;
+import java.io.IOException;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author John Casey
@@ -28,7 +34,78 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @since 1.0
  *
  */
-public class FilteringUtilsTest {
+public class FilteringUtilsTest extends TestSupport {
+    private static Path testDirectory = Paths.get(getBasedir(), "target/test-classes/");
+
+    @Test
+    public void testMSHARED1213CopyWithTargetAlreadyExisting0ByteFile() throws IOException {
+        Path fromFile = Paths.get(getBasedir() + "/src/test/units-files/MSHARED-1213/enunciate.xml");
+        Path toFile = testDirectory.resolve("MSHARED-1213-enunciate.xml");
+        Files.write(toFile, "".getBytes(StandardCharsets.UTF_8));
+        FilteringUtils.copyFile(
+                fromFile,
+                toFile,
+                "UTF-8",
+                new FilterWrapper[] {
+                    new FilterWrapper() {
+                        @Override
+                        public Reader getReader(Reader fileReader) {
+                            return fileReader;
+                        }
+                    }
+                },
+                false);
+        assertEquals(
+                Files.readAllLines(fromFile, StandardCharsets.UTF_8),
+                Files.readAllLines(toFile, StandardCharsets.UTF_8));
+    }
+
+    @Test
+    public void testMSHARED1213CopyWithTargetAlreadyExistingJunkFile() throws IOException {
+        Path fromFile = Paths.get(getBasedir() + "/src/test/units-files/MSHARED-1213/enunciate.xml");
+        Path toFile = testDirectory.resolve("MSHARED-1213-enunciate.xml");
+        Files.write(toFile, "junk".getBytes(StandardCharsets.UTF_8));
+        FilteringUtils.copyFile(
+                fromFile,
+                toFile,
+                "UTF-8",
+                new FilterWrapper[] {
+                    new FilterWrapper() {
+                        @Override
+                        public Reader getReader(Reader fileReader) {
+                            return fileReader;
+                        }
+                    }
+                },
+                false);
+        assertEquals(
+                Files.readAllLines(fromFile, StandardCharsets.UTF_8),
+                Files.readAllLines(toFile, StandardCharsets.UTF_8));
+    }
+
+    @Test
+    public void testMSHARED1213CopyWithTargetAlreadyExistingSameFile() throws IOException {
+        Path fromFile = Paths.get(getBasedir() + "/src/test/units-files/MSHARED-1213/enunciate.xml");
+        Path toFile = testDirectory.resolve("MSHARED-1213-enunciate.xml");
+        Files.copy(fromFile, toFile, StandardCopyOption.REPLACE_EXISTING);
+        FilteringUtils.copyFile(
+                fromFile,
+                toFile,
+                "UTF-8",
+                new FilterWrapper[] {
+                    new FilterWrapper() {
+                        @Override
+                        public Reader getReader(Reader fileReader) {
+                            return fileReader;
+                        }
+                    }
+                },
+                false);
+        assertEquals(
+                Files.readAllLines(fromFile, StandardCharsets.UTF_8),
+                Files.readAllLines(toFile, StandardCharsets.UTF_8));
+    }
+
     @Test
     public void testEscapeWindowsPathStartingWithDrive() {
         assertEquals("C:\\\\Users\\\\Administrator", FilteringUtils.escapeWindowsPath("C:\\Users\\Administrator"));

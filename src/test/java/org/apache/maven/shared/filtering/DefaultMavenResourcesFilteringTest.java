@@ -64,7 +64,7 @@ public class DefaultMavenResourcesFilteringTest {
     PlexusContainer container;
 
     private Path outputDirectory = Paths.get(getBasedir(), "target/DefaultMavenResourcesFilteringTest");
-    private Path baseDir = Paths.get("c:\\foo\\bar");
+    private Path baseDir = Paths.get(getBasedir());
     private StubProject mavenProject = new StubProject(baseDir);
     private MavenResourcesFiltering mavenResourcesFiltering;
 
@@ -444,7 +444,7 @@ public class DefaultMavenResourcesFilteringTest {
 
     @Test
     public void testFlattenDirectoryStructure() throws Exception {
-        Path baseDir = Paths.get("c:\\foo\\bar");
+        Path baseDir = Paths.get(getBasedir());
         StubProject mavenProject = new StubProject(baseDir);
         mavenProject.setVersion("1.0");
         mavenProject.setGroupId("org.apache");
@@ -490,7 +490,7 @@ public class DefaultMavenResourcesFilteringTest {
 
     @Test
     public void testFlattenDirectoryStructureWithoutOverride() throws Exception {
-        Path baseDir = Paths.get("c:\\foo\\bar");
+        Path baseDir = Paths.get(getBasedir());
         StubProject mavenProject = new StubProject(baseDir);
         mavenProject.setVersion("1.0");
         mavenProject.setGroupId("org.apache");

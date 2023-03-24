@@ -65,7 +65,7 @@
     <mavenVersion>4.0.0-alpha-4</mavenVersion>
     <slf4jVersion>1.7.36</slf4jVersion>
     <plexusBuildApiVersion>0.0.7</plexusBuildApiVersion>
-    <project.build.outputTimestamp>2022-06-11T13:41:41Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2023-03-21T10:54:20Z</project.build.outputTimestamp>
   </properties>
 
   <dependencies>
@@ -160,39 +160,18 @@
   <build>
     <plugins>
       <plugin>
+        <groupId>org.apache.rat</groupId>
+        <artifactId>apache-rat-plugin</artifactId>
+        <configuration>
+          <excludes combine.children="append">
+            <exclude>src/test/units-files/**</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+      <plugin>
         <groupId>org.eclipse.sisu</groupId>
         <artifactId>sisu-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>
-
-  <profiles>
-    <profile>
-      <id>reporting</id>
-      <reporting>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-changes-plugin</artifactId>
-            <configuration>
-              <columnNames>Type,Key,Summary,Assignee,Status,Resolution,Created</columnNames>
-              <maxEntries>200</maxEntries>
-              <onlyCurrentVersion>true</onlyCurrentVersion>
-              <sortColumnNames>Key</sortColumnNames>
-              <versionPrefix>maven-filtering-</versionPrefix>
-              <fixVersionIds>12335751</fixVersionIds>
-              <onlyCurrentVersion>true</onlyCurrentVersion>
-            </configuration>
-            <reportSets>
-              <reportSet>
-                <reports>
-                  <report>jira-report</report>
-                </reports>
-              </reportSet>
-            </reportSets>
-          </plugin>
-        </plugins>
-      </reporting>
-    </profile>
-  </profiles>
 </project>

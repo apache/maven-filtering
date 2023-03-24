@@ -157,7 +157,7 @@ public class InterpolatorFilterReaderLineEnding extends AbstractFilterReaderLine
      * @throws IOException If an I/O error occurs
      */
     @Override
-    public int read(char cbuf[], int off, int len) throws IOException {
+    public int read(char[] cbuf, int off, int len) throws IOException {
         for (int i = 0; i < len; i++) {
             int ch = read();
             if (ch == -1) {
@@ -301,7 +301,7 @@ public class InterpolatorFilterReaderLineEnding extends AbstractFilterReaderLine
                     value = interpolator.interpolate(key.toString(), recursionInterceptor);
                 }
             } catch (InterpolationException e) {
-                throw new IllegalArgumentException(e);
+                throw new IllegalArgumentException(e.getMessage(), e);
             }
         }
 

@@ -37,7 +37,7 @@ import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
-import org.codehaus.plexus.util.Os;
+import org.apache.commons.lang3.SystemUtils;
 
 /**
  * @author Olivier Lamy
@@ -117,7 +117,7 @@ public final class FilteringUtils {
         }
 
         // deal with absolute files
-        if (filenm.startsWith(File.separator) || (Os.isFamily(Os.FAMILY_WINDOWS) && filenm.indexOf(":") > 0)) {
+        if (filenm.startsWith(File.separator) || (SystemUtils.IS_OS_WINDOWS && filenm.indexOf(":") > 0)) {
             File file = new File(filenm);
 
             try {

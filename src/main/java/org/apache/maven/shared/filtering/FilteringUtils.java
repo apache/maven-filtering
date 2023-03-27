@@ -20,24 +20,18 @@ package org.apache.maven.shared.filtering;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.charset.Charset;
-import java.nio.charset.CharsetEncoder;
-import java.nio.charset.CoderResult;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.NoSuchFileException;
-import java.nio.file.StandardCopyOption;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SystemUtils;
+import org.codehaus.plexus.util.io.CachingOutputStream;
+import org.codehaus.plexus.util.io.CachingWriter;
 
 /**
  * @author Olivier Lamy
@@ -62,6 +56,7 @@ public final class FilteringUtils {
     private static final String WINDOWS_PATH_PATTERN = "^(.*)[a-zA-Z]:\\\\(.*)";
 
     private static final Pattern PATTERN = Pattern.compile(WINDOWS_PATH_PATTERN);
+    public static final int COPY_BUFFER_LENGTH = 8192;
 
     /**
      *
@@ -301,97 +296,55 @@ public final class FilteringUtils {
 
     /**
      * <b>If wrappers is null or empty, the file will be copy only if to.lastModified() &lt; from.lastModified() or if
-     * overwrite is true</b>
+     * overwrite is true</b>.
      *
      * @param from the file to copy
      * @param to the destination file
      * @param encoding the file output encoding (only if wrappers is not empty)
      * @param wrappers array of {@link FilterWrapper}
-     * @param overwrite if true and wrappers is null or empty, the file will be copied even if
-     *         to.lastModified() &lt; from.lastModified()
      * @throws IOException if an IO error occurs during copying or filtering
      */
-    public static void copyFile(File from, File to, String encoding, FilterWrapper[] wrappers, boolean overwrite)
-            throws IOException {
+    public static void copyFile(File from, File to, String encoding, FilterWrapper[] wrappers) throws IOException {
         if (wrappers == null || wrappers.length == 0) {
-            if (overwrite || to.lastModified() < from.lastModified()) {
-                Files.copy(from.toPath(), to.toPath(), LinkOption.NOFOLLOW_LINKS, StandardCopyOption.REPLACE_EXISTING);
+            try (OutputStream os = new CachingOutputStream(to.toPath())) {
+                Files.copy(from.toPath(), os);
             }
         } else {
             Charset charset = charset(encoding);
-
-            // buffer so it isn't reading a byte at a time!
             try (Reader fileReader = Files.newBufferedReader(from.toPath(), charset)) {
                 Reader wrapped = fileReader;
                 for (FilterWrapper wrapper : wrappers) {
                     wrapped = wrapper.getReader(wrapped);
                 }
-
-                if (overwrite || !to.exists()) {
-                    try (Writer fileWriter = Files.newBufferedWriter(to.toPath(), charset)) {
-                        IOUtils.copy(wrapped, fileWriter);
-                    }
-                } else {
-                    CharsetEncoder encoder = charset.newEncoder();
-
-                    int charBufferSize = (int) Math.floor(FILE_COPY_BUFFER_SIZE / (2 + 2 * encoder.maxBytesPerChar()));
-                    int byteBufferSize = (int) Math.ceil(charBufferSize * encoder.maxBytesPerChar());
-
-                    CharBuffer newChars = CharBuffer.allocate(charBufferSize);
-                    ByteBuffer newBytes = ByteBuffer.allocate(byteBufferSize);
-                    ByteBuffer existingBytes = ByteBuffer.allocate(byteBufferSize);
-
-                    CoderResult coderResult;
-                    int existingRead;
-                    boolean writing = false;
-
-                    try (RandomAccessFile existing = new RandomAccessFile(to, "rw")) {
-                        int n;
-                        while (-1 != (n = wrapped.read(newChars))) {
-                            ((Buffer) newChars).flip();
-
-                            coderResult = encoder.encode(newChars, newBytes, n != 0);
-                            if (coderResult.isError()) {
-                                coderResult.throwException();
-                            }
-
-                            ((Buffer) newBytes).flip();
-
-                            if (!writing) {
-                                existingRead = existing.read(existingBytes.array(), 0, newBytes.remaining());
-                                if (existingRead == -1) {
-                                    writing = true; // EOF
-                                } else {
-                                    ((Buffer) existingBytes).position(existingRead);
-                                    ((Buffer) existingBytes).flip();
-
-                                    if (newBytes.compareTo(existingBytes) != 0) {
-                                        writing = true;
-                                        if (existingRead > 0) {
-                                            existing.seek(existing.getFilePointer() - existingRead);
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (writing) {
-                                existing.write(newBytes.array(), 0, newBytes.remaining());
-                            }
-
-                            ((Buffer) newChars).clear();
-                            ((Buffer) newBytes).clear();
-                            ((Buffer) existingBytes).clear();
-                        }
-
-                        if (existing.length() > existing.getFilePointer()) {
-                            existing.setLength(existing.getFilePointer());
-                        }
+                try (Writer writer = new CachingWriter(to.toPath(), charset)) {
+                    char[] buffer = new char[COPY_BUFFER_LENGTH];
+                    int nRead;
+                    while ((nRead = wrapped.read(buffer, 0, COPY_BUFFER_LENGTH)) >= 0) {
+                        writer.write(buffer, 0, nRead);
                     }
                 }
             }
         }
 
         copyFilePermissions(from, to);
+    }
+
+    /**
+     * <b>If wrappers is null or empty, the file will be copy only if to.lastModified() &lt; from.lastModified() or if
+     * overwrite is true</b>.
+     *
+     * @param from the file to copy
+     * @param to the destination file
+     * @param encoding the file output encoding (only if wrappers is not empty)
+     * @param wrappers array of {@link FilterWrapper}
+     * @param overwrite unused
+     * @throws IOException if an IO error occurs during copying or filtering
+     * @deprecated use {@link #copyFile(File, File, String, FilterWrapper[])} instead
+     */
+    @Deprecated
+    public static void copyFile(File from, File to, String encoding, FilterWrapper[] wrappers, boolean overwrite)
+            throws IOException {
+        copyFile(from, to, encoding, wrappers);
     }
 
     /**

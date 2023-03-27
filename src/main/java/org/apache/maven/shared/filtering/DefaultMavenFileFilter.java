@@ -82,19 +82,6 @@ public class DefaultMavenFileFilter extends BaseFilter implements MavenFileFilte
     @Override
     public void copyFile(File from, File to, boolean filtering, List<FilterWrapper> filterWrappers, String encoding)
             throws MavenFilteringException {
-        // overwrite forced to false to preserve backward comp
-        copyFile(from, to, filtering, filterWrappers, encoding, false);
-    }
-
-    @Override
-    public void copyFile(
-            File from,
-            File to,
-            boolean filtering,
-            List<FilterWrapper> filterWrappers,
-            String encoding,
-            boolean overwrite)
-            throws MavenFilteringException {
         try {
             if (filtering) {
                 if (getLogger().isDebugEnabled()) {
@@ -106,7 +93,7 @@ public class DefaultMavenFileFilter extends BaseFilter implements MavenFileFilte
                 if (getLogger().isDebugEnabled()) {
                     getLogger().debug("copy " + from.getPath() + " to " + to.getPath());
                 }
-                FilteringUtils.copyFile(from, to, encoding, new FilterWrapper[0], overwrite);
+                FilteringUtils.copyFile(from, to, encoding, new FilterWrapper[0], false);
             }
 
             buildContext.refresh(to);
@@ -116,5 +103,19 @@ public class DefaultMavenFileFilter extends BaseFilter implements MavenFileFilte
                             + e.getClass().getSimpleName(),
                     e);
         }
+    }
+
+    @Override
+    @Deprecated
+    public void copyFile(
+            File from,
+            File to,
+            boolean filtering,
+            List<FilterWrapper> filterWrappers,
+            String encoding,
+            boolean overwrite)
+            throws MavenFilteringException {
+        // overwrite forced to false to preserve backward comp
+        copyFile(from, to, filtering, filterWrappers, encoding);
     }
 }

@@ -49,26 +49,6 @@ public class DefaultMavenFileFilterTest extends TestSupport {
         Files.deleteIfExists(to.toPath());
     }
 
-    public void testNotOverwriteFile() throws Exception {
-        MavenFileFilter mavenFileFilter = lookup(MavenFileFilter.class);
-
-        File from = new File(getBasedir(), "src/test/units-files/reflection-test.properties");
-
-        mavenFileFilter.copyFile(from, to, false, null, null);
-
-        from = new File(getBasedir(), "src/test/units-files/reflection-test-older.properties");
-
-        // very old file :-)
-        from.setLastModified(1);
-
-        to.setLastModified(System.currentTimeMillis());
-
-        mavenFileFilter.copyFile(from, to, false, null, null);
-
-        Properties properties = PropertyUtils.loadPropertyFile(to, null);
-        assertEquals("${pom.version}", properties.getProperty("version"));
-    }
-
     public void testOverwriteFile() throws Exception {
         MavenFileFilter mavenFileFilter = lookup(MavenFileFilter.class);
 
@@ -83,7 +63,7 @@ public class DefaultMavenFileFilterTest extends TestSupport {
 
         to.setLastModified(System.currentTimeMillis());
 
-        mavenFileFilter.copyFile(from, to, false, null, null, true);
+        mavenFileFilter.copyFile(from, to, false, null, null);
 
         Properties properties = PropertyUtils.loadPropertyFile(to, null);
         assertEquals("older file", properties.getProperty("version"));

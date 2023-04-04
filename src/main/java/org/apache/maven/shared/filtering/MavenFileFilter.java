@@ -78,10 +78,12 @@ public interface MavenFileFilter extends DefaultFilterInfo {
      * @param filtering true to apply filtering
      * @param filterWrappers The filters to be applied.
      * @param encoding The encoding to use
-     * @param overwrite Overwrite to file ?
+     * @param overwrite unused
      * @throws MavenFilteringException In case of an error.
      * @since 1.0-beta-2
+     * @deprecated use {@link #copyFile(File, File, boolean, List, String)} instead
      */
+    @Deprecated
     void copyFile(
             File from,
             File to,

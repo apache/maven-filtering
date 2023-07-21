@@ -218,10 +218,10 @@ public final class PropertyUtils {
                 // else prefix the original string with the
                 // resolved property ( so it can be parsed further )
                 // taking recursion into account.
-                if (nv == null || nv.equals(k) || k.equals(nk)) {
+                if (nv == null || k.equals(nk)) {
                     ret.append("${").append(nk).append("}");
                 } else {
-                    v = nv + v;
+                    v = nv + v.replace("${" + nk + "}", nv);
                 }
             }
         }

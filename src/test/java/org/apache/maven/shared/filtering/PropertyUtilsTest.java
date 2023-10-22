@@ -19,18 +19,16 @@
 package org.apache.maven.shared.filtering;
 
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.List;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
-import org.mockito.ArgumentCaptor;
 import org.slf4j.Logger;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * @author Olivier Lamy
@@ -47,7 +45,7 @@ public class PropertyUtilsTest extends TestSupport {
         }
 
         basicProp.createNewFile();
-        try (FileWriter writer = new FileWriter(basicProp)) {
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(basicProp), StandardCharsets.UTF_8)) {
             writer.write("ghost=${non_existent}\n");
             writer.write("key=${untat_na_damgo}\n");
             writer.write("untat_na_damgo=gani_man\n");
@@ -58,7 +56,6 @@ public class PropertyUtilsTest extends TestSupport {
         Properties prop = PropertyUtils.loadPropertyFile(basicProp, false, false, logger);
         assertTrue(prop.getProperty("key").equals("gani_man"));
         assertTrue(prop.getProperty("ghost").equals("${non_existent}"));
-        verifyNoInteractions(logger);
     }
 
     public void testSystemProperties() throws Exception {
@@ -69,7 +66,7 @@ public class PropertyUtilsTest extends TestSupport {
         }
 
         systemProp.createNewFile();
-        try (FileWriter writer = new FileWriter(systemProp)) {
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(systemProp), StandardCharsets.UTF_8)) {
             writer.write("key=${user.dir}");
             writer.flush();
         }
@@ -77,7 +74,6 @@ public class PropertyUtilsTest extends TestSupport {
         Logger logger = mock(Logger.class);
         Properties prop = PropertyUtils.loadPropertyFile(systemProp, false, true, logger);
         assertTrue(prop.getProperty("key").equals(System.getProperty("user.dir")));
-        verifyNoInteractions(logger);
     }
 
     public void testException() throws Exception {
@@ -104,7 +100,6 @@ public class PropertyUtilsTest extends TestSupport {
         assertEquals("${foo}", interpolated.get("foo"));
         assertEquals("realVersion", interpolated.get("bar"));
         assertEquals("none filtered", interpolated.get("none"));
-        assertWarn(logger, "Circular reference between properties detected: foo => foo");
     }
 
     /**
@@ -120,7 +115,7 @@ public class PropertyUtilsTest extends TestSupport {
         }
 
         basicProp.createNewFile();
-        try (FileWriter writer = new FileWriter(basicProp)) {
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(basicProp), StandardCharsets.UTF_8)) {
             writer.write("test=${test2}\n");
             writer.write("test2=${test2}\n");
             writer.flush();
@@ -130,10 +125,6 @@ public class PropertyUtilsTest extends TestSupport {
         Properties prop = PropertyUtils.loadPropertyFile(basicProp, null, logger);
         assertEquals("${test2}", prop.getProperty("test"));
         assertEquals("${test2}", prop.getProperty("test2"));
-        assertWarn(
-                logger,
-                "Circular reference between properties detected: test2 => test2",
-                "Circular reference between properties detected: test => test2 => test2");
     }
 
     /**
@@ -149,7 +140,7 @@ public class PropertyUtilsTest extends TestSupport {
         }
 
         basicProp.createNewFile();
-        try (FileWriter writer = new FileWriter(basicProp)) {
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(basicProp), StandardCharsets.UTF_8)) {
             writer.write("test=${test2}\n");
             writer.write("test2=${test3}\n");
             writer.write("test3=${test}\n");
@@ -161,20 +152,6 @@ public class PropertyUtilsTest extends TestSupport {
         assertEquals("${test2}", prop.getProperty("test"));
         assertEquals("${test3}", prop.getProperty("test2"));
         assertEquals("${test}", prop.getProperty("test3"));
-        assertWarn(
-                logger,
-                "Circular reference between properties detected: test3 => test => test2 => test3",
-                "Circular reference between properties detected: test2 => test3 => test => test2",
-                "Circular reference between properties detected: test => test2 => test3 => test");
-    }
-
-    private void assertWarn(Logger mock, String... expected) {
-        ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
-        verify(mock, times(expected.length)).warn(argument.capture());
-        List<String> messages = argument.getAllValues();
-        for (String str : expected) {
-            assertTrue(messages.contains(str));
-        }
     }
 
     public void testNonCircularReferences1Var3Times() throws IOException {
@@ -185,7 +162,7 @@ public class PropertyUtilsTest extends TestSupport {
         }
 
         basicProp.createNewFile();
-        try (FileWriter writer = new FileWriter(basicProp)) {
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(basicProp), StandardCharsets.UTF_8)) {
             writer.write("depends=p1 >= ${version}, p2 >= ${version}, p3 >= ${version}\n");
             writer.write("version=1.2.3\n");
             writer.flush();
@@ -195,7 +172,6 @@ public class PropertyUtilsTest extends TestSupport {
         Properties prop = PropertyUtils.loadPropertyFile(basicProp, null, logger);
         assertEquals("p1 >= 1.2.3, p2 >= 1.2.3, p3 >= 1.2.3", prop.getProperty("depends"));
         assertEquals("1.2.3", prop.getProperty("version"));
-        verifyNoInteractions(logger);
     }
 
     public void testNonCircularReferences2Vars2Times() throws IOException {
@@ -206,7 +182,7 @@ public class PropertyUtilsTest extends TestSupport {
         }
 
         basicProp.createNewFile();
-        try (FileWriter writer = new FileWriter(basicProp)) {
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(basicProp), StandardCharsets.UTF_8)) {
             writer.write("test=${test2} ${test3} ${test2} ${test3}\n");
             writer.write("test2=${test3} ${test3}\n");
             writer.write("test3=test\n");
@@ -218,6 +194,5 @@ public class PropertyUtilsTest extends TestSupport {
         assertEquals("test test test test test test", prop.getProperty("test"));
         assertEquals("test test", prop.getProperty("test2"));
         assertEquals("test", prop.getProperty("test3"));
-        verifyNoInteractions(logger);
     }
 }

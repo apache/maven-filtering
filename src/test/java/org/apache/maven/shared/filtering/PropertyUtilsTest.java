@@ -139,17 +139,18 @@ public class PropertyUtilsTest extends TestSupport {
     }
 
     public void testNonCircularReferences1Var3Times() throws IOException {
-        File circularProperties = File.createTempFile("non-circular", ".properties");
-        circularProperties.deleteOnExit();
+        File nonCircularProperties = File.createTempFile("non-circular", ".properties");
+        nonCircularProperties.deleteOnExit();
 
-        try (Writer writer = new OutputStreamWriter(new FileOutputStream(circularProperties), StandardCharsets.UTF_8)) {
+        try (Writer writer =
+                new OutputStreamWriter(new FileOutputStream(nonCircularProperties), StandardCharsets.UTF_8)) {
             writer.write("depends=p1 >= ${version}, p2 >= ${version}, p3 >= ${version}\n");
             writer.write("version=1.2.3\n");
             writer.flush();
         }
 
         Logger logger = mock(Logger.class);
-        Properties properties = PropertyUtils.loadPropertyFile(circularProperties, null, logger);
+        Properties properties = PropertyUtils.loadPropertyFile(nonCircularProperties, null, logger);
         assertEquals("p1 >= 1.2.3, p2 >= 1.2.3, p3 >= 1.2.3", properties.getProperty("depends"));
         assertEquals("1.2.3", properties.getProperty("version"));
     }

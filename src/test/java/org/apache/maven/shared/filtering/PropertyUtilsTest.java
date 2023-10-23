@@ -26,10 +26,6 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-
-import static org.mockito.Mockito.mock;
-
 /**
  * @author Olivier Lamy
  * @since 1.0-beta-1
@@ -48,8 +44,7 @@ public class PropertyUtilsTest extends TestSupport {
             writer.flush();
         }
 
-        Logger logger = mock(Logger.class);
-        Properties properties = PropertyUtils.loadPropertyFile(basicProperties, false, false, logger);
+        Properties properties = PropertyUtils.loadPropertyFile(basicProperties, false, false);
         assertEquals("gani_man", properties.getProperty("key"));
         assertEquals("${non_existent}", properties.getProperty("ghost"));
     }
@@ -63,8 +58,7 @@ public class PropertyUtilsTest extends TestSupport {
             writer.flush();
         }
 
-        Logger logger = mock(Logger.class);
-        Properties properties = PropertyUtils.loadPropertyFile(systemProperties, false, true, logger);
+        Properties properties = PropertyUtils.loadPropertyFile(systemProperties, false, true);
         assertEquals(properties.getProperty("key"), System.getProperty("user.dir"));
     }
 
@@ -86,8 +80,7 @@ public class PropertyUtilsTest extends TestSupport {
         Properties baseProperties = new Properties();
         baseProperties.put("pom.version", "realVersion");
 
-        Logger logger = mock(Logger.class);
-        Properties interpolated = PropertyUtils.loadPropertyFile(propertyFile, baseProperties, logger);
+        Properties interpolated = PropertyUtils.loadPropertyFile(propertyFile, baseProperties);
         assertEquals("realVersion", interpolated.get("version"));
         assertEquals("${foo}", interpolated.get("foo"));
         assertEquals("realVersion", interpolated.get("bar"));
@@ -109,8 +102,7 @@ public class PropertyUtilsTest extends TestSupport {
             writer.flush();
         }
 
-        Logger logger = mock(Logger.class);
-        Properties properties = PropertyUtils.loadPropertyFile(circularProperties, null, logger);
+        Properties properties = PropertyUtils.loadPropertyFile(circularProperties, null);
         assertEquals("${test2}", properties.getProperty("test"));
         assertEquals("${test2}", properties.getProperty("test2"));
     }
@@ -131,8 +123,7 @@ public class PropertyUtilsTest extends TestSupport {
             writer.flush();
         }
 
-        Logger logger = mock(Logger.class);
-        Properties properties = PropertyUtils.loadPropertyFile(circularProperties, null, logger);
+        Properties properties = PropertyUtils.loadPropertyFile(circularProperties, null);
         assertEquals("${test2}", properties.getProperty("test"));
         assertEquals("${test3}", properties.getProperty("test2"));
         assertEquals("${test}", properties.getProperty("test3"));
@@ -149,8 +140,7 @@ public class PropertyUtilsTest extends TestSupport {
             writer.flush();
         }
 
-        Logger logger = mock(Logger.class);
-        Properties properties = PropertyUtils.loadPropertyFile(nonCircularProperties, null, logger);
+        Properties properties = PropertyUtils.loadPropertyFile(nonCircularProperties, null);
         assertEquals("p1 >= 1.2.3, p2 >= 1.2.3, p3 >= 1.2.3", properties.getProperty("depends"));
         assertEquals("1.2.3", properties.getProperty("version"));
     }
@@ -167,8 +157,7 @@ public class PropertyUtilsTest extends TestSupport {
             writer.flush();
         }
 
-        Logger logger = mock(Logger.class);
-        Properties properties = PropertyUtils.loadPropertyFile(nonCircularProperties, null, logger);
+        Properties properties = PropertyUtils.loadPropertyFile(nonCircularProperties, null);
         assertEquals("test test test test test test", properties.getProperty("test"));
         assertEquals("test test", properties.getProperty("test2"));
         assertEquals("test", properties.getProperty("test3"));

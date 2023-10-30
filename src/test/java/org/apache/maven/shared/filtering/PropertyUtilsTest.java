@@ -59,7 +59,7 @@ public class PropertyUtilsTest extends TestSupport {
         }
 
         Properties properties = PropertyUtils.loadPropertyFile(systemProperties, false, true);
-        assertEquals(properties.getProperty("key"), System.getProperty("user.dir"));
+        assertEquals(System.getProperty("user.dir"), properties.getProperty("key"));
     }
 
     public void testException() throws Exception {

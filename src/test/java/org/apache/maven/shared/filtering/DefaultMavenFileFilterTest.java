@@ -18,8 +18,6 @@
  */
 package org.apache.maven.shared.filtering;
 
-import javax.inject.Inject;
-
 import java.io.File;
 import java.io.Reader;
 import java.io.StringReader;
@@ -34,6 +32,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
 
+import jakarta.inject.Inject;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.api.model.Build;
 import org.apache.maven.api.plugin.testing.stubs.ProjectStub;

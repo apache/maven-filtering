@@ -18,8 +18,6 @@
  */
 package org.apache.maven.shared.filtering;
 
-import javax.inject.Inject;
-
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import jakarta.inject.Inject;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.model.Resource;
 import org.codehaus.plexus.PlexusContainer;

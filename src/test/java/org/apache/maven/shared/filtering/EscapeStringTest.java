@@ -28,17 +28,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import jakarta.inject.Inject;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.model.Resource;
+import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.testing.PlexusTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.codehaus.plexus.testing.PlexusExtension.getBasedir;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Olivier Lamy
  */
 @PlexusTest
-public class EscapeStringTest extends TestSupport {
+public class EscapeStringTest {
+
+    @Inject
+    PlexusContainer container;
 
     Path outputDirectory = Paths.get(getBasedir(), "target/EscapeStringTest");
 
@@ -63,7 +71,7 @@ public class EscapeStringTest extends TestSupport {
         projectProperties.put("java.version", "zloug");
         projectProperties.put("replaceThis", "I am the replacement");
         mavenProject.setProperties(projectProperties);
-        MavenResourcesFiltering mavenResourcesFiltering = lookup(MavenResourcesFiltering.class);
+        MavenResourcesFiltering mavenResourcesFiltering = container.lookup(MavenResourcesFiltering.class);
 
         Resource resource = new Resource();
         List<Resource> resources = new ArrayList<>();

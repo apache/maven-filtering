@@ -28,13 +28,16 @@ import java.nio.file.StandardCopyOption;
 
 import org.junit.jupiter.api.Test;
 
+import static org.codehaus.plexus.testing.PlexusExtension.getBasedir;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /**
  * @author John Casey
  * @author Dennis Lundberg
  * @since 1.0
  *
  */
-public class FilteringUtilsTest extends TestSupport {
+public class FilteringUtilsTest {
     private static Path testDirectory = Paths.get(getBasedir(), "target/test-classes/");
 
     @Test

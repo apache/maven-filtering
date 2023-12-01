@@ -26,19 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.apache.maven.api.Artifact;
-import org.apache.maven.api.ArtifactCoordinate;
-import org.apache.maven.api.DependencyCoordinate;
-import org.apache.maven.api.Listener;
-import org.apache.maven.api.LocalRepository;
-import org.apache.maven.api.Node;
-import org.apache.maven.api.Project;
-import org.apache.maven.api.RemoteRepository;
-import org.apache.maven.api.Service;
-import org.apache.maven.api.Session;
-import org.apache.maven.api.SessionData;
-import org.apache.maven.api.Version;
-import org.apache.maven.api.VersionRange;
+import org.apache.maven.api.*;
 import org.apache.maven.api.model.Repository;
 import org.apache.maven.api.settings.Settings;
 
@@ -101,6 +89,16 @@ public class StubSession implements Session {
     }
 
     @Override
+    public Path getTopDirectory() {
+        return null;
+    }
+
+    @Override
+    public Path getRootDirectory() {
+        return null;
+    }
+
+    @Override
     public List<RemoteRepository> getRemoteRepositories() {
         return null;
     }
@@ -122,16 +120,6 @@ public class StubSession implements Session {
 
     @Override
     public Instant getStartTime() {
-        return null;
-    }
-
-    @Override
-    public Path getMultiModuleProjectDirectory() {
-        return null;
-    }
-
-    @Override
-    public Path getExecutionRootDirectory() {
         return null;
     }
 
@@ -215,6 +203,11 @@ public class StubSession implements Session {
 
     @Override
     public DependencyCoordinate createDependencyCoordinate(ArtifactCoordinate artifactCoordinate) {
+        return null;
+    }
+
+    @Override
+    public DependencyCoordinate createDependencyCoordinate(Dependency dependency) {
         return null;
     }
 

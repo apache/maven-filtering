@@ -23,18 +23,27 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 
+import jakarta.inject.Inject;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.model.Resource;
+import org.codehaus.plexus.PlexusContainer;
+import org.junit.jupiter.api.BeforeEach;
+
+import static org.codehaus.plexus.testing.PlexusExtension.getBasedir;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Mikolaj Izdebski
  */
-public class InvalidMarkTest extends TestSupport {
+public class InvalidMarkTest {
+
+    @Inject
+    PlexusContainer container;
+
     Path outputDirectory = Paths.get(getBasedir(), "target/LongLineTest");
 
-    @Override
+    @BeforeEach
     protected void setUp() throws Exception {
-        super.setUp();
         if (Files.exists(outputDirectory)) {
             FileUtils.deleteDirectory(outputDirectory.toFile());
         }
@@ -42,7 +51,7 @@ public class InvalidMarkTest extends TestSupport {
     }
 
     public void testEscape() throws Exception {
-        MavenResourcesFiltering mavenResourcesFiltering = lookup(MavenResourcesFiltering.class);
+        MavenResourcesFiltering mavenResourcesFiltering = container.lookup(MavenResourcesFiltering.class);
 
         Resource resource = new Resource();
         resource.setDirectory("src/test/units-files/MSHARED-325");

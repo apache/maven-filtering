@@ -18,16 +18,16 @@
  */
 package org.apache.maven.shared.filtering;
 
-import javax.inject.Inject;
-
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Properties;
 
+import jakarta.inject.Inject;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.testing.PlexusTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

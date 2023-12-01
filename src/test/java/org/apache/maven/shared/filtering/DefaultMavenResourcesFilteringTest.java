@@ -18,8 +18,6 @@
  */
 package org.apache.maven.shared.filtering;
 
-import javax.inject.Inject;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -34,6 +32,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import jakarta.inject.Inject;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.api.settings.Settings;
 import org.apache.maven.model.Resource;

@@ -34,8 +34,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.maven.model.Resource;
 import org.codehaus.plexus.util.Scanner;
 import org.slf4j.Logger;
@@ -55,6 +53,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
     private static final String[] EMPTY_STRING_ARRAY = {};
 
     private static final String[] DEFAULT_INCLUDES = {"**/**"};
+    private static final int BUFFER_LENGTH = 8192;
 
     private final List<String> defaultNonFilteredFileExtensions;
 
@@ -91,8 +90,13 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
     }
 
     private static String getExtension(String fileName) {
-        String rawExt = FilenameUtils.getExtension(fileName);
-        return rawExt == null ? null : rawExt.toLowerCase(Locale.ROOT);
+        final int extensionPos = fileName.lastIndexOf('.');
+        final int lastUnixPos = fileName.lastIndexOf('/');
+        final int lastWindowsPos = fileName.lastIndexOf('\\');
+        final int lastSeparator = Math.max(lastUnixPos, lastWindowsPos);
+        return lastSeparator > extensionPos
+                ? ""
+                : fileName.substring(extensionPos + 1).toLowerCase(Locale.ROOT);
     }
 
     @Override
@@ -120,7 +124,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
         }
 
         if (mavenResourcesExecution.getEncoding() == null
-                || mavenResourcesExecution.getEncoding().length() < 1) {
+                || mavenResourcesExecution.getEncoding().isEmpty()) {
             LOGGER.warn("Using platform encoding (" + System.getProperty("file.encoding")
                     + " actually) to copy filtered resources, i.e. build is platform dependent!");
         } else {
@@ -128,7 +132,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
         }
 
         if (mavenResourcesExecution.getPropertiesEncoding() == null
-                || mavenResourcesExecution.getPropertiesEncoding().length() < 1) {
+                || mavenResourcesExecution.getPropertiesEncoding().isEmpty()) {
             LOGGER.debug("Using '" + mavenResourcesExecution.getEncoding()
                     + "' encoding to copy filtered properties files.");
         } else {
@@ -305,10 +309,10 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
         // - filtering is enabled for at least one resource
         // - there is at least one properties file in one of the resources that has filtering enabled
         if ((mavenResourcesExecution.getPropertiesEncoding() == null
-                        || mavenResourcesExecution.getPropertiesEncoding().length() < 1)
+                        || mavenResourcesExecution.getPropertiesEncoding().isEmpty())
                 && !mavenResourcesExecution.getNonFilteredFileExtensions().contains("properties")
                 && isFilteringUsed
-                && propertiesFiles.size() > 0) {
+                && !propertiesFiles.isEmpty()) {
             // @todo Sometime in the future we should change this to be a warning
             LOGGER.info("The encoding used to copy filtered properties files has not been set."
                     + " This means that the same encoding will be used to copy filtered properties files"
@@ -386,7 +390,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
         }
 
         if (mavenResourcesExecution.isFilterFilenames()
-                && mavenResourcesExecution.getFilterWrappers().size() > 0) {
+                && !mavenResourcesExecution.getFilterWrappers().isEmpty()) {
             destination = filterFileName(destination, mavenResourcesExecution.getFilterWrappers());
         }
 
@@ -488,7 +492,12 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
         }
 
         try (StringWriter writer = new StringWriter()) {
-            IOUtils.copy(reader, writer);
+            char[] buffer = new char[BUFFER_LENGTH];
+            int nRead;
+            while ((nRead = reader.read(buffer, 0, buffer.length)) >= 0) {
+                writer.write(buffer, 0, nRead);
+            }
+
             String filteredFilename = writer.toString();
 
             if (LOGGER.isDebugEnabled()) {

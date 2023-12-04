@@ -64,27 +64,6 @@ public class DefaultMavenFileFilterTest {
     }
 
     @Test
-    public void testNotOverwriteFile() throws Exception {
-        MavenFileFilter mavenFileFilter = container.lookup(MavenFileFilter.class);
-
-        Path from = Paths.get(getBasedir(), "src/test/units-files/reflection-test.properties");
-
-        mavenFileFilter.copyFile(from, to, false, null, null);
-
-        from = Paths.get(getBasedir(), "src/test/units-files/reflection-test-older.properties");
-
-        // very old file :-)
-        Files.setLastModifiedTime(from, FileTime.fromMillis(1));
-
-        Files.setLastModifiedTime(to, FileTime.fromMillis(System.currentTimeMillis()));
-
-        mavenFileFilter.copyFile(from, to, false, null, null);
-
-        Properties properties = PropertyUtils.loadPropertyFile(to, null);
-        assertEquals("${pom.version}", properties.getProperty("version"));
-    }
-
-    @Test
     public void testOverwriteFile() throws Exception {
         MavenFileFilter mavenFileFilter = container.lookup(MavenFileFilter.class);
 
@@ -99,7 +78,7 @@ public class DefaultMavenFileFilterTest {
 
         Files.setLastModifiedTime(to, FileTime.fromMillis(System.currentTimeMillis()));
 
-        mavenFileFilter.copyFile(from, to, false, null, null, true);
+        mavenFileFilter.copyFile(from, to, false, null, null);
 
         Properties properties = PropertyUtils.loadPropertyFile(to, null);
         assertEquals("older file", properties.getProperty("version"));

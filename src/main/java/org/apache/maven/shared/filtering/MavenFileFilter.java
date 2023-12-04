@@ -71,23 +71,4 @@ public interface MavenFileFilter extends DefaultFilterInfo {
      */
     void copyFile(Path from, Path to, boolean filtering, List<FilterWrapper> filterWrappers, String encoding)
             throws MavenFilteringException;
-
-    /**
-     * @param from The source file
-     * @param to The destination file
-     * @param filtering true to apply filtering
-     * @param filterWrappers The filters to be applied.
-     * @param encoding The encoding to use
-     * @param overwrite Overwrite to file ?
-     * @throws MavenFilteringException In case of an error.
-     * @since 1.0-beta-2
-     */
-    void copyFile(
-            Path from,
-            Path to,
-            boolean filtering,
-            List<FilterWrapper> filterWrappers,
-            String encoding,
-            boolean overwrite)
-            throws MavenFilteringException;
 }

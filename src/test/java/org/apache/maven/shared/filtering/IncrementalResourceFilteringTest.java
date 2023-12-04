@@ -40,7 +40,6 @@ import org.codehaus.plexus.testing.PlexusTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sonatype.plexus.build.incremental.ThreadBuildContext;
-import org.sonatype.plexus.build.incremental.test.TestIncrementalBuildContext;
 
 import static org.codehaus.plexus.testing.PlexusExtension.getBasedir;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -50,9 +49,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @PlexusTest
 public class IncrementalResourceFilteringTest {
 
-    Path outputDirectory = Paths.get(getBasedir(), "target/IncrementalResourceFilteringTest");
-
-    Path unitDirectory = Paths.get(getBasedir(), "src/test/units-files/incremental");
+    Path baseDirectory = Paths.get(getBasedir());
+    Path outputDirectory = baseDirectory.resolve("target/IncrementalResourceFilteringTest");
+    Path unitDirectory = baseDirectory.resolve("src/test/units-files/incremental");
+    Path filters = unitDirectory.resolve("filters.txt");
+    Path inputFile01 = unitDirectory.resolve("files/file01.txt");
+    Path inputFile02 = unitDirectory.resolve("files/file02.txt");
+    Path outputFile01 = outputDirectory.resolve("file01.txt");
+    Path outputFile02 = outputDirectory.resolve("file02.txt");
 
     @Inject
     PlexusContainer container;
@@ -72,35 +76,30 @@ public class IncrementalResourceFilteringTest {
         assertTime("time", "file02.txt");
 
         // only one file is expected to change
-        Set<String> changedFiles = new HashSet<>();
-        changedFiles.add("file01.txt");
+        Set<Path> changedFiles = new HashSet<>();
+        changedFiles.add(inputFile01);
 
-        TestIncrementalBuildContext ctx =
-                new TestIncrementalBuildContext(unitDirectory.toFile(), changedFiles, Collections.emptyMap());
+        TestIncrementalBuildContext ctx = new TestIncrementalBuildContext(baseDirectory, changedFiles);
         ThreadBuildContext.setThreadBuildContext(ctx);
 
         filter("notime");
         assertTime("notime", "file01.txt");
         assertTime("time", "file02.txt"); // this one is unchanged
 
-        assertTrue(ctx.getRefreshFiles()
-                .contains(outputDirectory.resolve("file01.txt").toFile()));
+        assertTrue(ctx.getRefreshFiles().contains(outputFile01));
 
-        ctx = new TestIncrementalBuildContext(
-                unitDirectory.toFile(),
-                Collections.emptySet(),
-                changedFiles,
-                Collections.emptyMap(),
-                new ArrayList(),
-                new ArrayList());
+        // only one file is expected to change
+        Set<Path> deletedFiles = new HashSet<>();
+        deletedFiles.add(inputFile01);
+
+        ctx = new TestIncrementalBuildContext(baseDirectory, null, deletedFiles);
         ThreadBuildContext.setThreadBuildContext(ctx);
 
         filter("moretime");
-        assertFalse(Files.exists(outputDirectory.resolve("file01.txt")));
+        assertFalse(outputFile01.toFile().exists());
         assertTime("time", "file02.txt"); // this one is unchanged
 
-        assertTrue(ctx.getRefreshFiles()
-                .contains(outputDirectory.resolve("file01.txt").toFile()));
+        assertTrue(ctx.getRefreshFiles().contains(outputFile01));
     }
 
     @Test
@@ -109,20 +108,17 @@ public class IncrementalResourceFilteringTest {
         filter("time");
 
         // all files are reprocessed after contents of output directory changed (e.g. was deleted)
-        Set<String> changedFiles = new HashSet<>();
-        changedFiles.add("target/IncrementalResourceFilteringTest");
-        TestIncrementalBuildContext ctx =
-                new TestIncrementalBuildContext(unitDirectory.toFile(), changedFiles, Collections.emptyMap());
+        Set<Path> changedFiles = new HashSet<>();
+        changedFiles.add(outputDirectory);
+        TestIncrementalBuildContext ctx = new TestIncrementalBuildContext(baseDirectory, changedFiles);
         ThreadBuildContext.setThreadBuildContext(ctx);
 
         filter("notime");
         assertTime("notime", "file01.txt");
         assertTime("notime", "file02.txt");
 
-        assertTrue(ctx.getRefreshFiles()
-                .contains(outputDirectory.resolve("file01.txt").toFile()));
-        assertTrue(ctx.getRefreshFiles()
-                .contains(outputDirectory.resolve("file02.txt").toFile()));
+        assertTrue(ctx.getRefreshFiles().contains(outputFile01));
+        assertTrue(ctx.getRefreshFiles().contains(outputFile02));
     }
 
     @Test
@@ -131,20 +127,17 @@ public class IncrementalResourceFilteringTest {
         filter("time");
 
         // all files are reprocessed after content of filters changes
-        Set<String> changedFiles = new HashSet<>();
-        changedFiles.add("filters.txt");
-        TestIncrementalBuildContext ctx =
-                new TestIncrementalBuildContext(unitDirectory.toFile(), changedFiles, Collections.emptyMap());
+        Set<Path> changedFiles = new HashSet<>();
+        changedFiles.add(filters);
+        TestIncrementalBuildContext ctx = new TestIncrementalBuildContext(baseDirectory, changedFiles);
         ThreadBuildContext.setThreadBuildContext(ctx);
 
         filter("notime");
         assertTime("notime", "file01.txt");
         assertTime("notime", "file02.txt");
 
-        assertTrue(ctx.getRefreshFiles()
-                .contains(outputDirectory.resolve("file01.txt").toFile()));
-        assertTrue(ctx.getRefreshFiles()
-                .contains(outputDirectory.resolve("file02.txt").toFile()));
+        assertTrue(ctx.getRefreshFiles().contains(outputFile01));
+        assertTrue(ctx.getRefreshFiles().contains(outputFile02));
     }
 
     @Test
@@ -153,25 +146,17 @@ public class IncrementalResourceFilteringTest {
         filter("time");
 
         // all files are reprocessed after content of filters changes
-        Set<String> deletedFiles = new HashSet<>();
-        deletedFiles.add("filters.txt");
-        TestIncrementalBuildContext ctx = new TestIncrementalBuildContext(
-                unitDirectory.toFile(),
-                Collections.emptySet(),
-                deletedFiles,
-                Collections.emptyMap(),
-                new ArrayList(),
-                new ArrayList());
+        Set<Path> deletedFiles = new HashSet<>();
+        deletedFiles.add(filters);
+        TestIncrementalBuildContext ctx = new TestIncrementalBuildContext(unitDirectory, null, deletedFiles);
         ThreadBuildContext.setThreadBuildContext(ctx);
 
         filter("notime");
         assertTime("notime", "file01.txt");
         assertTime("notime", "file02.txt");
 
-        assertTrue(ctx.getRefreshFiles()
-                .contains(outputDirectory.resolve("file01.txt").toFile()));
-        assertTrue(ctx.getRefreshFiles()
-                .contains(outputDirectory.resolve("file02.txt").toFile()));
+        assertTrue(ctx.getRefreshFiles().contains(outputFile01));
+        assertTrue(ctx.getRefreshFiles().contains(outputFile02));
     }
 
     private void assertTime(String time, String relpath) throws IOException {

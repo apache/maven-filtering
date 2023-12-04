@@ -275,8 +275,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
                         destinationFile,
                         resource.isFiltering() && filteredExt,
                         mavenResourcesExecution.getFilterWrappers(),
-                        encoding,
-                        mavenResourcesExecution.isOverwrite());
+                        encoding);
             }
 
             // deal with deleted source files
@@ -311,7 +310,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
                 && isFilteringUsed
                 && propertiesFiles.size() > 0) {
             // @todo Sometime in the future we should change this to be a warning
-            LOGGER.info("The encoding used to copy filtered properties files have not been set."
+            LOGGER.info("The encoding used to copy filtered properties files has not been set."
                     + " This means that the same encoding will be used to copy filtered properties files"
                     + " as when copying other filtered resources. This might not be what you want!"
                     + " Run your build with --debug to see which files might be affected."
@@ -320,7 +319,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
                     + "examples/filtering-properties-files.html");
 
             StringBuilder affectedFiles = new StringBuilder();
-            affectedFiles.append("Here is a list of the filtered properties files in you project that might be"
+            affectedFiles.append("Here is a list of the filtered properties files in your project that might be"
                     + " affected by encoding problems: ");
             for (Path propertiesFile : propertiesFiles) {
                 affectedFiles.append(System.lineSeparator()).append(" - ").append(propertiesFile);

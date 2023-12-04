@@ -25,7 +25,6 @@ import java.util.List;
 
 import org.apache.maven.api.Project;
 import org.apache.maven.api.Session;
-import org.apache.maven.model.Resource;
 import org.codehaus.plexus.interpolation.StringSearchInterpolator;
 import org.codehaus.plexus.interpolation.ValueSource;
 

@@ -30,7 +30,6 @@ import java.util.Map;
 
 import jakarta.inject.Inject;
 import org.apache.commons.io.FileUtils;
-import org.apache.maven.model.Resource;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.testing.PlexusTest;
 import org.junit.jupiter.api.BeforeEach;

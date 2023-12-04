@@ -34,7 +34,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.maven.model.Resource;
 import org.codehaus.plexus.util.Scanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

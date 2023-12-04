@@ -18,17 +18,18 @@
  */
 package org.apache.maven.shared.filtering;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.codehaus.plexus.testing.PlexusExtension.getBasedir;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author John Casey
@@ -36,14 +37,14 @@ import static org.junit.Assert.assertEquals;
  * @since 1.0
  *
  */
-public class FilteringUtilsTest extends TestSupport {
-    private static File testDirectory = new File(getBasedir(), "target/test-classes/");
+public class FilteringUtilsTest {
+    private static Path testDirectory = Paths.get(getBasedir(), "target/test-classes/");
 
     @Test
     public void testMSHARED1213CopyWithTargetAlreadyExisting0ByteFile() throws IOException {
-        File fromFile = new File(getBasedir() + "/src/test/units-files/MSHARED-1213/enunciate.xml");
-        File toFile = new File(testDirectory, "MSHARED-1213-enunciate.xml");
-        Files.write(toFile.toPath(), "".getBytes(StandardCharsets.UTF_8));
+        Path fromFile = Paths.get(getBasedir() + "/src/test/units-files/MSHARED-1213/enunciate.xml");
+        Path toFile = testDirectory.resolve("MSHARED-1213-enunciate.xml");
+        Files.write(toFile, "".getBytes(StandardCharsets.UTF_8));
         FilteringUtils.copyFile(
                 fromFile,
                 toFile,
@@ -57,16 +58,16 @@ public class FilteringUtilsTest extends TestSupport {
                     }
                 },
                 false);
-        Assert.assertEquals(
-                Files.readAllLines(fromFile.toPath(), StandardCharsets.UTF_8),
-                Files.readAllLines(toFile.toPath(), StandardCharsets.UTF_8));
+        assertEquals(
+                Files.readAllLines(fromFile, StandardCharsets.UTF_8),
+                Files.readAllLines(toFile, StandardCharsets.UTF_8));
     }
 
     @Test
     public void testMSHARED1213CopyWithTargetAlreadyExistingJunkFile() throws IOException {
-        File fromFile = new File(getBasedir() + "/src/test/units-files/MSHARED-1213/enunciate.xml");
-        File toFile = new File(testDirectory, "MSHARED-1213-enunciate.xml");
-        Files.write(toFile.toPath(), "junk".getBytes(StandardCharsets.UTF_8));
+        Path fromFile = Paths.get(getBasedir() + "/src/test/units-files/MSHARED-1213/enunciate.xml");
+        Path toFile = testDirectory.resolve("MSHARED-1213-enunciate.xml");
+        Files.write(toFile, "junk".getBytes(StandardCharsets.UTF_8));
         FilteringUtils.copyFile(
                 fromFile,
                 toFile,
@@ -80,16 +81,16 @@ public class FilteringUtilsTest extends TestSupport {
                     }
                 },
                 false);
-        Assert.assertEquals(
-                Files.readAllLines(fromFile.toPath(), StandardCharsets.UTF_8),
-                Files.readAllLines(toFile.toPath(), StandardCharsets.UTF_8));
+        assertEquals(
+                Files.readAllLines(fromFile, StandardCharsets.UTF_8),
+                Files.readAllLines(toFile, StandardCharsets.UTF_8));
     }
 
     @Test
     public void testMSHARED1213CopyWithTargetAlreadyExistingSameFile() throws IOException {
-        File fromFile = new File(getBasedir() + "/src/test/units-files/MSHARED-1213/enunciate.xml");
-        File toFile = new File(testDirectory, "MSHARED-1213-enunciate.xml");
-        Files.copy(fromFile.toPath(), toFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        Path fromFile = Paths.get(getBasedir() + "/src/test/units-files/MSHARED-1213/enunciate.xml");
+        Path toFile = testDirectory.resolve("MSHARED-1213-enunciate.xml");
+        Files.copy(fromFile, toFile, StandardCopyOption.REPLACE_EXISTING);
         FilteringUtils.copyFile(
                 fromFile,
                 toFile,
@@ -103,9 +104,9 @@ public class FilteringUtilsTest extends TestSupport {
                     }
                 },
                 false);
-        Assert.assertEquals(
-                Files.readAllLines(fromFile.toPath(), StandardCharsets.UTF_8),
-                Files.readAllLines(toFile.toPath(), StandardCharsets.UTF_8));
+        assertEquals(
+                Files.readAllLines(fromFile, StandardCharsets.UTF_8),
+                Files.readAllLines(toFile, StandardCharsets.UTF_8));
     }
 
     @Test

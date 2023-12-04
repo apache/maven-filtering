@@ -18,48 +18,60 @@
  */
 package org.apache.maven.shared.filtering;
 
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
+import jakarta.inject.Inject;
 import org.apache.commons.io.FileUtils;
-import org.apache.maven.model.Resource;
+import org.codehaus.plexus.PlexusContainer;
+import org.codehaus.plexus.testing.PlexusTest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.codehaus.plexus.testing.PlexusExtension.getBasedir;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Olivier Lamy
  *
  */
-public class MuliLinesMavenResourcesFilteringTest extends TestSupport {
+@PlexusTest
+public class MuliLinesMavenResourcesFilteringTest {
 
-    File outputDirectory = new File(getBasedir(), "target/MuliLinesMavenResourcesFilteringTest");
+    @Inject
+    PlexusContainer container;
 
-    @Override
+    Path outputDirectory = Paths.get(getBasedir(), "target/MuliLinesMavenResourcesFilteringTest");
+
+    @BeforeEach
     protected void setUp() throws Exception {
-        super.setUp();
-        if (outputDirectory.exists()) {
-            FileUtils.deleteDirectory(outputDirectory);
-        }
-        outputDirectory.mkdirs();
+        FileUtils.deleteDirectory(outputDirectory.toFile());
+        Files.createDirectories(outputDirectory);
     }
 
     /**
-     * @throws Exception
      */
+    @Test
     public void testFilteringTokenOnce() throws Exception {
-        File baseDir = new File(getBasedir());
-        StubMavenProject mavenProject = new StubMavenProject(baseDir);
+        Path baseDir = Paths.get(getBasedir());
+        StubProject mavenProject = new StubProject(baseDir);
         mavenProject.setVersion("1.0");
         mavenProject.setGroupId("org.apache");
         mavenProject.setName("test project");
 
-        Properties projectProperties = new Properties();
+        Map<String, String> projectProperties = new HashMap<>();
         projectProperties.put("foo", "bar");
         projectProperties.put("java.version", "zloug");
         mavenProject.setProperties(projectProperties);
-        MavenResourcesFiltering mavenResourcesFiltering = lookup(MavenResourcesFiltering.class);
+        MavenResourcesFiltering mavenResourcesFiltering = container.lookup(MavenResourcesFiltering.class);
 
         String unitFilesDir = getBasedir() + "/src/test/units-files/MRESOURCES-104";
 
@@ -81,14 +93,14 @@ public class MuliLinesMavenResourcesFilteringTest extends TestSupport {
                 "UTF-8",
                 filtersFile,
                 nonFilteredFileExtensions,
-                new StubMavenSession());
+                new StubSession());
         mavenResourcesExecution.setUseDefaultFilterWrappers(true);
 
         mavenResourcesFiltering.filterResources(mavenResourcesExecution);
 
         Properties result = new Properties();
 
-        try (FileInputStream in = new FileInputStream(new File(outputDirectory, "test.properties"))) {
+        try (InputStream in = Files.newInputStream(outputDirectory.resolve("test.properties"))) {
             result.load(in);
         }
 

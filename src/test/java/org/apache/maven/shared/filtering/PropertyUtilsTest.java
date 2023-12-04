@@ -18,15 +18,24 @@
  */
 package org.apache.maven.shared.filtering;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Properties;
 
+import org.codehaus.plexus.testing.PlexusTest;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.slf4j.Logger;
 
+import static org.codehaus.plexus.testing.PlexusExtension.getBasedir;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -35,18 +44,17 @@ import static org.mockito.Mockito.verify;
  * @author Olivier Lamy
  * @since 1.0-beta-1
  */
-public class PropertyUtilsTest extends TestSupport {
-    private static File testDirectory = new File(getBasedir(), "target/test-classes/");
+@PlexusTest
+public class PropertyUtilsTest {
+    private static Path testDirectory = Paths.get(getBasedir(), "target/test-classes/");
 
+    @Test
     public void testBasic() throws Exception {
-        File basicProp = new File(testDirectory, "basic.properties");
+        Path basicProp = testDirectory.resolve("basic.properties");
 
-        if (basicProp.exists()) {
-            basicProp.delete();
-        }
+        Files.deleteIfExists(basicProp);
 
-        basicProp.createNewFile();
-        try (FileWriter writer = new FileWriter(basicProp)) {
+        try (Writer writer = Files.newBufferedWriter(basicProp)) {
             writer.write("ghost=${non_existent}\n");
             writer.write("key=${untat_na_damgo}\n");
             writer.write("untat_na_damgo=gani_man\n");
@@ -54,42 +62,37 @@ public class PropertyUtilsTest extends TestSupport {
         }
 
         Properties prop = PropertyUtils.loadPropertyFile(basicProp, false, false);
-        assertTrue(prop.getProperty("key").equals("gani_man"));
-        assertTrue(prop.getProperty("ghost").equals("${non_existent}"));
+        assertEquals("gani_man", prop.getProperty("key"));
+        assertEquals("${non_existent}", prop.getProperty("ghost"));
     }
 
+    @Test
     public void testSystemProperties() throws Exception {
-        File systemProp = new File(testDirectory, "system.properties");
+        Path systemProp = testDirectory.resolve("system.properties");
 
-        if (systemProp.exists()) {
-            systemProp.delete();
-        }
+        Files.deleteIfExists(systemProp);
 
-        systemProp.createNewFile();
-        try (FileWriter writer = new FileWriter(systemProp)) {
+        try (Writer writer = Files.newBufferedWriter(systemProp)) {
             writer.write("key=${user.dir}");
             writer.flush();
         }
 
         Properties prop = PropertyUtils.loadPropertyFile(systemProp, false, true);
-        assertTrue(prop.getProperty("key").equals(System.getProperty("user.dir")));
+        assertEquals(prop.getProperty("key"), System.getProperty("user.dir"));
     }
 
+    @Test
     public void testException() throws Exception {
-        File nonExistent = new File(testDirectory, "not_existent_file");
+        Path nonExistent = testDirectory.resolve("not_existent_file");
 
-        assertFalse("property file exist: " + nonExistent.toString(), nonExistent.exists());
+        assertFalse(Files.exists(nonExistent), "property file exist: " + nonExistent);
 
-        try {
-            PropertyUtils.loadPropertyFile(nonExistent, true, false);
-            assertTrue("Exception failed", false);
-        } catch (Exception ex) {
-            // exception ok
-        }
+        assertThrows(Exception.class, () -> PropertyUtils.loadPropertyFile(nonExistent, true, false));
     }
 
+    @Test
     public void testloadpropertiesFile() throws Exception {
-        File propertyFile = new File(getBasedir() + "/src/test/units-files/propertyutils-test.properties");
+        Path propertyFile = Paths.get(getBasedir() + "/src/test/units-files/propertyutils-test.properties");
         Properties baseProps = new Properties();
         baseProps.put("pom.version", "realVersion");
 
@@ -105,15 +108,13 @@ public class PropertyUtilsTest extends TestSupport {
      *
      * @throws IOException if problem writing file
      */
+    @Test
     public void testCircularReferences() throws IOException {
-        File basicProp = new File(testDirectory, "circular.properties");
+        Path basicProp = testDirectory.resolve("circular.properties");
 
-        if (basicProp.exists()) {
-            basicProp.delete();
-        }
+        Files.deleteIfExists(basicProp);
 
-        basicProp.createNewFile();
-        try (FileWriter writer = new FileWriter(basicProp)) {
+        try (Writer writer = Files.newBufferedWriter(basicProp)) {
             writer.write("test=${test2}\n");
             writer.write("test2=${test2}\n");
             writer.flush();
@@ -135,15 +136,13 @@ public class PropertyUtilsTest extends TestSupport {
      *
      * @throws IOException if problem writing file
      */
+    @Test
     public void testCircularReferences3Vars() throws IOException {
-        File basicProp = new File(testDirectory, "circular.properties");
+        Path basicProp = testDirectory.resolve("circular.properties");
 
-        if (basicProp.exists()) {
-            basicProp.delete();
-        }
+        Files.deleteIfExists(basicProp);
 
-        basicProp.createNewFile();
-        try (FileWriter writer = new FileWriter(basicProp)) {
+        try (Writer writer = Files.newBufferedWriter(basicProp)) {
             writer.write("test=${test2}\n");
             writer.write("test2=${test3}\n");
             writer.write("test3=${test}\n");

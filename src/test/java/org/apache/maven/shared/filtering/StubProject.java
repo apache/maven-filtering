@@ -18,16 +18,27 @@
  */
 package org.apache.maven.shared.filtering;
 
-import org.codehaus.plexus.ContainerConfiguration;
-import org.codehaus.plexus.PlexusConstants;
-import org.codehaus.plexus.PlexusTestCase;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 
-/**
- * Support class for injected tests. This should be moved off ancient Junit3 PlexusTestCase to more modern JUnit.
- */
-public abstract class TestSupport extends PlexusTestCase {
-    @Override
-    protected void customizeContainerConfiguration(ContainerConfiguration configuration) {
-        configuration.setAutoWiring(true).setClassPathScanning(PlexusConstants.SCANNING_INDEX);
+import org.apache.maven.api.plugin.testing.stubs.ProjectStub;
+
+public class StubProject extends ProjectStub {
+    public StubProject() {}
+
+    public StubProject(Path basedir) {
+        setBasedir(basedir);
+    }
+
+    public void setProperties(Map<String, String> properties) {
+        setModel(getModel().withProperties(properties));
+    }
+
+    public void addProperty(String key, String value) {
+        Map<String, String> props = new HashMap<>();
+        props.putAll(getModel().getProperties());
+        props.put(key, value);
+        setProperties(props);
     }
 }

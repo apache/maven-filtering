@@ -18,25 +18,37 @@
  */
 package org.apache.maven.shared.filtering;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import jakarta.inject.Inject;
 import org.apache.commons.io.FileUtils;
-import org.apache.maven.model.Resource;
+import org.codehaus.plexus.PlexusContainer;
+import org.codehaus.plexus.testing.PlexusTest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.sonatype.plexus.build.incremental.ThreadBuildContext;
 
-public class IncrementalResourceFilteringTest extends TestSupport {
+import static org.codehaus.plexus.testing.PlexusExtension.getBasedir;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-    Path baseDirectory = new File(getBasedir()).toPath();
+@PlexusTest
+public class IncrementalResourceFilteringTest {
+
+    Path baseDirectory = Paths.get(getBasedir());
     Path outputDirectory = baseDirectory.resolve("target/IncrementalResourceFilteringTest");
     Path unitDirectory = baseDirectory.resolve("src/test/units-files/incremental");
     Path filters = unitDirectory.resolve("filters.txt");
@@ -45,15 +57,16 @@ public class IncrementalResourceFilteringTest extends TestSupport {
     Path outputFile01 = outputDirectory.resolve("file01.txt");
     Path outputFile02 = outputDirectory.resolve("file02.txt");
 
-    @Override
+    @Inject
+    PlexusContainer container;
+
+    @BeforeEach
     protected void setUp() throws Exception {
-        super.setUp();
-        if (outputDirectory.toFile().exists()) {
-            FileUtils.deleteDirectory(outputDirectory.toFile());
-        }
-        outputDirectory.toFile().mkdirs();
+        FileUtils.deleteDirectory(outputDirectory.toFile());
+        Files.createDirectories(outputDirectory);
     }
 
+    @Test
     public void testSimpleIncrementalFiltering() throws Exception {
         // run full build first
         filter("time");
@@ -88,6 +101,7 @@ public class IncrementalResourceFilteringTest extends TestSupport {
         assertTrue(ctx.getRefreshFiles().contains(outputFile01));
     }
 
+    @Test
     public void testOutputChange() throws Exception {
         // run full build first
         filter("time");
@@ -106,6 +120,7 @@ public class IncrementalResourceFilteringTest extends TestSupport {
         assertTrue(ctx.getRefreshFiles().contains(outputFile02));
     }
 
+    @Test
     public void testFilterChange() throws Exception {
         // run full build first
         filter("time");
@@ -124,6 +139,7 @@ public class IncrementalResourceFilteringTest extends TestSupport {
         assertTrue(ctx.getRefreshFiles().contains(outputFile02));
     }
 
+    @Test
     public void testFilterDeleted() throws Exception {
         // run full build first
         filter("time");
@@ -145,8 +161,7 @@ public class IncrementalResourceFilteringTest extends TestSupport {
     private void assertTime(String time, String relpath) throws IOException {
         Properties properties = new Properties();
 
-        try (InputStream is =
-                new FileInputStream(outputDirectory.resolve(relpath).toFile())) {
+        try (InputStream is = Files.newInputStream(outputDirectory.resolve(relpath))) {
             properties.load(is);
         }
 
@@ -154,17 +169,17 @@ public class IncrementalResourceFilteringTest extends TestSupport {
     }
 
     private void filter(String time) throws Exception {
-        File baseDir = new File(getBasedir());
-        StubMavenProject mavenProject = new StubMavenProject(baseDir);
+        Path baseDir = Paths.get(getBasedir());
+        StubProject mavenProject = new StubProject(baseDir);
         mavenProject.setVersion("1.0");
         mavenProject.setGroupId("org.apache");
         mavenProject.setName("test project");
 
-        Properties projectProperties = new Properties();
+        Map<String, String> projectProperties = new HashMap<>();
         projectProperties.put("time", time);
         projectProperties.put("java.version", "zloug");
         mavenProject.setProperties(projectProperties);
-        MavenResourcesFiltering mavenResourcesFiltering = lookup(MavenResourcesFiltering.class);
+        MavenResourcesFiltering mavenResourcesFiltering = container.lookup(MavenResourcesFiltering.class);
 
         String unitFilesDir = unitDirectory.resolve("files").toString();
 
@@ -179,12 +194,12 @@ public class IncrementalResourceFilteringTest extends TestSupport {
 
         MavenResourcesExecution mre = new MavenResourcesExecution();
         mre.setResources(resources);
-        mre.setOutputDirectory(outputDirectory.toFile());
+        mre.setOutputDirectory(outputDirectory);
         mre.setEncoding("UTF-8");
         mre.setMavenProject(mavenProject);
         mre.setFilters(filtersFile);
         mre.setNonFilteredFileExtensions(Collections.<String>emptyList());
-        mre.setMavenSession(new StubMavenSession());
+        mre.setMavenSession(new StubSession());
         mre.setUseDefaultFilterWrappers(true);
 
         mavenResourcesFiltering.filterResources(mre);

@@ -18,10 +18,12 @@
  */
 package org.apache.maven.shared.filtering;
 
+import javax.inject.Inject;
+
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,9 +34,21 @@ import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.model.Resource;
+import org.codehaus.plexus.testing.PlexusTest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.sonatype.plexus.build.incremental.ThreadBuildContext;
 
-public class IncrementalResourceFilteringTest extends TestSupport {
+import static org.codehaus.plexus.testing.PlexusExtension.getBasedir;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+@PlexusTest
+class IncrementalResourceFilteringTest {
+
+    @Inject
+    MavenResourcesFiltering mavenResourcesFiltering;
 
     Path baseDirectory = new File(getBasedir()).toPath();
     Path outputDirectory = baseDirectory.resolve("target/IncrementalResourceFilteringTest");
@@ -45,16 +59,16 @@ public class IncrementalResourceFilteringTest extends TestSupport {
     Path outputFile01 = outputDirectory.resolve("file01.txt");
     Path outputFile02 = outputDirectory.resolve("file02.txt");
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    @BeforeEach
+    void setUp() throws Exception {
         if (outputDirectory.toFile().exists()) {
             FileUtils.deleteDirectory(outputDirectory.toFile());
         }
         outputDirectory.toFile().mkdirs();
     }
 
-    public void testSimpleIncrementalFiltering() throws Exception {
+    @Test
+    void simpleIncrementalFiltering() throws Exception {
         // run full build first
         filter("time");
 
@@ -88,7 +102,8 @@ public class IncrementalResourceFilteringTest extends TestSupport {
         assertTrue(ctx.getRefreshFiles().contains(outputFile01));
     }
 
-    public void testOutputChange() throws Exception {
+    @Test
+    void outputChange() throws Exception {
         // run full build first
         filter("time");
 
@@ -106,7 +121,8 @@ public class IncrementalResourceFilteringTest extends TestSupport {
         assertTrue(ctx.getRefreshFiles().contains(outputFile02));
     }
 
-    public void testFilterChange() throws Exception {
+    @Test
+    void filterChange() throws Exception {
         // run full build first
         filter("time");
 
@@ -124,7 +140,8 @@ public class IncrementalResourceFilteringTest extends TestSupport {
         assertTrue(ctx.getRefreshFiles().contains(outputFile02));
     }
 
-    public void testFilterDeleted() throws Exception {
+    @Test
+    void filterDeleted() throws Exception {
         // run full build first
         filter("time");
 
@@ -146,7 +163,7 @@ public class IncrementalResourceFilteringTest extends TestSupport {
         Properties properties = new Properties();
 
         try (InputStream is =
-                new FileInputStream(outputDirectory.resolve(relpath).toFile())) {
+                Files.newInputStream(outputDirectory.resolve(relpath).toFile().toPath())) {
             properties.load(is);
         }
 
@@ -164,7 +181,6 @@ public class IncrementalResourceFilteringTest extends TestSupport {
         projectProperties.put("time", time);
         projectProperties.put("java.version", "zloug");
         mavenProject.setProperties(projectProperties);
-        MavenResourcesFiltering mavenResourcesFiltering = lookup(MavenResourcesFiltering.class);
 
         String unitFilesDir = unitDirectory.resolve("files").toString();
 

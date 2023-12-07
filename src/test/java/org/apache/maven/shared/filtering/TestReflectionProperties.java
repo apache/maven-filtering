@@ -18,26 +18,37 @@
  */
 package org.apache.maven.shared.filtering;
 
+import javax.inject.Inject;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Properties;
 
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.testing.PlexusTest;
+import org.junit.jupiter.api.Test;
+
+import static org.codehaus.plexus.testing.PlexusExtension.getBasedir;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Olivier Lamy
  * @since 1.0-beta-1
  *
  */
-public class TestReflectionProperties extends TestSupport {
+@PlexusTest
+class TestReflectionProperties {
 
-    public void testSimpleFiltering() throws Exception {
+    @Inject
+    MavenFileFilter mavenFileFilter;
+
+    @Test
+    void simpleFiltering() throws Exception {
         MavenProject mavenProject = new MavenProject();
         mavenProject.setVersion("1.0");
         mavenProject.setGroupId("org.apache");
         Properties userProperties = new Properties();
         userProperties.setProperty("foo", "bar");
-        MavenFileFilter mavenFileFilter = lookup(MavenFileFilter.class);
 
         File from = new File(getBasedir() + "/src/test/units-files/reflection-test.properties");
         File to = new File(getBasedir() + "/target/reflection-test.properties");
@@ -60,14 +71,14 @@ public class TestReflectionProperties extends TestSupport {
         assertEquals("none filtered", reading.get("none"));
     }
 
-    public void testSimpleNonFiltering() throws Exception {
+    @Test
+    void simpleNonFiltering() throws Exception {
 
         MavenProject mavenProject = new MavenProject();
         mavenProject.setVersion("1.0");
         mavenProject.setGroupId("org.apache");
         Properties userProperties = new Properties();
         userProperties.setProperty("foo", "bar");
-        MavenFileFilter mavenFileFilter = lookup(MavenFileFilter.class);
 
         File from = new File(getBasedir() + "/src/test/units-files/reflection-test.properties");
         File to = new File(getBasedir() + "/target/reflection-test.properties");

@@ -26,13 +26,19 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
+import org.junit.jupiter.api.Test;
+
+import static org.codehaus.plexus.testing.PlexusExtension.getBasedir;
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * @author Olivier Lamy
  * @since 1.0-beta-1
  */
-public class PropertyUtilsTest extends TestSupport {
+public class PropertyUtilsTest {
     private static File testDirectory = new File(getBasedir(), "target/test-classes/");
 
+    @Test
     public void testBasic() throws Exception {
         File basicProperties = File.createTempFile("basic", ".properties");
         basicProperties.deleteOnExit();
@@ -49,6 +55,7 @@ public class PropertyUtilsTest extends TestSupport {
         assertEquals("${non_existent}", properties.getProperty("ghost"));
     }
 
+    @Test
     public void testSystemProperties() throws Exception {
         File systemProperties = File.createTempFile("system", ".properties");
         systemProperties.deleteOnExit();
@@ -62,10 +69,11 @@ public class PropertyUtilsTest extends TestSupport {
         assertEquals(System.getProperty("user.dir"), properties.getProperty("key"));
     }
 
+    @Test
     public void testException() throws Exception {
         File nonExistent = new File(testDirectory, "not_existent_file");
 
-        assertFalse("property file exist: " + nonExistent, nonExistent.exists());
+        assertFalse(nonExistent.exists(), "property file exist: " + nonExistent);
 
         try {
             PropertyUtils.loadPropertyFile(nonExistent, true, false);
@@ -75,6 +83,7 @@ public class PropertyUtilsTest extends TestSupport {
         }
     }
 
+    @Test
     public void testLoadPropertiesFile() throws Exception {
         File propertyFile = new File(getBasedir() + "/src/test/units-files/propertyutils-test.properties");
         Properties baseProperties = new Properties();
@@ -92,6 +101,7 @@ public class PropertyUtilsTest extends TestSupport {
      *
      * @throws IOException if problem writing file
      */
+    @Test
     public void testCircularReferences() throws IOException {
         File circularProperties = File.createTempFile("circular", ".properties");
         circularProperties.deleteOnExit();
@@ -112,6 +122,7 @@ public class PropertyUtilsTest extends TestSupport {
      *
      * @throws IOException if problem writing file
      */
+    @Test
     public void testCircularReferences3Vars() throws IOException {
         File circularProperties = File.createTempFile("circular", ".properties");
         circularProperties.deleteOnExit();
@@ -129,6 +140,7 @@ public class PropertyUtilsTest extends TestSupport {
         assertEquals("${test}", properties.getProperty("test3"));
     }
 
+    @Test
     public void testNonCircularReferences1Var3Times() throws IOException {
         File nonCircularProperties = File.createTempFile("non-circular", ".properties");
         nonCircularProperties.deleteOnExit();
@@ -145,6 +157,7 @@ public class PropertyUtilsTest extends TestSupport {
         assertEquals("1.2.3", properties.getProperty("version"));
     }
 
+    @Test
     public void testNonCircularReferences2Vars2Times() throws IOException {
         File nonCircularProperties = File.createTempFile("non-circular", ".properties");
         nonCircularProperties.deleteOnExit();

@@ -18,30 +18,41 @@
  */
 package org.apache.maven.shared.filtering;
 
+import javax.inject.Inject;
+
 import java.io.File;
 import java.util.Collections;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.model.Resource;
+import org.codehaus.plexus.testing.PlexusTest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.codehaus.plexus.testing.PlexusExtension.getBasedir;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 /**
  * @author Mikolaj Izdebski
  */
-public class InvalidMarkTest extends TestSupport {
+@PlexusTest
+class InvalidMarkTest {
+
+    @Inject
+    MavenResourcesFiltering mavenResourcesFiltering;
+
     File outputDirectory = new File(getBasedir(), "target/LongLineTest");
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    @BeforeEach
+    void setUp() throws Exception {
         if (outputDirectory.exists()) {
             FileUtils.deleteDirectory(outputDirectory);
         }
         outputDirectory.mkdirs();
     }
 
-    public void testEscape() throws Exception {
-        MavenResourcesFiltering mavenResourcesFiltering = lookup(MavenResourcesFiltering.class);
-
+    @Test
+    void escape() {
         Resource resource = new Resource();
         resource.setDirectory("src/test/units-files/MSHARED-325");
         resource.setFiltering(true);
@@ -55,10 +66,8 @@ public class InvalidMarkTest extends TestSupport {
                 Collections.<String>emptyList(),
                 new StubMavenSession());
 
-        try {
+        assertDoesNotThrow(() -> {
             mavenResourcesFiltering.filterResources(mavenResourcesExecution);
-        } catch (MavenFilteringException e) {
-            fail();
-        }
+        });
     }
 }

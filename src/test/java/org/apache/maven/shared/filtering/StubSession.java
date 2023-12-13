@@ -212,27 +212,57 @@ public class StubSession implements Session {
     }
 
     @Override
-    public Artifact resolveArtifact(Artifact artifact) {
+    public Map.Entry<Artifact, Path> resolveArtifact(Artifact artifact) {
         return null;
     }
 
     @Override
-    public Artifact resolveArtifact(ArtifactCoordinate coordinate) {
+    public Map.Entry<Artifact, Path> resolveArtifact(ArtifactCoordinate coordinate) {
         return null;
     }
 
     @Override
-    public Collection<Artifact> resolveArtifacts(ArtifactCoordinate... artifactCoordinates) {
+    public Map<Artifact, Path> resolveArtifacts(ArtifactCoordinate... artifactCoordinates) {
         return null;
     }
 
     @Override
-    public Collection<Artifact> resolveArtifacts(Collection<? extends ArtifactCoordinate> collection) {
+    public Map<Artifact, Path> resolveArtifacts(Collection<? extends ArtifactCoordinate> collection) {
         return null;
     }
 
     @Override
-    public Collection<Artifact> resolveArtifacts(Artifact... artifacts) {
+    public Map<Artifact, Path> resolveArtifacts(Artifact... artifacts) {
+        return null;
+    }
+
+    @Override
+    public List<Node> flattenDependencies(Node node, ResolutionScope scope) {
+        return null;
+    }
+
+    @Override
+    public List<Path> resolveDependencies(DependencyCoordinate dependencyCoordinate) {
+        return null;
+    }
+
+    @Override
+    public List<Path> resolveDependencies(List<DependencyCoordinate> dependencyCoordinates) {
+        return null;
+    }
+
+    @Override
+    public List<Path> resolveDependencies(Project project, ResolutionScope scope) {
+        return null;
+    }
+
+    @Override
+    public Version resolveVersion(ArtifactCoordinate artifact) {
+        return null;
+    }
+
+    @Override
+    public List<Version> resolveVersionRange(ArtifactCoordinate artifact) {
         return null;
     }
 

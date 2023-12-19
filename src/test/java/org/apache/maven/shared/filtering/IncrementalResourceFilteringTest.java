@@ -124,6 +124,55 @@ public class IncrementalResourceFilteringTest extends TestSupport {
         assertTrue(ctx.getRefreshFiles().contains(outputFile02));
     }
 
+    /**
+     * Check that missing targets are rebuilt even if source is not changed (MSHARED-1285)
+     */
+    public void testMissingTarget() throws Exception {
+        // run full build first
+        filter("time");
+
+        // erase target files
+        outputFile01.toFile().delete();
+        outputFile02.toFile().delete();
+        // report change only on one file
+        Set<Path> changedFiles = new HashSet<>();
+        changedFiles.add(inputFile01);
+        TestIncrementalBuildContext ctx = new TestIncrementalBuildContext(baseDirectory, changedFiles);
+        ThreadBuildContext.setThreadBuildContext(ctx);
+
+        filter("time");
+
+        assertTrue(ctx.getRefreshFiles().contains(outputFile01));
+        assertTrue(ctx.getRefreshFiles().contains(outputFile02));
+        assertTrue(outputFile01.toFile().exists());
+        assertTrue(outputFile02.toFile().exists());
+    }
+
+    /**
+     * Check that updated targets with unchanged sources are updated (MSHARED-1285)
+     */
+    public void testUpdatedTarget() throws Exception {
+        // run full build first
+        filter("time");
+
+        // touch target file02
+        FileUtils.touch(outputFile02.toFile());
+        Set<Path> changedFiles = new HashSet<>();
+        changedFiles.add(inputFile01);
+        // report change only on target file
+        changedFiles.add(outputFile02);
+        TestIncrementalBuildContext ctx = new TestIncrementalBuildContext(baseDirectory, changedFiles);
+        ThreadBuildContext.setThreadBuildContext(ctx);
+
+        // both files are updated
+        filter("notime");
+        assertTime("notime", "file01.txt");
+        assertTime("notime", "file02.txt");
+
+        assertTrue(ctx.getRefreshFiles().contains(outputFile01));
+        assertTrue(ctx.getRefreshFiles().contains(outputFile02));
+    }
+
     public void testFilterDeleted() throws Exception {
         // run full build first
         filter("time");

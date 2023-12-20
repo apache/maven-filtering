@@ -25,11 +25,9 @@ import java.io.StringReader;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.interpolation.Interpolator;
 import org.codehaus.plexus.interpolation.RecursionInterceptor;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -42,11 +40,6 @@ public abstract class AbstractInterpolatorFilterReaderLineEndingTest {
 
     @Mock
     private Interpolator interpolator;
-
-    @BeforeEach
-    public void onSetup() {
-        MockitoAnnotations.initMocks(this);
-    }
 
     @Test
     public void testDefaults() throws Exception {

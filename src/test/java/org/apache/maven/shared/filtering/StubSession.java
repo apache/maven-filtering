@@ -109,7 +109,7 @@ public class StubSession implements Session {
     }
 
     @Override
-    public String getMavenVersion() {
+    public Version getMavenVersion() {
         return null;
     }
 
@@ -187,6 +187,11 @@ public class StubSession implements Session {
 
     @Override
     public ArtifactCoordinate createArtifactCoordinate(String s, String s1, String s2, String s3) {
+        return null;
+    }
+
+    @Override
+    public ArtifactCoordinate createArtifactCoordinate(String coordString) {
         return null;
     }
 
@@ -320,6 +325,11 @@ public class StubSession implements Session {
 
     @Override
     public VersionRange parseVersionRange(String versionRange) {
+        return null;
+    }
+
+    @Override
+    public VersionConstraint parseVersionConstraint(String s) {
         return null;
     }
 }

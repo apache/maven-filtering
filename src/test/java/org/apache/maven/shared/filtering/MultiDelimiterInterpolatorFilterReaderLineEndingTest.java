@@ -27,11 +27,9 @@ import java.util.HashSet;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.interpolation.Interpolator;
 import org.codehaus.plexus.interpolation.RecursionInterceptor;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -45,12 +43,6 @@ public class MultiDelimiterInterpolatorFilterReaderLineEndingTest
 
     @Mock
     private Interpolator interpolator;
-
-    @Override
-    @BeforeEach
-    public void onSetup() {
-        MockitoAnnotations.initMocks(this);
-    }
 
     @Override
     protected Reader getAaa_AaaReader(Reader in, Interpolator interpolator) {

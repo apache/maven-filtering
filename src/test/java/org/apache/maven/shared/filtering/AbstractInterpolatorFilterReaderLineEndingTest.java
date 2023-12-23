@@ -25,12 +25,12 @@ import java.io.StringReader;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.interpolation.Interpolator;
 import org.codehaus.plexus.interpolation.RecursionInterceptor;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.when;
@@ -40,13 +40,13 @@ public abstract class AbstractInterpolatorFilterReaderLineEndingTest {
     @Mock
     private Interpolator interpolator;
 
-    @Before
+    @BeforeEach
     public void onSetup() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    public void testDefaults() throws Exception {
+    void defaults() throws Exception {
         when(interpolator.interpolate(eq("${a}"), eq(""), isA(RecursionInterceptor.class)))
                 .thenReturn("DONE_A");
 
@@ -89,7 +89,7 @@ public abstract class AbstractInterpolatorFilterReaderLineEndingTest {
 
     // MSHARED-198: custom delimiters doesn't work as expected
     @Test
-    public void testCustomDelimiters() throws Exception {
+    void customDelimiters() throws Exception {
         when(interpolator.interpolate(eq("aaaFILTER.a.MEaaa"), eq(""), isA(RecursionInterceptor.class)))
                 .thenReturn("DONE");
         when(interpolator.interpolate(eq("abcFILTER.a.MEabc"), eq(""), isA(RecursionInterceptor.class)))
@@ -107,7 +107,7 @@ public abstract class AbstractInterpolatorFilterReaderLineEndingTest {
 
     // MSHARED-235: reader exceeds readAheadLimit
     @Test
-    public void testMarkInvalid() throws IOException {
+    void markInvalid() throws IOException {
         try (Reader reader = getAtReader(new StringReader("@\").replace(p,\"]\").replace(q,\""), interpolator, "\\")) {
             assertEquals("@\").replace(p,\"]\").replace(q,\"", IOUtils.toString(reader));
         }

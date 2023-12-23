@@ -18,6 +18,8 @@
  */
 package org.apache.maven.shared.filtering;
 
+import javax.inject.Inject;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
@@ -27,18 +29,27 @@ import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.model.Resource;
+import org.codehaus.plexus.testing.PlexusTest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.codehaus.plexus.testing.PlexusExtension.getBasedir;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Olivier Lamy
  *
  */
-public class MuliLinesMavenResourcesFilteringTest extends TestSupport {
+@PlexusTest
+class MuliLinesMavenResourcesFilteringTest {
+
+    @Inject
+    MavenResourcesFiltering mavenResourcesFiltering;
 
     File outputDirectory = new File(getBasedir(), "target/MuliLinesMavenResourcesFilteringTest");
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    @BeforeEach
+    void setUp() throws Exception {
         if (outputDirectory.exists()) {
             FileUtils.deleteDirectory(outputDirectory);
         }
@@ -48,7 +59,8 @@ public class MuliLinesMavenResourcesFilteringTest extends TestSupport {
     /**
      * @throws Exception
      */
-    public void testFilteringTokenOnce() throws Exception {
+    @Test
+    void filteringTokenOnce() throws Exception {
         File baseDir = new File(getBasedir());
         StubMavenProject mavenProject = new StubMavenProject(baseDir);
         mavenProject.setVersion("1.0");
@@ -59,7 +71,6 @@ public class MuliLinesMavenResourcesFilteringTest extends TestSupport {
         projectProperties.put("foo", "bar");
         projectProperties.put("java.version", "zloug");
         mavenProject.setProperties(projectProperties);
-        MavenResourcesFiltering mavenResourcesFiltering = lookup(MavenResourcesFiltering.class);
 
         String unitFilesDir = getBasedir() + "/src/test/units-files/MRESOURCES-104";
 

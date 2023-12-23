@@ -18,6 +18,8 @@
  */
 package org.apache.maven.shared.filtering;
 
+import javax.inject.Inject;
+
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -27,26 +29,36 @@ import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.model.Resource;
+import org.codehaus.plexus.testing.PlexusTest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.codehaus.plexus.testing.PlexusExtension.getBasedir;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Olivier Lamy
  */
-public class EscapeStringTest extends TestSupport {
+@PlexusTest
+class EscapeStringTest {
+
+    @Inject
+    MavenResourcesFiltering mavenResourcesFiltering;
 
     File outputDirectory = new File(getBasedir(), "target/EscapeStringTest");
 
     File unitDirectory = new File(getBasedir(), "src/test/units-files/escape-remove-char");
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    @BeforeEach
+    void setUp() throws Exception {
         if (outputDirectory.exists()) {
             FileUtils.deleteDirectory(outputDirectory);
         }
         outputDirectory.mkdirs();
     }
 
-    public void testEscape() throws Exception {
+    @Test
+    void escape() throws Exception {
         File baseDir = new File(getBasedir());
         StubMavenProject mavenProject = new StubMavenProject(baseDir);
         mavenProject.setVersion("1.0");
@@ -58,7 +70,6 @@ public class EscapeStringTest extends TestSupport {
         projectProperties.put("java.version", "zloug");
         projectProperties.put("replaceThis", "I am the replacement");
         mavenProject.setProperties(projectProperties);
-        MavenResourcesFiltering mavenResourcesFiltering = lookup(MavenResourcesFiltering.class);
 
         Resource resource = new Resource();
         List<Resource> resources = new ArrayList<>();

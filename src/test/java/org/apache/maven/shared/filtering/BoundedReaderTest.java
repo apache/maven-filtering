@@ -23,16 +23,16 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class BoundedReaderTest {
+class BoundedReaderTest {
 
     private final Reader sr = new BufferedReader(new StringReader("01234567890"));
 
     @Test
-    public void readTillEnd() throws IOException {
+    void readTillEnd() throws IOException {
         try (BoundedReader mr = new BoundedReader(sr, 3)) {
             mr.mark(3);
             mr.read();
@@ -43,7 +43,7 @@ public class BoundedReaderTest {
     }
 
     @Test
-    public void readMulti() throws IOException {
+    void readMulti() throws IOException {
         char[] cbuf = new char[4];
         for (int i = 0; i < cbuf.length; i++) {
             cbuf[i] = 'X';
@@ -61,7 +61,7 @@ public class BoundedReaderTest {
     }
 
     @Test
-    public void readMultiWithOffset() throws IOException {
+    void readMultiWithOffset() throws IOException {
 
         char[] cbuf = new char[4];
         for (int i = 0; i < cbuf.length; i++) {
@@ -80,7 +80,7 @@ public class BoundedReaderTest {
     }
 
     @Test
-    public void resetWorks() throws IOException {
+    void resetWorks() throws IOException {
         try (BoundedReader mr = new BoundedReader(sr, 3)) {
             mr.read();
             mr.read();
@@ -94,7 +94,7 @@ public class BoundedReaderTest {
     }
 
     @Test
-    public void skipTest() throws IOException {
+    void skipTest() throws IOException {
         try (BoundedReader mr = new BoundedReader(sr, 3)) {
             mr.skip(2);
             mr.read();

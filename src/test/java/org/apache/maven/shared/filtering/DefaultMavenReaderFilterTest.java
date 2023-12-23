@@ -18,19 +18,28 @@
  */
 package org.apache.maven.shared.filtering;
 
+import javax.inject.Inject;
+
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
+import org.codehaus.plexus.testing.PlexusTest;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Kristian Rosenvold
  */
-public class DefaultMavenReaderFilterTest extends TestSupport {
-    public void testJustDoSomeFiltering() throws Exception {
-        MavenReaderFilter readerFilter = lookup(MavenReaderFilter.class);
+@PlexusTest
+class DefaultMavenReaderFilterTest {
+    @Inject
+    MavenReaderFilter readerFilter;
 
+    @Test
+    void justDoSomeFiltering() throws Exception {
         StringReader src = new StringReader("toto@titi.com ${foo}");
         MavenReaderFilterRequest req = new MavenReaderFilterRequest();
         Properties additionalProperties = new Properties();

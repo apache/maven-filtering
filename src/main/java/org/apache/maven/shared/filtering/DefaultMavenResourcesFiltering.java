@@ -36,6 +36,7 @@ import java.util.Locale;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.model.Resource;
 import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.Scanner;
@@ -254,9 +255,15 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
                 Path destination = getDestinationFile(outputDirectory, targetPath, "", mavenResourcesExecution)
                         .getAbsoluteFile()
                         .toPath();
+                String origin = basedir.relativize(
+                                resourceDirectory.getAbsoluteFile().toPath())
+                        .toString();
+                if (StringUtils.isEmpty(origin)) {
+                    origin = ".";
+                }
                 LOGGER.info("Copying " + includedFiles.size() + " resource" + (includedFiles.size() > 1 ? "s" : "")
                         + " from "
-                        + basedir.relativize(resourceDirectory.getAbsoluteFile().toPath())
+                        + origin
                         + " to "
                         + basedir.relativize(destination));
             } catch (Exception e) {

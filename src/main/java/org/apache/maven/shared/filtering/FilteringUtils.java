@@ -382,5 +382,4 @@ public final class FilteringUtils {
             writer.write(buffer, 0, nRead);
         }
     }
-
 }

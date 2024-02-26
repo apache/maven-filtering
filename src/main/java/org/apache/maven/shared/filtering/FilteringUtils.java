@@ -29,7 +29,7 @@ import java.nio.file.NoSuchFileException;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.SystemUtils;
+import org.codehaus.plexus.util.Os;
 import org.codehaus.plexus.util.io.CachingOutputStream;
 import org.codehaus.plexus.util.io.CachingWriter;
 
@@ -112,7 +112,7 @@ public final class FilteringUtils {
         }
 
         // deal with absolute files
-        if (filenm.startsWith(File.separator) || (SystemUtils.IS_OS_WINDOWS && filenm.indexOf(":") > 0)) {
+        if (filenm.startsWith(File.separator) || (Os.isFamily(Os.FAMILY_WINDOWS) && filenm.indexOf(":") > 0)) {
             File file = new File(filenm);
 
             try {
@@ -317,11 +317,7 @@ public final class FilteringUtils {
                     wrapped = wrapper.getReader(wrapped);
                 }
                 try (Writer writer = new CachingWriter(to.toPath(), charset)) {
-                    char[] buffer = new char[COPY_BUFFER_LENGTH];
-                    int nRead;
-                    while ((nRead = wrapped.read(buffer, 0, COPY_BUFFER_LENGTH)) >= 0) {
-                        writer.write(buffer, 0, nRead);
-                    }
+                    copy(wrapped, writer);
                 }
             }
         }
@@ -378,4 +374,13 @@ public final class FilteringUtils {
             return Charset.forName(encoding);
         }
     }
+
+    static void copy(Reader reader, Writer writer) throws IOException {
+        char[] buffer = new char[COPY_BUFFER_LENGTH];
+        int nRead;
+        while ((nRead = reader.read(buffer, 0, COPY_BUFFER_LENGTH)) >= 0) {
+            writer.write(buffer, 0, nRead);
+        }
+    }
+
 }

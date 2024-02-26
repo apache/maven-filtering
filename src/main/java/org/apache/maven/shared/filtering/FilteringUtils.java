@@ -375,12 +375,17 @@ public final class FilteringUtils {
         }
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     private static void setAllPermissions(File file) throws IOException {
         if (file.exists()) {
             try {
-                Files.setPosixFilePermissions(file.toPath(), EnumSet.allOf(PosixFilePermission.class));
+                Files.setPosixFilePermissions(
+                        file.toPath(),
+                        EnumSet.of(
+                                PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE,
+                                PosixFilePermission.GROUP_READ, PosixFilePermission.GROUP_WRITE,
+                                PosixFilePermission.OTHERS_READ, PosixFilePermission.OTHERS_WRITE));
             } catch (UnsupportedOperationException e) {
-                file.setExecutable(true);
                 file.setReadable(true);
                 file.setWritable(true);
             }

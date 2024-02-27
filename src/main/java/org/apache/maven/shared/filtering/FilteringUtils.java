@@ -307,7 +307,7 @@ public final class FilteringUtils {
      * @throws IOException if an IO error occurs during copying or filtering
      */
     public static void copyFile(File from, File to, String encoding, FilterWrapper[] wrappers) throws IOException {
-        setAllPermissions(to);
+        setRwPermissions(to);
 
         if (wrappers == null || wrappers.length == 0) {
             try (OutputStream os = new CachingOutputStream(to.toPath())) {
@@ -376,7 +376,7 @@ public final class FilteringUtils {
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    private static void setAllPermissions(File file) throws IOException {
+    private static void setRwPermissions(File file) throws IOException {
         if (file.exists()) {
             try {
                 Files.setPosixFilePermissions(

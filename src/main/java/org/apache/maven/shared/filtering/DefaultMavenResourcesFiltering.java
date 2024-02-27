@@ -34,9 +34,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.model.Resource;
 import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.Scanner;
@@ -93,8 +90,14 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
     }
 
     private static String getExtension(String fileName) {
-        String rawExt = FilenameUtils.getExtension(fileName);
-        return rawExt == null ? null : rawExt.toLowerCase(Locale.ROOT);
+        int idxDot = fileName != null ? fileName.lastIndexOf('.') : -1;
+        if (idxDot >= 0) {
+            int idxSep = Math.max(fileName.lastIndexOf('/'), fileName.lastIndexOf('\\'));
+            if (idxSep > idxDot) {
+                idxDot = -1;
+            }
+        }
+        return idxDot >= 0 ? fileName.substring(idxDot + 1).toLowerCase(Locale.ROOT) : "";
     }
 
     @Override
@@ -258,7 +261,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
                 String origin = basedir.relativize(
                                 resourceDirectory.getAbsoluteFile().toPath())
                         .toString();
-                if (StringUtils.isEmpty(origin)) {
+                if (origin.isEmpty()) {
                     origin = ".";
                 }
                 LOGGER.info("Copying " + includedFiles.size() + " resource" + (includedFiles.size() > 1 ? "s" : "")
@@ -507,7 +510,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
         }
 
         try (StringWriter writer = new StringWriter()) {
-            IOUtils.copy(reader, writer);
+            FilteringUtils.copy(reader, writer);
             String filteredFilename = writer.toString();
 
             if (LOGGER.isDebugEnabled()) {

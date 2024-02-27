@@ -26,10 +26,10 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
+import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.SystemUtils;
 import org.codehaus.plexus.util.io.CachingOutputStream;
 import org.codehaus.plexus.util.io.CachingWriter;
 
@@ -38,6 +38,12 @@ import org.codehaus.plexus.util.io.CachingWriter;
  * @author Dennis Lundberg
  */
 public final class FilteringUtils {
+    /**
+     * Is the OS a windows family?
+     */
+    private static final boolean IS_WINDOWS =
+            System.getProperty("os.name").toLowerCase(Locale.ROOT).startsWith("windows");
+
     /**
      * The number of bytes in a kilobyte.
      */
@@ -112,7 +118,7 @@ public final class FilteringUtils {
         }
 
         // deal with absolute files
-        if (filenm.startsWith(File.separator) || (SystemUtils.IS_OS_WINDOWS && filenm.indexOf(":") > 0)) {
+        if (filenm.startsWith(File.separator) || (IS_WINDOWS && filenm.indexOf(":") > 0)) {
             File file = new File(filenm);
 
             try {
@@ -317,11 +323,7 @@ public final class FilteringUtils {
                     wrapped = wrapper.getReader(wrapped);
                 }
                 try (Writer writer = new CachingWriter(to.toPath(), charset)) {
-                    char[] buffer = new char[COPY_BUFFER_LENGTH];
-                    int nRead;
-                    while ((nRead = wrapped.read(buffer, 0, COPY_BUFFER_LENGTH)) >= 0) {
-                        writer.write(buffer, 0, nRead);
-                    }
+                    copy(wrapped, writer);
                 }
             }
         }
@@ -376,6 +378,14 @@ public final class FilteringUtils {
             return Charset.defaultCharset();
         } else {
             return Charset.forName(encoding);
+        }
+    }
+
+    static void copy(Reader reader, Writer writer) throws IOException {
+        char[] buffer = new char[COPY_BUFFER_LENGTH];
+        int nRead;
+        while ((nRead = reader.read(buffer, 0, COPY_BUFFER_LENGTH)) >= 0) {
+            writer.write(buffer, 0, nRead);
         }
     }
 }

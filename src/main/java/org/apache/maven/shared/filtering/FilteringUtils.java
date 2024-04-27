@@ -26,6 +26,8 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.EnumSet;
 import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
@@ -311,6 +313,8 @@ public final class FilteringUtils {
      * @throws IOException if an IO error occurs during copying or filtering
      */
     public static void copyFile(File from, File to, String encoding, FilterWrapper[] wrappers) throws IOException {
+        setReadWritePermissions(to);
+
         if (wrappers == null || wrappers.length == 0) {
             try (OutputStream os = new CachingOutputStream(to.toPath())) {
                 Files.copy(from.toPath(), os);
@@ -370,6 +374,23 @@ public final class FilteringUtils {
             destination.setExecutable(source.canExecute());
             destination.setReadable(source.canRead());
             destination.setWritable(source.canWrite());
+        }
+    }
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    private static void setReadWritePermissions(File file) throws IOException {
+        if (file.exists()) {
+            try {
+                Files.setPosixFilePermissions(
+                        file.toPath(),
+                        EnumSet.of(
+                                PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE,
+                                PosixFilePermission.GROUP_READ, PosixFilePermission.GROUP_WRITE,
+                                PosixFilePermission.OTHERS_READ, PosixFilePermission.OTHERS_WRITE));
+            } catch (UnsupportedOperationException e) {
+                file.setReadable(true);
+                file.setWritable(true);
+            }
         }
     }
 

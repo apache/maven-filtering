@@ -23,12 +23,12 @@
   <parent>
     <groupId>org.apache.maven.shared</groupId>
     <artifactId>maven-shared-components</artifactId>
-    <version>41</version>
+    <version>42</version>
     <relativePath />
   </parent>
 
   <artifactId>maven-filtering</artifactId>
-  <version>3.3.2-SNAPSHOT</version>
+  <version>3.3.3-SNAPSHOT</version>
 
   <name>Apache Maven Filtering</name>
   <description>A component to assist in filtering of resource files with properties from a Maven project.</description>
@@ -64,7 +64,7 @@
     <mavenVersion>3.6.3</mavenVersion>
     <slf4jVersion>1.7.36</slf4jVersion>
     <plexusBuildApiVersion>0.0.7</plexusBuildApiVersion>
-    <project.build.outputTimestamp>2023-03-21T10:54:20Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2024-03-02T08:58:28Z</project.build.outputTimestamp>
   </properties>
 
   <dependencies>
@@ -104,12 +104,10 @@
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-utils</artifactId>
-      <version>4.0.0</version>
     </dependency>
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-xml</artifactId>
-      <version>3.0.0</version>
     </dependency>
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
@@ -138,7 +136,6 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
-      <version>5.10.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>

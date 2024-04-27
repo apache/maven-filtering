@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.codehaus.plexus.testing.PlexusExtension.getBasedir;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author John Casey
@@ -147,5 +148,21 @@ class FilteringUtilsTest {
         assertEquals(
                 "jdbc:derby:C:\\\\Users\\\\Administrator/test;create=true",
                 FilteringUtils.escapeWindowsPath("jdbc:derby:C:\\Users\\Administrator/test;create=true"));
+    }
+
+    // MSHARED-1330
+    @Test
+    void copyReadOnlyFileTwice() throws Exception {
+        File temp = File.createTempFile("pre-", ".txt");
+        temp.setReadOnly();
+
+        File out = File.createTempFile("out-", ".txt");
+        out.delete();
+
+        FilteringUtils.copyFile(temp, out, "UTF-8", new FilterWrapper[0]);
+        assertFalse(out.canWrite());
+
+        FilteringUtils.copyFile(temp, out, "UTF-8", new FilterWrapper[0]);
+        assertFalse(out.canWrite());
     }
 }

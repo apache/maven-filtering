@@ -107,8 +107,8 @@ class BaseFilter implements DefaultFilterInfo {
         //
         if (request.getMavenSession() != null) {
             // User properties have precedence over system properties
-            baseProps.putAll(request.getMavenSession().getSystemProperties());
-            baseProps.putAll(request.getMavenSession().getUserProperties());
+            putAll(baseProps, request.getMavenSession().getSystemProperties());
+            putAll(baseProps, request.getMavenSession().getUserProperties());
         }
 
         // now we build properties to use for resources interpolation
@@ -119,8 +119,8 @@ class BaseFilter implements DefaultFilterInfo {
                 request.getMavenProject() != null ? request.getMavenProject().getBasedir() : new File(".");
 
         loadProperties(filterProperties, basedir, request.getFileFilters(), baseProps);
-        if (filterProperties.size() < 1) {
-            filterProperties.putAll(baseProps);
+        if (filterProperties.isEmpty()) {
+            putAll(filterProperties, baseProps);
         }
 
         if (request.getMavenProject() != null) {
@@ -144,13 +144,13 @@ class BaseFilter implements DefaultFilterInfo {
         }
         if (request.getMavenSession() != null) {
             // User properties have precedence over system properties
-            filterProperties.putAll(request.getMavenSession().getSystemProperties());
-            filterProperties.putAll(request.getMavenSession().getUserProperties());
+            putAll(filterProperties, request.getMavenSession().getSystemProperties());
+            putAll(filterProperties, request.getMavenSession().getUserProperties());
         }
 
         if (request.getAdditionalProperties() != null) {
             // additional properties wins
-            filterProperties.putAll(request.getAdditionalProperties());
+            putAll(filterProperties, request.getAdditionalProperties());
         }
 
         List<FilterWrapper> defaultFilterWrappers =
@@ -180,6 +180,13 @@ class BaseFilter implements DefaultFilterInfo {
         return defaultFilterWrappers;
     }
 
+    @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
+    private static void putAll(Properties filterProperties, Properties request) {
+        synchronized (request) {
+            filterProperties.putAll(request);
+        }
+    }
+
     /**
      * default visibility only for testing reason !
      */
@@ -188,7 +195,7 @@ class BaseFilter implements DefaultFilterInfo {
             throws MavenFilteringException {
         if (propertiesFilePaths != null) {
             Properties workProperties = new Properties();
-            workProperties.putAll(baseProps);
+            putAll(workProperties, baseProps);
 
             for (String filterFile : propertiesFilePaths) {
                 if (filterFile == null || filterFile.trim().isEmpty()) {
@@ -198,8 +205,8 @@ class BaseFilter implements DefaultFilterInfo {
                 try {
                     File propFile = FilteringUtils.resolveFile(basedir, filterFile);
                     Properties properties = PropertyUtils.loadPropertyFile(propFile, workProperties, getLogger());
-                    filterProperties.putAll(properties);
-                    workProperties.putAll(properties);
+                    putAll(filterProperties, properties);
+                    putAll(workProperties, properties);
                 } catch (IOException e) {
                     throw new MavenFilteringException("Error loading property file '" + filterFile + "'", e);
                 }

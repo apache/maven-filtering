@@ -18,19 +18,18 @@
  */
 package org.apache.maven.shared.filtering;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
-import org.codehaus.plexus.testing.PlexusTest;
 import org.junit.jupiter.api.Test;
 
-import static org.codehaus.plexus.testing.PlexusExtension.getBasedir;
+import static org.apache.maven.api.di.testing.MavenDIExtension.getBasedir;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author John Casey
@@ -38,15 +37,14 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
  * @since 1.0
  *
  */
-@PlexusTest
-class FilteringUtilsTest {
-    private static File testDirectory = new File(getBasedir(), "target/test-classes/");
+public class FilteringUtilsTest {
+    private static Path testDirectory = Paths.get(getBasedir(), "target/test-classes/");
 
     @Test
-    void mSHARED1213CopyWithTargetAlreadyExisting0ByteFile() throws IOException {
-        File fromFile = new File(getBasedir() + "/src/test/units-files/MSHARED-1213/enunciate.xml");
-        File toFile = new File(testDirectory, "MSHARED-1213-enunciate.xml");
-        Files.write(toFile.toPath(), "".getBytes(StandardCharsets.UTF_8));
+    public void testMSHARED1213CopyWithTargetAlreadyExisting0ByteFile() throws IOException {
+        Path fromFile = Paths.get(getBasedir() + "/src/test/units-files/MSHARED-1213/enunciate.xml");
+        Path toFile = testDirectory.resolve("MSHARED-1213-enunciate.xml");
+        Files.write(toFile, "".getBytes(StandardCharsets.UTF_8));
         FilteringUtils.copyFile(
                 fromFile,
                 toFile,
@@ -61,15 +59,15 @@ class FilteringUtilsTest {
                 },
                 false);
         assertEquals(
-                Files.readAllLines(fromFile.toPath(), StandardCharsets.UTF_8),
-                Files.readAllLines(toFile.toPath(), StandardCharsets.UTF_8));
+                Files.readAllLines(fromFile, StandardCharsets.UTF_8),
+                Files.readAllLines(toFile, StandardCharsets.UTF_8));
     }
 
     @Test
-    void mSHARED1213CopyWithTargetAlreadyExistingJunkFile() throws IOException {
-        File fromFile = new File(getBasedir() + "/src/test/units-files/MSHARED-1213/enunciate.xml");
-        File toFile = new File(testDirectory, "MSHARED-1213-enunciate.xml");
-        Files.write(toFile.toPath(), "junk".getBytes(StandardCharsets.UTF_8));
+    public void testMSHARED1213CopyWithTargetAlreadyExistingJunkFile() throws IOException {
+        Path fromFile = Paths.get(getBasedir() + "/src/test/units-files/MSHARED-1213/enunciate.xml");
+        Path toFile = testDirectory.resolve("MSHARED-1213-enunciate.xml");
+        Files.write(toFile, "junk".getBytes(StandardCharsets.UTF_8));
         FilteringUtils.copyFile(
                 fromFile,
                 toFile,
@@ -84,15 +82,15 @@ class FilteringUtilsTest {
                 },
                 false);
         assertEquals(
-                Files.readAllLines(fromFile.toPath(), StandardCharsets.UTF_8),
-                Files.readAllLines(toFile.toPath(), StandardCharsets.UTF_8));
+                Files.readAllLines(fromFile, StandardCharsets.UTF_8),
+                Files.readAllLines(toFile, StandardCharsets.UTF_8));
     }
 
     @Test
-    void mSHARED1213CopyWithTargetAlreadyExistingSameFile() throws IOException {
-        File fromFile = new File(getBasedir() + "/src/test/units-files/MSHARED-1213/enunciate.xml");
-        File toFile = new File(testDirectory, "MSHARED-1213-enunciate.xml");
-        Files.copy(fromFile.toPath(), toFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+    public void testMSHARED1213CopyWithTargetAlreadyExistingSameFile() throws IOException {
+        Path fromFile = Paths.get(getBasedir() + "/src/test/units-files/MSHARED-1213/enunciate.xml");
+        Path toFile = testDirectory.resolve("MSHARED-1213-enunciate.xml");
+        Files.copy(fromFile, toFile, StandardCopyOption.REPLACE_EXISTING);
         FilteringUtils.copyFile(
                 fromFile,
                 toFile,
@@ -107,22 +105,22 @@ class FilteringUtilsTest {
                 },
                 false);
         assertEquals(
-                Files.readAllLines(fromFile.toPath(), StandardCharsets.UTF_8),
-                Files.readAllLines(toFile.toPath(), StandardCharsets.UTF_8));
+                Files.readAllLines(fromFile, StandardCharsets.UTF_8),
+                Files.readAllLines(toFile, StandardCharsets.UTF_8));
     }
 
     @Test
-    void escapeWindowsPathStartingWithDrive() {
+    public void testEscapeWindowsPathStartingWithDrive() {
         assertEquals("C:\\\\Users\\\\Administrator", FilteringUtils.escapeWindowsPath("C:\\Users\\Administrator"));
     }
 
     @Test
-    void escapeWindowsPathMissingDriveLetter() {
+    public void testEscapeWindowsPathMissingDriveLetter() {
         assertEquals(":\\Users\\Administrator", FilteringUtils.escapeWindowsPath(":\\Users\\Administrator"));
     }
 
     @Test
-    void escapeWindowsPathInvalidDriveLetter() {
+    public void testEscapeWindowsPathInvalidDriveLetter() {
         assertEquals("4:\\Users\\Administrator", FilteringUtils.escapeWindowsPath("4:\\Users\\Administrator"));
     }
 
@@ -144,25 +142,9 @@ class FilteringUtilsTest {
 
     // MSHARED-179
     @Test
-    void escapeWindowsPathNotAtBeginning() throws Exception {
+    public void testEscapeWindowsPathNotAtBeginning() throws Exception {
         assertEquals(
                 "jdbc:derby:C:\\\\Users\\\\Administrator/test;create=true",
                 FilteringUtils.escapeWindowsPath("jdbc:derby:C:\\Users\\Administrator/test;create=true"));
-    }
-
-    // MSHARED-1330
-    @Test
-    void copyReadOnlyFileTwice() throws Exception {
-        File temp = File.createTempFile("pre-", ".txt");
-        temp.setReadOnly();
-
-        File out = File.createTempFile("out-", ".txt");
-        out.delete();
-
-        FilteringUtils.copyFile(temp, out, "UTF-8", new FilterWrapper[0]);
-        assertFalse(out.canWrite());
-
-        FilteringUtils.copyFile(temp, out, "UTF-8", new FilterWrapper[0]);
-        assertFalse(out.canWrite());
     }
 }

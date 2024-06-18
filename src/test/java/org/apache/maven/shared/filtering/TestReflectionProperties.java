@@ -18,17 +18,21 @@
  */
 package org.apache.maven.shared.filtering;
 
-import javax.inject.Inject;
-
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
-import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.testing.PlexusTest;
+import org.apache.maven.api.di.Inject;
+import org.apache.maven.api.di.testing.MavenDITest;
+import org.apache.maven.api.plugin.testing.stubs.ProjectStub;
+import org.apache.maven.di.Injector;
 import org.junit.jupiter.api.Test;
 
-import static org.codehaus.plexus.testing.PlexusExtension.getBasedir;
+import static org.apache.maven.api.di.testing.MavenDIExtension.getBasedir;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -36,32 +40,31 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @since 1.0-beta-1
  *
  */
-@PlexusTest
-class TestReflectionProperties {
+@MavenDITest
+public class TestReflectionProperties {
 
     @Inject
-    MavenFileFilter mavenFileFilter;
+    Injector container;
 
     @Test
-    void simpleFiltering() throws Exception {
-        MavenProject mavenProject = new MavenProject();
+    public void testSimpleFiltering() throws Exception {
+        ProjectStub mavenProject = new ProjectStub();
         mavenProject.setVersion("1.0");
         mavenProject.setGroupId("org.apache");
-        Properties userProperties = new Properties();
-        userProperties.setProperty("foo", "bar");
+        Map<String, String> userProperties = new HashMap<>();
+        userProperties.put("foo", "bar");
+        MavenFileFilter mavenFileFilter = container.getInstance(MavenFileFilter.class);
 
-        File from = new File(getBasedir() + "/src/test/units-files/reflection-test.properties");
-        File to = new File(getBasedir() + "/target/reflection-test.properties");
+        Path from = Paths.get(getBasedir() + "/src/test/units-files/reflection-test.properties");
+        Path to = Paths.get(getBasedir() + "/target/reflection-test.properties");
 
-        if (to.exists()) {
-            to.delete();
-        }
+        Files.deleteIfExists(to);
 
-        mavenFileFilter.copyFile(from, to, true, mavenProject, null, false, null, new StubMavenSession(userProperties));
+        mavenFileFilter.copyFile(from, to, true, mavenProject, null, false, null, new StubSession(userProperties));
 
         Properties reading = new Properties();
 
-        try (FileInputStream readFileInputStream = new FileInputStream(to)) {
+        try (InputStream readFileInputStream = Files.newInputStream(to)) {
             reading.load(readFileInputStream);
         }
 
@@ -72,27 +75,25 @@ class TestReflectionProperties {
     }
 
     @Test
-    void simpleNonFiltering() throws Exception {
+    public void testSimpleNonFiltering() throws Exception {
 
-        MavenProject mavenProject = new MavenProject();
+        ProjectStub mavenProject = new ProjectStub();
         mavenProject.setVersion("1.0");
         mavenProject.setGroupId("org.apache");
-        Properties userProperties = new Properties();
-        userProperties.setProperty("foo", "bar");
+        Map<String, String> userProperties = new HashMap<>();
+        userProperties.put("foo", "bar");
+        MavenFileFilter mavenFileFilter = container.getInstance(MavenFileFilter.class);
 
-        File from = new File(getBasedir() + "/src/test/units-files/reflection-test.properties");
-        File to = new File(getBasedir() + "/target/reflection-test.properties");
+        Path from = Paths.get(getBasedir() + "/src/test/units-files/reflection-test.properties");
+        Path to = Paths.get(getBasedir() + "/target/reflection-test.properties");
 
-        if (to.exists()) {
-            to.delete();
-        }
+        Files.deleteIfExists(to);
 
-        mavenFileFilter.copyFile(
-                from, to, false, mavenProject, null, false, null, new StubMavenSession(userProperties));
+        mavenFileFilter.copyFile(from, to, false, mavenProject, null, false, null, new StubSession(userProperties));
 
         Properties reading = new Properties();
 
-        try (FileInputStream readFileInputStream = new FileInputStream(to); ) {
+        try (InputStream readFileInputStream = Files.newInputStream(to); ) {
             reading.load(readFileInputStream);
         }
 

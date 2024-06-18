@@ -22,31 +22,26 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 
-import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.interpolation.Interpolator;
 import org.codehaus.plexus.interpolation.RecursionInterceptor;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 public abstract class AbstractInterpolatorFilterReaderLineEndingTest {
 
     @Mock
     private Interpolator interpolator;
 
-    @BeforeEach
-    public void onSetup() {
-        MockitoAnnotations.openMocks(this);
-    }
-
     @Test
-    void defaults() throws Exception {
+    public void testDefaults() throws Exception {
         when(interpolator.interpolate(eq("${a}"), eq(""), isA(RecursionInterceptor.class)))
                 .thenReturn("DONE_A");
 
@@ -76,11 +71,11 @@ public abstract class AbstractInterpolatorFilterReaderLineEndingTest {
 
         //        in = new StringReader( "escape escape string before expression \\\\${a}" );
         //        reader = getDollarBracesReader( in, interpolator, "\\" );
-        //        assertEquals( "escape escape string before expression \\DONE_A", IOUtils.toString( reader ) );
+        //        assertEquals( "escape escape string before expression \\DONE_A", toString( reader ) );
         //
         //        in = new StringReader( "escape escape string and expression \\\\\\${a}" );
         //        reader = getDollarBracesReader( in, interpolator, "\\" );
-        //        assertEquals( "escape escape string before expression \\${a}", IOUtils.toString( reader ) );
+        //        assertEquals( "escape escape string before expression \\${a}", toString( reader ) );
 
         in = new StringReader("unknown expression ${unknown}");
         reader = getDollarBracesReader(in, interpolator, "\\");
@@ -89,7 +84,7 @@ public abstract class AbstractInterpolatorFilterReaderLineEndingTest {
 
     // MSHARED-198: custom delimiters doesn't work as expected
     @Test
-    void customDelimiters() throws Exception {
+    public void testCustomDelimiters() throws Exception {
         when(interpolator.interpolate(eq("aaaFILTER.a.MEaaa"), eq(""), isA(RecursionInterceptor.class)))
                 .thenReturn("DONE");
         when(interpolator.interpolate(eq("abcFILTER.a.MEabc"), eq(""), isA(RecursionInterceptor.class)))
@@ -107,7 +102,7 @@ public abstract class AbstractInterpolatorFilterReaderLineEndingTest {
 
     // MSHARED-235: reader exceeds readAheadLimit
     @Test
-    void markInvalid() throws IOException {
+    public void testMarkInvalid() throws IOException {
         try (Reader reader = getAtReader(new StringReader("@\").replace(p,\"]\").replace(q,\""), interpolator, "\\")) {
             assertEquals("@\").replace(p,\"]\").replace(q,\"", IOUtils.toString(reader));
         }

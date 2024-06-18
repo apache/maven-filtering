@@ -21,8 +21,8 @@ package org.apache.maven.shared.filtering;
 import java.io.Reader;
 import java.util.List;
 
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.project.MavenProject;
+import org.apache.maven.api.Project;
+import org.apache.maven.api.Session;
 
 /**
  * @author Olivier Lamy
@@ -35,22 +35,20 @@ public interface MavenReaderFilter extends DefaultFilterInfo {
      *
      * @param from the source reader
      * @param filtering enable or not filtering
-     * @param mavenProject {@link MavenProject}
-     * @param mavenSession {@link MavenSession}
+     * @param mavenProject {@link Project}
+     * @param mavenSession {@link Session}
      * @param filters {@link java.util.List} of String which are path to a Property file
      * @param escapedBackslashesInFilePath escape backslashes in file path.
      * @return an input stream that applies the filter
      * @throws org.apache.maven.shared.filtering.MavenFilteringException in case of failure.
-     * @see #getDefaultFilterWrappers(org.apache.maven.project.MavenProject, java.util.List, boolean,
-     *      org.apache.maven.execution.MavenSession, org.apache.maven.shared.filtering.MavenResourcesExecution)
      */
     Reader filter(
             Reader from,
             boolean filtering,
-            MavenProject mavenProject,
+            Project mavenProject,
             List<String> filters,
             boolean escapedBackslashesInFilePath,
-            MavenSession mavenSession)
+            Session mavenSession)
             throws MavenFilteringException;
 
     /**

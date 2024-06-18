@@ -18,14 +18,13 @@
  */
 package org.apache.maven.shared.filtering;
 
-import javax.inject.Inject;
-
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Properties;
 
-import org.apache.commons.io.IOUtils;
-import org.codehaus.plexus.testing.PlexusTest;
+import org.apache.maven.api.di.Inject;
+import org.apache.maven.api.di.testing.MavenDITest;
+import org.apache.maven.di.Injector;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,13 +32,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Kristian Rosenvold
  */
-@PlexusTest
-class DefaultMavenReaderFilterTest {
+@MavenDITest
+public class DefaultMavenReaderFilterTest {
     @Inject
-    MavenReaderFilter readerFilter;
+    Injector container;
 
     @Test
-    void justDoSomeFiltering() throws Exception {
+    public void testJustDoSomeFiltering() throws Exception {
+        MavenReaderFilter readerFilter = container.getInstance(MavenReaderFilter.class);
+
         StringReader src = new StringReader("toto@titi.com ${foo}");
         MavenReaderFilterRequest req = new MavenReaderFilterRequest();
         Properties additionalProperties = new Properties();

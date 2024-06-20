@@ -22,9 +22,11 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.function.Consumer;
 
 import org.apache.maven.api.Project;
 import org.apache.maven.api.Session;
+import org.codehaus.plexus.interpolation.Interpolator;
 
 /**
  * @since 1.0-beta-3
@@ -78,6 +80,8 @@ public class AbstractMavenFilteringRequest {
      * @since 1.0
      */
     private boolean supportMultiLineFiltering;
+
+    private Consumer<Interpolator> interpolatorCustomizer;
 
     /**
      * Create instance.
@@ -336,5 +340,23 @@ public class AbstractMavenFilteringRequest {
      */
     public void setSupportMultiLineFiltering(boolean supportMultiLineFiltering) {
         this.supportMultiLineFiltering = supportMultiLineFiltering;
+    }
+
+    /**
+     *
+     * @return the customizer which is supposed to be used by filters creating an {@link Interpolator} like those based on {@link BaseFilter}.
+     * @since 4.0.0-beta-2
+     */
+    public Consumer<Interpolator> getInterpolatorCustomizer() {
+        return interpolatorCustomizer;
+    }
+
+    /**
+     *
+     * @param interpolatorCustomizer the customizer which is supposed to be used by filters creating an {@link Interpolator} like those based on {@link BaseFilter}.
+     * @since 4.0.0-beta-2
+     */
+    public void setInterpolatorCustomizer(Consumer<Interpolator> interpolatorCustomizer) {
+        this.interpolatorCustomizer = interpolatorCustomizer;
     }
 }

@@ -18,15 +18,11 @@
  */
 package org.apache.maven.shared.filtering;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
-
-import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -34,11 +30,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.maven.model.Resource;
-import org.codehaus.plexus.util.DirectoryScanner;
+import org.apache.maven.api.di.Inject;
+import org.apache.maven.api.di.Named;
+import org.apache.maven.api.di.Singleton;
 import org.codehaus.plexus.util.Scanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +51,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
     private static final String[] EMPTY_STRING_ARRAY = {};
 
     private static final String[] DEFAULT_INCLUDES = {"**/**"};
+    private static final int BUFFER_LENGTH = 8192;
 
     private final List<String> defaultNonFilteredFileExtensions;
 
@@ -93,8 +88,13 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
     }
 
     private static String getExtension(String fileName) {
-        String rawExt = FilenameUtils.getExtension(fileName);
-        return rawExt == null ? null : rawExt.toLowerCase(Locale.ROOT);
+        final int extensionPos = fileName.lastIndexOf('.');
+        final int lastUnixPos = fileName.lastIndexOf('/');
+        final int lastWindowsPos = fileName.lastIndexOf('\\');
+        final int lastSeparator = Math.max(lastUnixPos, lastWindowsPos);
+        return lastSeparator > extensionPos
+                ? ""
+                : fileName.substring(extensionPos + 1).toLowerCase(Locale.ROOT);
     }
 
     @Override
@@ -122,7 +122,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
         }
 
         if (mavenResourcesExecution.getEncoding() == null
-                || mavenResourcesExecution.getEncoding().length() < 1) {
+                || mavenResourcesExecution.getEncoding().isEmpty()) {
             LOGGER.warn("Using platform encoding (" + System.getProperty("file.encoding")
                     + " actually) to copy filtered resources, i.e. build is platform dependent!");
         } else {
@@ -130,7 +130,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
         }
 
         if (mavenResourcesExecution.getPropertiesEncoding() == null
-                || mavenResourcesExecution.getPropertiesEncoding().length() < 1) {
+                || mavenResourcesExecution.getPropertiesEncoding().isEmpty()) {
             LOGGER.debug("Using '" + mavenResourcesExecution.getEncoding()
                     + "' encoding to copy filtered properties files.");
         } else {
@@ -140,7 +140,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
 
         // Keep track of filtering being used and the properties files being filtered
         boolean isFilteringUsed = false;
-        List<File> propertiesFiles = new ArrayList<>();
+        List<Path> propertiesFiles = new ArrayList<>();
 
         for (Resource resource : mavenResourcesExecution.getResources()) {
 
@@ -175,14 +175,14 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
 
             String targetPath = resource.getTargetPath();
 
-            File resourceDirectory = (resource.getDirectory() == null) ? null : new File(resource.getDirectory());
+            Path resourceDirectory = (resource.getDirectory() == null) ? null : Paths.get(resource.getDirectory());
 
             if (resourceDirectory != null && !resourceDirectory.isAbsolute()) {
                 resourceDirectory =
-                        new File(mavenResourcesExecution.getResourcesBaseDirectory(), resourceDirectory.getPath());
+                        mavenResourcesExecution.getResourcesBaseDirectory().resolve(resourceDirectory);
             }
 
-            if (resourceDirectory == null || !resourceDirectory.exists()) {
+            if (resourceDirectory == null || !Files.exists(resourceDirectory)) {
                 LOGGER.info("skip non existing resourceDirectory " + resourceDirectory);
                 continue;
             }
@@ -190,45 +190,25 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
             // this part is required in case the user specified "../something"
             // as destination
             // see MNG-1345
-            File outputDirectory = mavenResourcesExecution.getOutputDirectory();
-            if (!outputDirectory.mkdirs() && !outputDirectory.exists()) {
-                throw new MavenFilteringException("Cannot create resource output directory: " + outputDirectory);
+            Path outputDirectory = mavenResourcesExecution.getOutputDirectory();
+            boolean outputExists = Files.exists(outputDirectory);
+            if (!outputExists) {
+                try {
+                    Files.createDirectories(outputDirectory);
+                } catch (IOException e) {
+                    throw new MavenFilteringException("Cannot create resource output directory: " + outputDirectory, e);
+                }
             }
 
             if (resource.isFiltering()) {
                 isFilteringUsed = true;
             }
 
-            boolean filtersFileChanged = buildContext.hasDelta(mavenResourcesExecution.getFileFilters());
-            Path resourcePath = resourceDirectory.toPath();
-            DirectoryScanner scanner = new DirectoryScanner() {
-                @Override
-                protected boolean isSelected(String name, File file) {
-                    if (filtersFileChanged) {
-                        // if the file filters file has a change we must assume everything is out of
-                        // date
-                        return true;
-                    }
-                    if (file.isFile()) {
-                        try {
-                            File targetFile = getTargetFile(file);
-                            if (targetFile.isFile() && buildContext.isUptodate(targetFile, file)) {
-                                return false;
-                            }
-                        } catch (MavenFilteringException e) {
-                            // can't really do anything than to assume we must copy the file...
-                        }
-                    }
-                    return true;
-                }
-
-                private File getTargetFile(File file) throws MavenFilteringException {
-                    Path relativize = resourcePath.relativize(file.toPath());
-                    return getDestinationFile(
-                            outputDirectory, targetPath, relativize.toString(), mavenResourcesExecution);
-                }
-            };
-            scanner.setBasedir(resourceDirectory);
+            boolean ignoreDelta = !outputExists
+                    || buildContext.hasDelta(mavenResourcesExecution.getFileFilters())
+                    || buildContext.hasDelta(getRelativeOutputDirectory(mavenResourcesExecution));
+            LOGGER.debug("ignoreDelta " + ignoreDelta);
+            Scanner scanner = buildContext.newScanner(resourceDirectory.toFile(), ignoreDelta);
 
             setupScanner(resource, scanner, mavenResourcesExecution.isAddDefaultExcludes());
 
@@ -236,34 +216,24 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
 
             if (mavenResourcesExecution.isIncludeEmptyDirs()) {
                 try {
-                    File targetDirectory = targetPath == null ? outputDirectory : new File(outputDirectory, targetPath);
+                    Path targetDirectory = targetPath == null ? outputDirectory : outputDirectory.resolve(targetPath);
                     copyDirectoryLayout(resourceDirectory, targetDirectory, scanner);
                 } catch (IOException e) {
-                    throw new MavenFilteringException("Cannot copy directory structure from "
-                            + resourceDirectory.getPath() + " to " + outputDirectory.getPath());
+                    throw new MavenFilteringException(
+                            "Cannot copy directory structure from " + resourceDirectory + " to " + outputDirectory);
                 }
             }
 
             List<String> includedFiles = Arrays.asList(scanner.getIncludedFiles());
 
             try {
-                Path basedir = mavenResourcesExecution
-                        .getMavenProject()
-                        .getBasedir()
-                        .getAbsoluteFile()
-                        .toPath();
+                Path basedir =
+                        mavenResourcesExecution.getMavenProject().getBasedir().toAbsolutePath();
                 Path destination = getDestinationFile(outputDirectory, targetPath, "", mavenResourcesExecution)
-                        .getAbsoluteFile()
-                        .toPath();
-                String origin = basedir.relativize(
-                                resourceDirectory.getAbsoluteFile().toPath())
-                        .toString();
-                if (StringUtils.isEmpty(origin)) {
-                    origin = ".";
-                }
+                        .toAbsolutePath();
                 LOGGER.info("Copying " + includedFiles.size() + " resource" + (includedFiles.size() > 1 ? "s" : "")
                         + " from "
-                        + origin
+                        + basedir.relativize(resourceDirectory.toAbsolutePath())
                         + " to "
                         + basedir.relativize(destination));
             } catch (Exception e) {
@@ -275,20 +245,21 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
             for (String name : includedFiles) {
 
                 LOGGER.debug("Copying file " + name);
-                File source = new File(resourceDirectory, name);
+                Path source = resourceDirectory.resolve(name);
 
-                File destinationFile = getDestinationFile(outputDirectory, targetPath, name, mavenResourcesExecution);
+                Path destinationFile = getDestinationFile(outputDirectory, targetPath, name, mavenResourcesExecution);
 
-                if (mavenResourcesExecution.isFlatten() && destinationFile.exists()) {
+                if (mavenResourcesExecution.isFlatten() && Files.exists(destinationFile)) {
                     if (mavenResourcesExecution.isOverwrite()) {
-                        LOGGER.warn("existing file " + destinationFile.getName() + " will be overwritten by " + name);
+                        LOGGER.warn(
+                                "existing file " + destinationFile.getFileName() + " will be overwritten by " + name);
                     } else {
-                        throw new MavenFilteringException("existing file " + destinationFile.getName()
+                        throw new MavenFilteringException("existing file " + destinationFile.getFileName()
                                 + " will be overwritten by " + name + " and overwrite was not set to true");
                     }
                 }
-                boolean filteredExt =
-                        filteredFileExtension(source.getName(), mavenResourcesExecution.getNonFilteredFileExtensions());
+                boolean filteredExt = filteredFileExtension(
+                        source.getFileName().toString(), mavenResourcesExecution.getNonFilteredFileExtensions());
                 if (resource.isFiltering() && isPropertiesFile(source)) {
                     propertiesFiles.add(source);
                 }
@@ -296,30 +267,34 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
                 // Determine which encoding to use when filtering this file
                 String encoding = getEncoding(
                         source, mavenResourcesExecution.getEncoding(), mavenResourcesExecution.getPropertiesEncoding());
-                LOGGER.debug("Using '" + encoding + "' encoding to copy filtered resource '" + source.getName() + "'.");
+                LOGGER.debug(
+                        "Using '" + encoding + "' encoding to copy filtered resource '" + source.getFileName() + "'.");
                 mavenFileFilter.copyFile(
                         source,
                         destinationFile,
                         resource.isFiltering() && filteredExt,
                         mavenResourcesExecution.getFilterWrappers(),
-                        encoding,
-                        mavenResourcesExecution.isOverwrite());
+                        encoding);
             }
 
             // deal with deleted source files
 
-            Scanner deleteScanner = buildContext.newDeleteScanner(resourceDirectory);
+            scanner = buildContext.newDeleteScanner(resourceDirectory.toFile());
 
-            setupScanner(resource, deleteScanner, mavenResourcesExecution.isAddDefaultExcludes());
+            setupScanner(resource, scanner, mavenResourcesExecution.isAddDefaultExcludes());
 
-            deleteScanner.scan();
+            scanner.scan();
 
-            for (String name : deleteScanner.getIncludedFiles()) {
-                File destinationFile = getDestinationFile(outputDirectory, targetPath, name, mavenResourcesExecution);
+            for (String name : scanner.getIncludedFiles()) {
+                Path destinationFile = getDestinationFile(outputDirectory, targetPath, name, mavenResourcesExecution);
 
-                destinationFile.delete();
+                try {
+                    Files.deleteIfExists(destinationFile);
+                } catch (IOException e) {
+                    // ignore
+                }
 
-                buildContext.refresh(destinationFile);
+                buildContext.refresh(destinationFile.toFile());
             }
         }
 
@@ -329,10 +304,10 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
         // - filtering is enabled for at least one resource
         // - there is at least one properties file in one of the resources that has filtering enabled
         if ((mavenResourcesExecution.getPropertiesEncoding() == null
-                        || mavenResourcesExecution.getPropertiesEncoding().length() < 1)
+                        || mavenResourcesExecution.getPropertiesEncoding().isEmpty())
                 && !mavenResourcesExecution.getNonFilteredFileExtensions().contains("properties")
                 && isFilteringUsed
-                && propertiesFiles.size() > 0) {
+                && !propertiesFiles.isEmpty()) {
             // @todo Sometime in the future we should change this to be a warning
             LOGGER.info("The encoding used to copy filtered properties files has not been set."
                     + " This means that the same encoding will be used to copy filtered properties files"
@@ -345,8 +320,8 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
             StringBuilder affectedFiles = new StringBuilder();
             affectedFiles.append("Here is a list of the filtered properties files in your project that might be"
                     + " affected by encoding problems: ");
-            for (File propertiesFile : propertiesFiles) {
-                affectedFiles.append(System.lineSeparator()).append(" - ").append(propertiesFile.getPath());
+            for (Path propertiesFile : propertiesFiles) {
+                affectedFiles.append(System.lineSeparator()).append(" - ").append(propertiesFile);
             }
             LOGGER.debug(affectedFiles.toString());
         }
@@ -362,7 +337,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
      * @return The encoding to use when filtering the specified file
      * @since 3.2.0
      */
-    static String getEncoding(File file, String encoding, String propertiesEncoding) {
+    static String getEncoding(Path file, String encoding, String propertiesEncoding) {
         if (isPropertiesFile(file)) {
             if (propertiesEncoding == null) {
                 // Since propertiesEncoding is a new feature, not all plugins will have implemented support for it.
@@ -383,8 +358,8 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
      * @return <code>true</code> if the file name has an extension of "properties", otherwise <code>false</code>
      * @since 3.2.0
      */
-    static boolean isPropertiesFile(File file) {
-        return "properties".equals(getExtension(file.getName()));
+    static boolean isPropertiesFile(Path file) {
+        return "properties".equals(getExtension(file.getFileName().toString()));
     }
 
     private void handleDefaultFilterWrappers(MavenResourcesExecution mavenResourcesExecution)
@@ -397,8 +372,8 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
         mavenResourcesExecution.setFilterWrappers(filterWrappers);
     }
 
-    private File getDestinationFile(
-            File outputDirectory, String targetPath, String name, MavenResourcesExecution mavenResourcesExecution)
+    private Path getDestinationFile(
+            Path outputDirectory, String targetPath, String name, MavenResourcesExecution mavenResourcesExecution)
             throws MavenFilteringException {
         String destination;
         if (!mavenResourcesExecution.isFlatten()) {
@@ -410,7 +385,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
         }
 
         if (mavenResourcesExecution.isFilterFilenames()
-                && mavenResourcesExecution.getFilterWrappers().size() > 0) {
+                && !mavenResourcesExecution.getFilterWrappers().isEmpty()) {
             destination = filterFileName(destination, mavenResourcesExecution.getFilterWrappers());
         }
 
@@ -418,14 +393,14 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
             destination = targetPath + "/" + destination;
         }
 
-        File destinationFile = new File(destination);
-        if (!destinationFile.isAbsolute()) {
-            destinationFile = new File(outputDirectory, destination);
+        Path destinationFile = outputDirectory.resolve(destination);
+
+        try {
+            Files.createDirectories(destinationFile.getParent());
+        } catch (IOException e) {
+            throw new MavenFilteringException("Unable to create directory " + destinationFile.getParent(), e);
         }
 
-        if (!destinationFile.getParentFile().exists()) {
-            destinationFile.getParentFile().mkdirs();
-        }
         return destinationFile;
     }
 
@@ -438,9 +413,8 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
         }
         scanner.setIncludes(includes);
 
-        String[] excludes = null;
         if (resource.getExcludes() != null && !resource.getExcludes().isEmpty()) {
-            excludes = resource.getExcludes().toArray(EMPTY_STRING_ARRAY);
+            String[] excludes = resource.getExcludes().toArray(EMPTY_STRING_ARRAY);
             scanner.setExcludes(excludes);
         }
 
@@ -450,7 +424,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
         return includes;
     }
 
-    private void copyDirectoryLayout(File sourceDirectory, File destinationDirectory, Scanner scanner)
+    private void copyDirectoryLayout(Path sourceDirectory, Path destinationDirectory, Scanner scanner)
             throws IOException {
         if (sourceDirectory == null) {
             throw new IOException("source directory can't be null.");
@@ -464,30 +438,31 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
             throw new IOException("source and destination are the same directory.");
         }
 
-        if (!sourceDirectory.exists()) {
-            throw new IOException("Source directory doesn't exist (" + sourceDirectory.getAbsolutePath() + ").");
+        if (!Files.exists(sourceDirectory)) {
+            throw new IOException("Source directory doesn't exists (" + sourceDirectory.toAbsolutePath() + ").");
         }
 
         for (String name : scanner.getIncludedDirectories()) {
-            File source = new File(sourceDirectory, name);
+            Path source = sourceDirectory.resolve(name);
 
             if (source.equals(sourceDirectory)) {
                 continue;
             }
 
-            File destination = new File(destinationDirectory, name);
-            destination.mkdirs();
+            Path destination = destinationDirectory.resolve(name);
+            Files.createDirectories(destination);
         }
     }
 
     private String getRelativeOutputDirectory(MavenResourcesExecution execution) {
-        String relOutDir = execution.getOutputDirectory().getAbsolutePath();
+        String relOutDir = execution.getOutputDirectory().toAbsolutePath().toString();
 
-        if (execution.getMavenProject() != null && execution.getMavenProject().getBasedir() != null) {
-            String basedir = execution.getMavenProject().getBasedir().getAbsolutePath();
+        if (execution.getMavenProject() != null) {
+            String basedir =
+                    execution.getMavenProject().getBasedir().toAbsolutePath().toString();
             relOutDir = FilteringUtils.getRelativeFilePath(basedir, relOutDir);
             if (relOutDir == null) {
-                relOutDir = execution.getOutputDirectory().getPath();
+                relOutDir = execution.getOutputDirectory().toString();
             } else {
                 relOutDir = relOutDir.replace('\\', '/');
             }
@@ -507,7 +482,12 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
         }
 
         try (StringWriter writer = new StringWriter()) {
-            IOUtils.copy(reader, writer);
+            char[] buffer = new char[BUFFER_LENGTH];
+            int nRead;
+            while ((nRead = reader.read(buffer, 0, buffer.length)) >= 0) {
+                writer.write(buffer, 0, nRead);
+            }
+
             String filteredFilename = writer.toString();
 
             if (LOGGER.isDebugEnabled()) {

@@ -18,14 +18,13 @@
  */
 package org.apache.maven.shared.filtering;
 
-import java.io.File;
 import java.io.Reader;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.model.Resource;
-import org.apache.maven.project.MavenProject;
+import org.apache.maven.api.Project;
+import org.apache.maven.api.Session;
 import org.codehaus.plexus.interpolation.StringSearchInterpolator;
 import org.codehaus.plexus.interpolation.ValueSource;
 
@@ -36,15 +35,15 @@ import org.codehaus.plexus.interpolation.ValueSource;
  */
 public class MavenResourcesExecution extends AbstractMavenFilteringRequest {
 
-    private List<Resource> resources;
+    private List<? extends Resource> resources;
 
-    private File outputDirectory;
+    private Path outputDirectory;
 
     private List<String> nonFilteredFileExtensions;
 
     private List<FilterWrapper> filterWrappers;
 
-    private File resourcesBaseDirectory;
+    private Path resourcesBaseDirectory;
 
     private boolean useDefaultFilterWrappers = false;
 
@@ -133,13 +132,13 @@ public class MavenResourcesExecution extends AbstractMavenFilteringRequest {
      * @param mavenSession The maven session.
      */
     public MavenResourcesExecution(
-            List<Resource> resources,
-            File outputDirectory,
-            MavenProject mavenProject,
+            List<? extends Resource> resources,
+            Path outputDirectory,
+            Project mavenProject,
             String encoding,
             List<String> fileFilters,
             List<String> nonFilteredFileExtensions,
-            MavenSession mavenSession) {
+            Session mavenSession) {
         super(mavenProject, fileFilters, mavenSession);
         this.encoding = encoding;
         this.resources = resources;
@@ -159,11 +158,11 @@ public class MavenResourcesExecution extends AbstractMavenFilteringRequest {
      * @param nonFilteredFileExtensions The list of extensions which should not being filtered.
      */
     public MavenResourcesExecution(
-            List<Resource> resources,
-            File outputDirectory,
+            List<? extends Resource> resources,
+            Path outputDirectory,
             String encoding,
             List<FilterWrapper> filterWrappers,
-            File resourcesBaseDirectory,
+            Path resourcesBaseDirectory,
             List<String> nonFilteredFileExtensions) {
         this();
         this.resources = resources;
@@ -216,28 +215,28 @@ public class MavenResourcesExecution extends AbstractMavenFilteringRequest {
     /**
      * @return List of {@link org.apache.maven.model.Resource}
      */
-    public List<Resource> getResources() {
+    public List<? extends Resource> getResources() {
         return resources;
     }
 
     /**
      * @param resources List of {@link org.apache.maven.model.Resource}
      */
-    public void setResources(List<Resource> resources) {
+    public void setResources(List<? extends Resource> resources) {
         this.resources = resources;
     }
 
     /**
      * @return The output directory.
      */
-    public File getOutputDirectory() {
+    public Path getOutputDirectory() {
         return outputDirectory;
     }
 
     /**
      * @param outputDirectory The output directory.
      */
-    public void setOutputDirectory(File outputDirectory) {
+    public void setOutputDirectory(Path outputDirectory) {
         this.outputDirectory = outputDirectory;
     }
 
@@ -310,14 +309,14 @@ public class MavenResourcesExecution extends AbstractMavenFilteringRequest {
     /**
      * @return The resource base directory.
      */
-    public File getResourcesBaseDirectory() {
+    public Path getResourcesBaseDirectory() {
         return resourcesBaseDirectory;
     }
 
     /**
      * @param resourcesBaseDirectory Set the resource base directory.
      */
-    public void setResourcesBaseDirectory(File resourcesBaseDirectory) {
+    public void setResourcesBaseDirectory(Path resourcesBaseDirectory) {
         this.resourcesBaseDirectory = resourcesBaseDirectory;
     }
 

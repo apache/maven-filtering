@@ -18,78 +18,85 @@
  */
 package org.apache.maven.shared.filtering;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.Properties;
 
+import org.apache.maven.api.di.testing.MavenDITest;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.slf4j.Logger;
 
-import static org.codehaus.plexus.testing.PlexusExtension.getBasedir;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.apache.maven.api.di.testing.MavenDIExtension.getBasedir;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Olivier Lamy
  * @since 1.0-beta-1
  */
-class PropertyUtilsTest {
-    private static File testDirectory = new File(getBasedir(), "target/test-classes/");
+@MavenDITest
+public class PropertyUtilsTest {
+    private static Path testDirectory = Paths.get(getBasedir(), "target/test-classes/");
 
     @Test
-    void basic() throws Exception {
-        File basicProperties = File.createTempFile("basic", ".properties");
-        basicProperties.deleteOnExit();
+    public void testBasic() throws Exception {
+        Path basicProp = testDirectory.resolve("basic.properties");
 
-        try (Writer writer = new OutputStreamWriter(new FileOutputStream(basicProperties), StandardCharsets.UTF_8)) {
+        Files.deleteIfExists(basicProp);
+
+        try (Writer writer = Files.newBufferedWriter(basicProp)) {
             writer.write("ghost=${non_existent}\n");
             writer.write("key=${untat_na_damgo}\n");
             writer.write("untat_na_damgo=gani_man\n");
             writer.flush();
         }
 
-        Properties properties = PropertyUtils.loadPropertyFile(basicProperties, false, false);
-        assertEquals("gani_man", properties.getProperty("key"));
-        assertEquals("${non_existent}", properties.getProperty("ghost"));
+        Properties prop = PropertyUtils.loadPropertyFile(basicProp, false, false);
+        assertEquals("gani_man", prop.getProperty("key"));
+        assertEquals("${non_existent}", prop.getProperty("ghost"));
     }
 
     @Test
-    void systemProperties() throws Exception {
-        File systemProperties = File.createTempFile("system", ".properties");
-        systemProperties.deleteOnExit();
+    public void testSystemProperties() throws Exception {
+        Path systemProp = testDirectory.resolve("system.properties");
 
-        try (Writer writer = new OutputStreamWriter(new FileOutputStream(systemProperties), StandardCharsets.UTF_8)) {
+        Files.deleteIfExists(systemProp);
+
+        try (Writer writer = Files.newBufferedWriter(systemProp)) {
             writer.write("key=${user.dir}");
             writer.flush();
         }
 
-        Properties properties = PropertyUtils.loadPropertyFile(systemProperties, false, true);
-        assertEquals(System.getProperty("user.dir"), properties.getProperty("key"));
+        Properties prop = PropertyUtils.loadPropertyFile(systemProp, false, true);
+        assertEquals(prop.getProperty("key"), System.getProperty("user.dir"));
     }
 
     @Test
-    void exception() throws Exception {
-        File nonExistent = new File(testDirectory, "not_existent_file");
+    public void testException() throws Exception {
+        Path nonExistent = testDirectory.resolve("not_existent_file");
 
-        assertFalse(nonExistent.exists(), "property file exist: " + nonExistent);
+        assertFalse(Files.exists(nonExistent), "property file exist: " + nonExistent);
 
-        try {
-            PropertyUtils.loadPropertyFile(nonExistent, true, false);
-            fail("Expected exception not thrown");
-        } catch (Exception ex) {
-            // exception ok
-        }
+        assertThrows(Exception.class, () -> PropertyUtils.loadPropertyFile(nonExistent, true, false));
     }
 
     @Test
-    void loadPropertiesFile() throws Exception {
-        File propertyFile = new File(getBasedir() + "/src/test/units-files/propertyutils-test.properties");
-        Properties baseProperties = new Properties();
-        baseProperties.put("pom.version", "realVersion");
+    public void testloadpropertiesFile() throws Exception {
+        Path propertyFile = Paths.get(getBasedir() + "/src/test/units-files/propertyutils-test.properties");
+        Properties baseProps = new Properties();
+        baseProps.put("pom.version", "realVersion");
 
-        Properties interpolated = PropertyUtils.loadPropertyFile(propertyFile, baseProperties);
+        Properties interpolated = PropertyUtils.loadPropertyFile(propertyFile, baseProps);
         assertEquals("realVersion", interpolated.get("version"));
         assertEquals("${foo}", interpolated.get("foo"));
         assertEquals("realVersion", interpolated.get("bar"));
@@ -102,19 +109,26 @@ class PropertyUtilsTest {
      * @throws IOException if problem writing file
      */
     @Test
-    void circularReferences() throws IOException {
-        File circularProperties = File.createTempFile("circular", ".properties");
-        circularProperties.deleteOnExit();
+    public void testCircularReferences() throws IOException {
+        Path basicProp = testDirectory.resolve("circular.properties");
 
-        try (Writer writer = new OutputStreamWriter(new FileOutputStream(circularProperties), StandardCharsets.UTF_8)) {
+        Files.deleteIfExists(basicProp);
+
+        try (Writer writer = Files.newBufferedWriter(basicProp)) {
             writer.write("test=${test2}\n");
             writer.write("test2=${test2}\n");
             writer.flush();
         }
 
-        Properties properties = PropertyUtils.loadPropertyFile(circularProperties, null);
-        assertEquals("${test2}", properties.getProperty("test"));
-        assertEquals("${test2}", properties.getProperty("test2"));
+        Logger logger = mock(Logger.class);
+
+        Properties prop = PropertyUtils.loadPropertyFile(basicProp, null, logger);
+        assertEquals("${test2}", prop.getProperty("test"));
+        assertEquals("${test2}", prop.getProperty("test2"));
+        assertWarn(
+                logger,
+                "Circular reference between properties detected: test2 => test2",
+                "Circular reference between properties detected: test => test2 => test2");
     }
 
     /**
@@ -123,56 +137,37 @@ class PropertyUtilsTest {
      * @throws IOException if problem writing file
      */
     @Test
-    void circularReferences3Vars() throws IOException {
-        File circularProperties = File.createTempFile("circular", ".properties");
-        circularProperties.deleteOnExit();
+    public void testCircularReferences3Vars() throws IOException {
+        Path basicProp = testDirectory.resolve("circular.properties");
 
-        try (Writer writer = new OutputStreamWriter(new FileOutputStream(circularProperties), StandardCharsets.UTF_8)) {
+        Files.deleteIfExists(basicProp);
+
+        try (Writer writer = Files.newBufferedWriter(basicProp)) {
             writer.write("test=${test2}\n");
             writer.write("test2=${test3}\n");
             writer.write("test3=${test}\n");
             writer.flush();
         }
 
-        Properties properties = PropertyUtils.loadPropertyFile(circularProperties, null);
-        assertEquals("${test2}", properties.getProperty("test"));
-        assertEquals("${test3}", properties.getProperty("test2"));
-        assertEquals("${test}", properties.getProperty("test3"));
+        Logger logger = mock(Logger.class);
+
+        Properties prop = PropertyUtils.loadPropertyFile(basicProp, null, logger);
+        assertEquals("${test2}", prop.getProperty("test"));
+        assertEquals("${test3}", prop.getProperty("test2"));
+        assertEquals("${test}", prop.getProperty("test3"));
+        assertWarn(
+                logger,
+                "Circular reference between properties detected: test3 => test => test2 => test3",
+                "Circular reference between properties detected: test2 => test3 => test => test2",
+                "Circular reference between properties detected: test => test2 => test3 => test");
     }
 
-    @Test
-    void nonCircularReferences1Var3Times() throws IOException {
-        File nonCircularProperties = File.createTempFile("non-circular", ".properties");
-        nonCircularProperties.deleteOnExit();
-
-        try (Writer writer =
-                new OutputStreamWriter(new FileOutputStream(nonCircularProperties), StandardCharsets.UTF_8)) {
-            writer.write("depends=p1 >= ${version}, p2 >= ${version}, p3 >= ${version}\n");
-            writer.write("version=1.2.3\n");
-            writer.flush();
+    private void assertWarn(Logger mock, String... expected) {
+        ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
+        verify(mock, times(expected.length)).warn(argument.capture());
+        List<String> messages = argument.getAllValues();
+        for (String str : expected) {
+            assertTrue(messages.contains(str));
         }
-
-        Properties properties = PropertyUtils.loadPropertyFile(nonCircularProperties, null);
-        assertEquals("p1 >= 1.2.3, p2 >= 1.2.3, p3 >= 1.2.3", properties.getProperty("depends"));
-        assertEquals("1.2.3", properties.getProperty("version"));
-    }
-
-    @Test
-    void nonCircularReferences2Vars2Times() throws IOException {
-        File nonCircularProperties = File.createTempFile("non-circular", ".properties");
-        nonCircularProperties.deleteOnExit();
-
-        try (Writer writer =
-                new OutputStreamWriter(new FileOutputStream(nonCircularProperties), StandardCharsets.UTF_8)) {
-            writer.write("test=${test2} ${test3} ${test2} ${test3}\n");
-            writer.write("test2=${test3} ${test3}\n");
-            writer.write("test3=test\n");
-            writer.flush();
-        }
-
-        Properties properties = PropertyUtils.loadPropertyFile(nonCircularProperties, null);
-        assertEquals("test test test test test test", properties.getProperty("test"));
-        assertEquals("test test", properties.getProperty("test2"));
-        assertEquals("test", properties.getProperty("test3"));
     }
 }

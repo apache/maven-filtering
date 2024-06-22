@@ -18,43 +18,16 @@
  */
 package org.apache.maven.shared.filtering;
 
-import java.io.File;
-import java.util.Properties;
+import org.apache.maven.api.di.Named;
+import org.apache.maven.api.di.Provides;
+import org.sonatype.plexus.build.incremental.BuildContext;
+import org.sonatype.plexus.build.incremental.ThreadBuildContext;
 
-import org.apache.maven.project.MavenProject;
+@Named
+class Providers {
 
-/**
- * @author Olivier Lamy
- * @since 1.0-beta-1
- *
- */
-public class StubMavenProject extends MavenProject {
-    private Properties properties;
-
-    private File basedir;
-
-    protected StubMavenProject(File basedir) {
-        this.basedir = basedir;
-    }
-
-    @Override
-    public Properties getProperties() {
-        return this.properties;
-    }
-
-    public void setProperties(Properties properties) {
-        this.properties = properties;
-    }
-
-    public void addProperty(String key, String value) {
-        if (this.properties == null) {
-            this.properties = new Properties();
-        }
-        this.properties.put(key, value);
-    }
-
-    @Override
-    public File getBasedir() {
-        return basedir;
+    @Provides
+    static BuildContext buildContext() {
+        return new ThreadBuildContext();
     }
 }

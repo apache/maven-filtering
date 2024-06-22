@@ -18,41 +18,44 @@
  */
 package org.apache.maven.shared.filtering;
 
-import javax.inject.Inject;
-
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.maven.model.Resource;
-import org.codehaus.plexus.testing.PlexusTest;
+import org.apache.maven.api.di.Inject;
+import org.apache.maven.api.di.testing.MavenDITest;
+import org.apache.maven.api.plugin.testing.stubs.ProjectStub;
+import org.apache.maven.di.Injector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.codehaus.plexus.testing.PlexusExtension.getBasedir;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.apache.maven.api.di.testing.MavenDIExtension.getBasedir;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Mikolaj Izdebski
  */
-@PlexusTest
-class InvalidMarkTest {
+@MavenDITest
+public class InvalidMarkTest {
 
     @Inject
-    MavenResourcesFiltering mavenResourcesFiltering;
+    Injector container;
 
-    File outputDirectory = new File(getBasedir(), "target/LongLineTest");
+    Path outputDirectory = Paths.get(getBasedir(), "target/LongLineTest");
 
     @BeforeEach
-    void setUp() throws Exception {
-        if (outputDirectory.exists()) {
-            FileUtils.deleteDirectory(outputDirectory);
+    protected void setUp() throws Exception {
+        if (Files.exists(outputDirectory)) {
+            IOUtils.deleteDirectory(outputDirectory);
         }
-        outputDirectory.mkdirs();
+        Files.createDirectories(outputDirectory);
     }
 
     @Test
-    void escape() {
+    public void testEscape() throws Exception {
+        MavenResourcesFiltering mavenResourcesFiltering = container.getInstance(MavenResourcesFiltering.class);
+
         Resource resource = new Resource();
         resource.setDirectory("src/test/units-files/MSHARED-325");
         resource.setFiltering(true);
@@ -60,14 +63,16 @@ class InvalidMarkTest {
         MavenResourcesExecution mavenResourcesExecution = new MavenResourcesExecution(
                 Collections.singletonList(resource),
                 outputDirectory,
-                new StubMavenProject(new File(".")),
+                new ProjectStub().setBasedir(Paths.get(".")),
                 "UTF-8",
                 Collections.<String>emptyList(),
                 Collections.<String>emptyList(),
-                new StubMavenSession());
+                new StubSession());
 
-        assertDoesNotThrow(() -> {
+        try {
             mavenResourcesFiltering.filterResources(mavenResourcesExecution);
-        });
+        } catch (MavenFilteringException e) {
+            fail();
+        }
     }
 }

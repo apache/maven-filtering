@@ -18,11 +18,11 @@
  */
 package org.apache.maven.shared.filtering;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.project.MavenProject;
+import org.apache.maven.api.Project;
+import org.apache.maven.api.Session;
 
 /**
  * @author Olivier Lamy
@@ -35,23 +35,23 @@ public interface MavenFileFilter extends DefaultFilterInfo {
      * @param from file to copy/filter
      * @param to destination file
      * @param filtering enable or not filtering
-     * @param mavenProject {@link MavenProject}
-     * @param mavenSession {@link MavenSession}
+     * @param mavenProject {@link Project}
+     * @param mavenSession {@link Session}
      * @param escapedBackslashesInFilePath escape backslashes in file path.
      * @param filters {@link List} of String which are path to a Property file
      * @param encoding The encoding which is used during the filtering process.
      * @throws MavenFilteringException in case of failure.
-     * @see DefaultFilterInfo#getDefaultFilterWrappers(MavenProject, List, boolean,MavenSession, MavenResourcesExecution)
+     * @see DefaultFilterInfo#getDefaultFilterWrappers(Project, List, boolean, Session, MavenResourcesExecution)
      */
     void copyFile(
-            File from,
-            File to,
+            Path from,
+            Path to,
             boolean filtering,
-            MavenProject mavenProject,
+            Project mavenProject,
             List<String> filters,
             boolean escapedBackslashesInFilePath,
             String encoding,
-            MavenSession mavenSession)
+            Session mavenSession)
             throws MavenFilteringException;
 
     /**
@@ -69,27 +69,6 @@ public interface MavenFileFilter extends DefaultFilterInfo {
      * @param encoding The encoding used during the filtering.
      * @throws MavenFilteringException In case of an error.
      */
-    void copyFile(File from, File to, boolean filtering, List<FilterWrapper> filterWrappers, String encoding)
-            throws MavenFilteringException;
-
-    /**
-     * @param from The source file
-     * @param to The destination file
-     * @param filtering true to apply filtering
-     * @param filterWrappers The filters to be applied.
-     * @param encoding The encoding to use
-     * @param overwrite unused
-     * @throws MavenFilteringException In case of an error.
-     * @since 1.0-beta-2
-     * @deprecated use {@link #copyFile(File, File, boolean, List, String)} instead
-     */
-    @Deprecated
-    void copyFile(
-            File from,
-            File to,
-            boolean filtering,
-            List<FilterWrapper> filterWrappers,
-            String encoding,
-            boolean overwrite)
+    void copyFile(Path from, Path to, boolean filtering, List<FilterWrapper> filterWrappers, String encoding)
             throws MavenFilteringException;
 }

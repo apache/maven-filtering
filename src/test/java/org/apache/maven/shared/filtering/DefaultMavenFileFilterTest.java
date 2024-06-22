@@ -18,12 +18,13 @@
  */
 package org.apache.maven.shared.filtering;
 
-import javax.inject.Inject;
-
 import java.io.File;
 import java.io.Reader;
 import java.io.StringReader;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -31,14 +32,16 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.testing.PlexusTest;
+import org.apache.maven.api.di.Inject;
+import org.apache.maven.api.di.testing.MavenDITest;
+import org.apache.maven.api.model.Build;
+import org.apache.maven.api.plugin.testing.stubs.ProjectStub;
+import org.apache.maven.di.Injector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
-import static org.codehaus.plexus.testing.PlexusExtension.getBasedir;
+import static org.apache.maven.api.di.testing.MavenDIExtension.getBasedir;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
@@ -46,31 +49,33 @@ import static org.mockito.Mockito.mock;
  * @author Olivier Lamy
  *
  */
-@PlexusTest
-class DefaultMavenFileFilterTest {
+@MavenDITest
+public class DefaultMavenFileFilterTest {
 
     @Inject
-    MavenFileFilter mavenFileFilter;
+    Injector container;
 
-    File to = new File(getBasedir(), "target/reflection-test.properties");
+    Path to = Paths.get(getBasedir(), "target/reflection-test.properties");
 
     @BeforeEach
-    void setUp() throws Exception {
-        Files.deleteIfExists(to.toPath());
+    protected void setUp() throws Exception {
+        Files.deleteIfExists(to);
     }
 
     @Test
-    void overwriteFile() throws Exception {
-        File from = new File(getBasedir(), "src/test/units-files/reflection-test.properties");
+    public void testOverwriteFile() throws Exception {
+        MavenFileFilter mavenFileFilter = container.getInstance(MavenFileFilter.class);
+
+        Path from = Paths.get(getBasedir(), "src/test/units-files/reflection-test.properties");
 
         mavenFileFilter.copyFile(from, to, false, null, null);
 
-        from = new File(getBasedir(), "src/test/units-files/reflection-test-older.properties");
+        from = Paths.get(getBasedir(), "src/test/units-files/reflection-test-older.properties");
 
         // very old file :-)
-        from.setLastModified(1);
+        Files.setLastModifiedTime(from, FileTime.fromMillis(1));
 
-        to.setLastModified(System.currentTimeMillis());
+        Files.setLastModifiedTime(to, FileTime.fromMillis(System.currentTimeMillis()));
 
         mavenFileFilter.copyFile(from, to, false, null, null);
 
@@ -79,13 +84,16 @@ class DefaultMavenFileFilterTest {
     }
 
     @Test
-    void nullSafeDefaultFilterWrappers() throws Exception {
+    public void testNullSafeDefaultFilterWrappers() throws Exception {
+        MavenFileFilter mavenFileFilter = container.getInstance(MavenFileFilter.class);
+
         mavenFileFilter.getDefaultFilterWrappers(null, null, false, null, null);
+
         // shouldn't fail
     }
 
     @Test
-    void multiFilterFileInheritance() throws Exception {
+    public void testMultiFilterFileInheritance() throws Exception {
         DefaultMavenFileFilter mavenFileFilter = new DefaultMavenFileFilter(mock(BuildContext.class));
 
         File testDir = new File(getBasedir(), "src/test/units-files/MSHARED-177");
@@ -98,7 +106,7 @@ class DefaultMavenFileFilterTest {
 
         final Properties filterProperties = new Properties();
 
-        mavenFileFilter.loadProperties(filterProperties, new File(getBasedir()), filters, new Properties());
+        mavenFileFilter.loadProperties(filterProperties, Paths.get(getBasedir()), filters, new Properties());
 
         assertEquals("first and second", filterProperties.getProperty("third_filter_key"));
     }
@@ -106,12 +114,18 @@ class DefaultMavenFileFilterTest {
     // MSHARED-161: DefaultMavenFileFilter.getDefaultFilterWrappers loads
     // filters from the current directory instead of using basedir
     @Test
-    void mavenBasedir() throws Exception {
+    public void testMavenBasedir() throws Exception {
+        MavenFileFilter mavenFileFilter = container.getInstance(MavenFileFilter.class);
+
         AbstractMavenFilteringRequest req = new AbstractMavenFilteringRequest();
         req.setFileFilters(Collections.singletonList("src/main/filters/filefilter.properties"));
 
-        MavenProject mavenProject = new StubMavenProject(new File("src/test/units-files/MSHARED-161"));
-        mavenProject.getBuild().setFilters(Collections.singletonList("src/main/filters/buildfilter.properties"));
+        ProjectStub mavenProject = new ProjectStub();
+        mavenProject.setBasedir(Paths.get("src/test/units-files/MSHARED-161"));
+        List<String> filters = Collections.singletonList("src/main/filters/buildfilter.properties");
+        mavenProject.setModel(mavenProject
+                .getModel()
+                .withBuild(Build.newBuilder().filters(filters).build()));
         req.setMavenProject(mavenProject);
         req.setInjectProjectBuildFilters(true);
 
@@ -124,7 +138,9 @@ class DefaultMavenFileFilterTest {
 
     // MSHARED-198: custom delimiters doesn't work as expected
     @Test
-    void customDelimiters() throws Exception {
+    public void testCustomDelimiters() throws Exception {
+        MavenFileFilter mavenFileFilter = container.getInstance(MavenFileFilter.class);
+
         AbstractMavenFilteringRequest req = new AbstractMavenFilteringRequest();
         Properties additionalProperties = new Properties();
         additionalProperties.setProperty("FILTER.a.ME", "DONE");
@@ -142,7 +158,9 @@ class DefaultMavenFileFilterTest {
 
     // MSHARED-199: Filtering doesn't work if 2 delimiters are used on the same line, the first one being left open
     @Test
-    void lineWithSingleAtAndExpression() throws Exception {
+    public void testLineWithSingleAtAndExpression() throws Exception {
+        MavenFileFilter mavenFileFilter = container.getInstance(MavenFileFilter.class);
+
         AbstractMavenFilteringRequest req = new AbstractMavenFilteringRequest();
         Properties additionalProperties = new Properties();
         additionalProperties.setProperty("foo", "bar");

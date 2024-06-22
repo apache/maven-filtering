@@ -18,63 +18,60 @@
  */
 package org.apache.maven.shared.filtering;
 
-import javax.inject.Inject;
-
-import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.maven.model.Resource;
-import org.codehaus.plexus.testing.PlexusTest;
+import org.apache.maven.api.di.Inject;
+import org.apache.maven.api.di.testing.MavenDITest;
+import org.apache.maven.api.plugin.testing.stubs.ProjectStub;
+import org.apache.maven.di.Injector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.codehaus.plexus.testing.PlexusExtension.getBasedir;
+import static org.apache.maven.api.di.testing.MavenDIExtension.getBasedir;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Olivier Lamy
  */
-@PlexusTest
-class EscapeStringTest {
+@MavenDITest
+public class EscapeStringTest {
 
     @Inject
-    MavenResourcesFiltering mavenResourcesFiltering;
+    Injector container;
 
-    File outputDirectory = new File(getBasedir(), "target/EscapeStringTest");
+    Path outputDirectory = Paths.get(getBasedir(), "target/EscapeStringTest");
 
-    File unitDirectory = new File(getBasedir(), "src/test/units-files/escape-remove-char");
+    Path unitDirectory = Paths.get(getBasedir(), "src/test/units-files/escape-remove-char");
 
     @BeforeEach
-    void setUp() throws Exception {
-        if (outputDirectory.exists()) {
-            FileUtils.deleteDirectory(outputDirectory);
-        }
-        outputDirectory.mkdirs();
+    protected void setUp() throws Exception {
+        IOUtils.deleteDirectory(outputDirectory);
+        Files.createDirectories(outputDirectory);
     }
 
     @Test
-    void escape() throws Exception {
-        File baseDir = new File(getBasedir());
-        StubMavenProject mavenProject = new StubMavenProject(baseDir);
+    public void testEscape() throws Exception {
+        Path baseDir = Paths.get(getBasedir());
+        ProjectStub mavenProject = new ProjectStub().setBasedir(baseDir);
         mavenProject.setVersion("1.0");
         mavenProject.setGroupId("org.apache");
         mavenProject.setName("test project");
 
-        Properties projectProperties = new Properties();
-        projectProperties.put("foo", "bar");
-        projectProperties.put("java.version", "zloug");
-        projectProperties.put("replaceThis", "I am the replacement");
-        mavenProject.setProperties(projectProperties);
+        mavenProject.addProperty("foo", "bar");
+        mavenProject.addProperty("java.version", "zloug");
+        mavenProject.addProperty("replaceThis", "I am the replacement");
+        MavenResourcesFiltering mavenResourcesFiltering = container.getInstance(MavenResourcesFiltering.class);
 
         Resource resource = new Resource();
         List<Resource> resources = new ArrayList<>();
         resources.add(resource);
-        resource.setDirectory(unitDirectory.getPath());
+        resource.setDirectory(unitDirectory.toString());
         resource.setFiltering(true);
 
         List<String> filtersFile = new ArrayList<>();
@@ -88,15 +85,15 @@ class EscapeStringTest {
                 "UTF-8",
                 filtersFile,
                 nonFilteredFileExtensions,
-                new StubMavenSession());
+                new StubSession());
         mavenResourcesExecution.setUseDefaultFilterWrappers(true);
 
         mavenResourcesExecution.setEscapeString("!");
 
         mavenResourcesFiltering.filterResources(mavenResourcesExecution);
 
-        File file = new File(outputDirectory, "content.xml");
-        String content = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
+        Path file = outputDirectory.resolve("content.xml");
+        String content = Files.readString(file, StandardCharsets.UTF_8);
         assertTrue(content.contains("<broken-tag>Content with replacement: I am the replacement !</broken-tag>"));
         assertTrue(
                 content.contains("<broken-tag>Content with escaped replacement: Do not ${replaceThis} !</broken-tag>"));

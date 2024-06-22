@@ -18,19 +18,20 @@
  */
 package org.apache.maven.shared.filtering;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.TreeSet;
 
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.project.MavenProject;
-import org.apache.maven.settings.Settings;
+import org.apache.maven.api.Project;
+import org.apache.maven.api.Session;
+import org.apache.maven.api.settings.Settings;
 import org.codehaus.plexus.interpolation.Interpolator;
 import org.codehaus.plexus.interpolation.PrefixAwareRecursionInterceptor;
 import org.codehaus.plexus.interpolation.PrefixedObjectValueSource;
@@ -52,10 +53,10 @@ class BaseFilter implements DefaultFilterInfo {
 
     @Override
     public List<FilterWrapper> getDefaultFilterWrappers(
-            final MavenProject mavenProject,
+            final Project mavenProject,
             List<String> filters,
             final boolean escapedBackslashesInFilePath,
-            MavenSession mavenSession,
+            Session mavenSession,
             MavenResourcesExecution mavenResourcesExecution)
             throws MavenFilteringException {
 
@@ -88,10 +89,7 @@ class BaseFilter implements DefaultFilterInfo {
 
         // Project properties
         if (request.getMavenProject() != null) {
-            baseProps.putAll(
-                    request.getMavenProject().getProperties() == null
-                            ? Collections.emptyMap()
-                            : request.getMavenProject().getProperties());
+            baseProps.putAll(request.getMavenProject().getModel().getProperties());
         }
         // TODO this is NPE free but do we consider this as normal
         // or do we have to throw an MavenFilteringException with mavenSession cannot be null
@@ -107,20 +105,21 @@ class BaseFilter implements DefaultFilterInfo {
         //
         if (request.getMavenSession() != null) {
             // User properties have precedence over system properties
-            putAll(baseProps, request.getMavenSession().getSystemProperties());
-            putAll(baseProps, request.getMavenSession().getUserProperties());
+            baseProps.putAll(request.getMavenSession().getSystemProperties());
+            baseProps.putAll(request.getMavenSession().getUserProperties());
         }
 
         // now we build properties to use for resources interpolation
 
         final Properties filterProperties = new Properties();
 
-        File basedir =
-                request.getMavenProject() != null ? request.getMavenProject().getBasedir() : new File(".");
+        Path basedir = Optional.ofNullable(request.getMavenProject())
+                .map(Project::getBasedir)
+                .orElseGet(() -> Paths.get("."));
 
         loadProperties(filterProperties, basedir, request.getFileFilters(), baseProps);
         if (filterProperties.isEmpty()) {
-            putAll(filterProperties, baseProps);
+            filterProperties.putAll(baseProps);
         }
 
         if (request.getMavenProject() != null) {
@@ -137,20 +136,17 @@ class BaseFilter implements DefaultFilterInfo {
             }
 
             // Project properties
-            filterProperties.putAll(
-                    request.getMavenProject().getProperties() == null
-                            ? Collections.emptyMap()
-                            : request.getMavenProject().getProperties());
+            filterProperties.putAll(request.getMavenProject().getModel().getProperties());
         }
         if (request.getMavenSession() != null) {
             // User properties have precedence over system properties
-            putAll(filterProperties, request.getMavenSession().getSystemProperties());
-            putAll(filterProperties, request.getMavenSession().getUserProperties());
+            filterProperties.putAll(request.getMavenSession().getSystemProperties());
+            filterProperties.putAll(request.getMavenSession().getUserProperties());
         }
 
         if (request.getAdditionalProperties() != null) {
             // additional properties wins
-            putAll(filterProperties, request.getAdditionalProperties());
+            filterProperties.putAll(request.getAdditionalProperties());
         }
 
         List<FilterWrapper> defaultFilterWrappers =
@@ -180,22 +176,15 @@ class BaseFilter implements DefaultFilterInfo {
         return defaultFilterWrappers;
     }
 
-    @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
-    private static void putAll(Properties filterProperties, Properties request) {
-        synchronized (request) {
-            filterProperties.putAll(request);
-        }
-    }
-
     /**
      * default visibility only for testing reason !
      */
     void loadProperties(
-            Properties filterProperties, File basedir, List<String> propertiesFilePaths, Properties baseProps)
+            Properties filterProperties, Path basedir, List<String> propertiesFilePaths, Properties baseProps)
             throws MavenFilteringException {
         if (propertiesFilePaths != null) {
             Properties workProperties = new Properties();
-            putAll(workProperties, baseProps);
+            workProperties.putAll(baseProps);
 
             for (String filterFile : propertiesFilePaths) {
                 if (filterFile == null || filterFile.trim().isEmpty()) {
@@ -203,10 +192,10 @@ class BaseFilter implements DefaultFilterInfo {
                     continue;
                 }
                 try {
-                    File propFile = FilteringUtils.resolveFile(basedir, filterFile);
+                    Path propFile = FilteringUtils.resolveFile(basedir, filterFile);
                     Properties properties = PropertyUtils.loadPropertyFile(propFile, workProperties, getLogger());
-                    putAll(filterProperties, properties);
-                    putAll(workProperties, properties);
+                    filterProperties.putAll(properties);
+                    workProperties.putAll(properties);
                 } catch (IOException e) {
                     throw new MavenFilteringException("Error loading property file '" + filterFile + "'", e);
                 }
@@ -218,7 +207,7 @@ class BaseFilter implements DefaultFilterInfo {
 
         private LinkedHashSet<String> delimiters;
 
-        private MavenProject project;
+        private Project project;
 
         private ValueSource propertiesValueSource;
 
@@ -228,14 +217,14 @@ class BaseFilter implements DefaultFilterInfo {
 
         private boolean escapeWindowsPaths;
 
-        private final MavenSession mavenSession;
+        private final Session mavenSession;
 
         private boolean supportMultiLineFiltering;
 
         Wrapper(
                 LinkedHashSet<String> delimiters,
-                MavenProject project,
-                MavenSession mavenSession,
+                Project project,
+                Session mavenSession,
                 ValueSource propertiesValueSource,
                 List<String> projectStartExpressions,
                 String escapeString,
@@ -288,8 +277,8 @@ class BaseFilter implements DefaultFilterInfo {
             LinkedHashSet<String> delimiters,
             List<String> projectStartExpressions,
             ValueSource propertiesValueSource,
-            MavenProject project,
-            MavenSession mavenSession,
+            Project project,
+            Session mavenSession,
             String escapeString,
             boolean escapeWindowsPaths) {
         MultiDelimiterStringSearchInterpolator interpolator = new MultiDelimiterStringSearchInterpolator();
@@ -298,7 +287,18 @@ class BaseFilter implements DefaultFilterInfo {
         interpolator.addValueSource(propertiesValueSource);
 
         if (project != null) {
-            interpolator.addValueSource(new PrefixedObjectValueSource(projectStartExpressions, project, true));
+            for (Object root : new Object[] {project, project.getModel()}) {
+                interpolator.addValueSource(new PrefixedObjectValueSource(projectStartExpressions, root, true) {
+                    @Override
+                    public Object getValue(String expression) {
+                        Object value = super.getValue(expression);
+                        if (value instanceof Optional) {
+                            value = ((Optional) value).orElse(null);
+                        }
+                        return value;
+                    }
+                });
+            }
         }
 
         if (mavenSession != null) {

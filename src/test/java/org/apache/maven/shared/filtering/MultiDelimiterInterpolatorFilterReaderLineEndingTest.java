@@ -24,29 +24,24 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 
-import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.interpolation.Interpolator;
 import org.codehaus.plexus.interpolation.RecursionInterceptor;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.when;
 
-class MultiDelimiterInterpolatorFilterReaderLineEndingTest extends AbstractInterpolatorFilterReaderLineEndingTest {
+@ExtendWith(MockitoExtension.class)
+public class MultiDelimiterInterpolatorFilterReaderLineEndingTest
+        extends AbstractInterpolatorFilterReaderLineEndingTest {
 
     @Mock
     private Interpolator interpolator;
-
-    @Override
-    @BeforeEach
-    public void onSetup() {
-        MockitoAnnotations.initMocks(this);
-    }
 
     @Override
     protected Reader getAaa_AaaReader(Reader in, Interpolator interpolator) {
@@ -84,7 +79,7 @@ class MultiDelimiterInterpolatorFilterReaderLineEndingTest extends AbstractInter
 
     // MSHARED-199: Filtering doesn't work if 2 delimiters are used on the same line, the first one being left open
     @Test
-    void lineWithSingleAtAndExpression() throws Exception {
+    public void testLineWithSingleAtAndExpression() throws Exception {
         when(interpolator.interpolate(eq("${foo}"), eq(""), isA(RecursionInterceptor.class)))
                 .thenReturn("bar");
 
@@ -98,7 +93,7 @@ class MultiDelimiterInterpolatorFilterReaderLineEndingTest extends AbstractInter
 
     // http://stackoverflow.com/questions/21786805/maven-war-plugin-customize-filter-delimitters-in-webresources/
     @Test
-    void atDollarExpression() throws Exception {
+    public void testAtDollarExpression() throws Exception {
         when(interpolator.interpolate(eq("${db.server}"), eq(""), isA(RecursionInterceptor.class)))
                 .thenReturn("DB_SERVER");
         when(interpolator.interpolate(eq("${db.port}"), eq(""), isA(RecursionInterceptor.class)))

@@ -28,32 +28,32 @@ import static org.hamcrest.MatcherAssert.assertThat;
 /**
  * @author Karl Heinz Marbaise <a href="mailto:khmarbaise@apache.org">khmarbaise@apache.org</a>.
  */
-class AbstractMavenFilteringRequestTest {
+public class AbstractMavenFilteringRequestTest {
 
     private AbstractMavenFilteringRequest request = new AbstractMavenFilteringRequest();
     private LinkedHashSet<String> delimiters = new LinkedHashSet<>();
 
     @Test
-    void setDelimitersShouldNotChangeAnythingIfUsingNull() {
+    public void setDelimitersShouldNotChangeAnythingIfUsingNull() {
         request.setDelimiters(null, false);
         assertThat(request.getDelimiters(), Matchers.contains("${*}", "@"));
     }
 
     @Test
-    void setDelimitersShouldNotChangeAnythingIfUsingEmpty() {
+    public void setDelimitersShouldNotChangeAnythingIfUsingEmpty() {
         request.setDelimiters(delimiters, false);
         assertThat(request.getDelimiters(), Matchers.contains("${*}", "@"));
     }
 
     @Test
-    void setDelimitersShouldAddOnlyTheGivenDelimiter() {
+    public void setDelimitersShouldAddOnlyTheGivenDelimiter() {
         delimiters.add("test");
         request.setDelimiters(delimiters, false);
         assertThat(request.getDelimiters(), Matchers.contains("test"));
     }
 
     @Test
-    void setDelimitersShouldAddDefaultDelimitersForNullElements() {
+    public void setDelimitersShouldAddDefaultDelimitersForNullElements() {
         delimiters.add("test");
         delimiters.add(null);
         delimiters.add("second");
@@ -62,27 +62,27 @@ class AbstractMavenFilteringRequestTest {
     }
 
     @Test
-    void setDelimitersShouldAddDefaultDelimitersIfUseDefaultDelimitersIfNullGiven() {
+    public void setDelimitersShouldAddDefaultDelimitersIfUseDefaultDelimitersIfNullGiven() {
         request.setDelimiters(null, true);
         assertThat(request.getDelimiters(), Matchers.contains("${*}", "@"));
     }
 
     @Test
-    void setDelimitersShouldAddDefaultDelimitersIfUseDefaultDelimitersIfNotNullGiven() {
+    public void setDelimitersShouldAddDefaultDelimitersIfUseDefaultDelimitersIfNotNullGiven() {
         LinkedHashSet<String> delimiters = new LinkedHashSet<>();
         request.setDelimiters(delimiters, true);
         assertThat(request.getDelimiters(), Matchers.contains("${*}", "@"));
     }
 
     @Test
-    void setDelimitersShouldAddDefaultDelimitersIfUseDefaultDelimitersIfSingleElementIsGiven() {
+    public void setDelimitersShouldAddDefaultDelimitersIfUseDefaultDelimitersIfSingleElementIsGiven() {
         delimiters.add("test");
         request.setDelimiters(delimiters, true);
         assertThat(request.getDelimiters(), Matchers.contains("${*}", "@", "test"));
     }
 
     @Test
-    void setDelimitersShouldAddDefaultDelimitersForNullElement() {
+    public void setDelimitersShouldAddDefaultDelimitersForNullElement() {
         delimiters.add("test");
         delimiters.add(null);
         delimiters.add("second");

@@ -63,15 +63,41 @@
   <properties>
     <javaVersion>17</javaVersion>
     <mavenVersion>4.0.0-beta-3</mavenVersion>
+
+    <junitVersion>5.10.1</junitVersion>
+    <mockitoVersion>5.12.0</mockitoVersion>
     <slf4jVersion>2.0.13</slf4jVersion>
     <plexusBuildApiVersion>0.0.7</plexusBuildApiVersion>
+    <plexusInterpolationVersion>1.26</plexusInterpolationVersion>
+    <mavenPluginTestingVersion>4.0.0-alpha-3-SNAPSHOT</mavenPluginTestingVersion>
     <project.build.outputTimestamp>2023-03-21T10:54:20Z</project.build.outputTimestamp>
+    <hamcrestVersion>2.2</hamcrestVersion>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-api-core</artifactId>
+      <version>${mavenVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-api-di</artifactId>
+      <version>${mavenVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-api-model</artifactId>
+      <version>${mavenVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-api-meta</artifactId>
+      <version>${mavenVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-api-settings</artifactId>
       <version>${mavenVersion}</version>
     </dependency>
     <dependency>
@@ -87,41 +113,52 @@
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-utils</artifactId>
-      <version>4.0.0</version>
     </dependency>
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-interpolation</artifactId>
-      <version>1.26</version>
+      <version>${plexusInterpolationVersion}</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.maven.plugin-testing</groupId>
       <artifactId>maven-plugin-testing-harness</artifactId>
-      <version>4.0.0-alpha-3-SNAPSHOT</version>
+      <version>${mavenPluginTestingVersion}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-core</artifactId>
       <version>${mavenVersion}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-di</artifactId>
+      <version>${mavenVersion}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-junit-jupiter</artifactId>
-      <version>4.7.0</version>
+      <version>${mockitoVersion}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>${mockitoVersion}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter</artifactId>
-      <version>5.9.2</version>
+      <artifactId>junit-jupiter-api</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.hamcrest</groupId>
       <artifactId>hamcrest</artifactId>
-      <version>2.2</version>
+      <version>${hamcrestVersion}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -148,10 +185,6 @@
             <exclude>src/test/units-files/**</exclude>
           </excludes>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.eclipse.sisu</groupId>
-        <artifactId>sisu-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>

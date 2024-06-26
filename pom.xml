@@ -28,7 +28,7 @@
   </parent>
 
   <artifactId>maven-filtering</artifactId>
-  <version>4.0.0-beta-1</version>
+  <version>4.0.0-beta-2-SNAPSHOT</version>
 
   <name>Apache Maven Filtering</name>
   <description>A component to assist in filtering of resource files with properties from a Maven project.</description>
@@ -72,7 +72,7 @@
     <plexusInterpolationVersion>1.27</plexusInterpolationVersion>
     <slf4jVersion>2.0.13</slf4jVersion>
 
-    <project.build.outputTimestamp>2024-06-26T07:59:56Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2024-06-26T08:01:47Z</project.build.outputTimestamp>
   </properties>
 
   <dependencies>

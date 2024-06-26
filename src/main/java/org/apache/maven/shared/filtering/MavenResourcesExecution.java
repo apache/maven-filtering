@@ -213,14 +213,14 @@ public class MavenResourcesExecution extends AbstractMavenFilteringRequest {
     }
 
     /**
-     * @return List of {@link org.apache.maven.model.Resource}
+     * @return List of {@link Resource}
      */
     public List<? extends Resource> getResources() {
         return resources;
     }
 
     /**
-     * @param resources List of {@link org.apache.maven.model.Resource}
+     * @param resources List of {@link Resource}
      */
     public void setResources(List<? extends Resource> resources) {
         this.resources = resources;

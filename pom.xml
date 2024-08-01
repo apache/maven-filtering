@@ -64,7 +64,7 @@
     <javaVersion>17</javaVersion>
     <mavenVersion>4.0.0-beta-3</mavenVersion>
 
-    <hamcrestVersion>2.2</hamcrestVersion>
+    <hamcrestVersion>3.0</hamcrestVersion>
     <junitVersion>5.10.1</junitVersion>
     <mavenPluginTestingVersion>4.0.0-beta-2-SNAPSHOT</mavenPluginTestingVersion>
     <mockitoVersion>5.12.0</mockitoVersion>

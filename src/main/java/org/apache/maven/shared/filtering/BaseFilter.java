@@ -27,6 +27,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.TreeSet;
+import java.util.function.Consumer;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
@@ -173,7 +174,8 @@ class BaseFilter implements DefaultFilterInfo {
                 request.getProjectStartExpressions(),
                 request.getEscapeString(),
                 request.isEscapeWindowsPaths(),
-                request.isSupportMultiLineFiltering());
+                request.isSupportMultiLineFiltering(),
+                request.getInterpolatorCustomizer());
 
         defaultFilterWrappers.add(wrapper);
 
@@ -232,6 +234,8 @@ class BaseFilter implements DefaultFilterInfo {
 
         private boolean supportMultiLineFiltering;
 
+        private Consumer<Interpolator> interpolatorCustomizer;
+
         Wrapper(
                 LinkedHashSet<String> delimiters,
                 MavenProject project,
@@ -240,7 +244,8 @@ class BaseFilter implements DefaultFilterInfo {
                 List<String> projectStartExpressions,
                 String escapeString,
                 boolean escapeWindowsPaths,
-                boolean supportMultiLineFiltering) {
+                boolean supportMultiLineFiltering,
+                Consumer<Interpolator> interpolatorCustomizer) {
             super();
             this.delimiters = delimiters;
             this.project = project;
@@ -250,6 +255,7 @@ class BaseFilter implements DefaultFilterInfo {
             this.escapeString = escapeString;
             this.escapeWindowsPaths = escapeWindowsPaths;
             this.supportMultiLineFiltering = supportMultiLineFiltering;
+            this.interpolatorCustomizer = interpolatorCustomizer;
         }
 
         @Override
@@ -262,6 +268,9 @@ class BaseFilter implements DefaultFilterInfo {
                     mavenSession,
                     escapeString,
                     escapeWindowsPaths);
+            if (interpolatorCustomizer != null) {
+                interpolatorCustomizer.accept(interpolator);
+            }
 
             MultiDelimiterInterpolatorFilterReaderLineEnding filterReader =
                     new MultiDelimiterInterpolatorFilterReaderLineEnding(

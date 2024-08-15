@@ -21,6 +21,7 @@ package org.apache.maven.shared.filtering;
 import javax.inject.Inject;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.nio.file.Files;
@@ -33,6 +34,7 @@ import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.interpolation.AbstractValueSource;
 import org.codehaus.plexus.testing.PlexusTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -147,6 +149,29 @@ class DefaultMavenFileFilterTest {
         Properties additionalProperties = new Properties();
         additionalProperties.setProperty("foo", "bar");
         req.setAdditionalProperties(additionalProperties);
+
+        List<FilterWrapper> wrappers = mavenFileFilter.getDefaultFilterWrappers(req);
+
+        try (Reader reader = wrappers.get(0).getReader(new StringReader("toto@titi.com ${foo}"))) {
+            assertEquals("toto@titi.com bar", IOUtils.toString(reader));
+        }
+    }
+
+    @Test
+    void testInterpolatorCustomizer() throws MavenFilteringException, IOException {
+        AbstractMavenFilteringRequest req = new AbstractMavenFilteringRequest();
+        req.setInterpolatorCustomizer(i -> {
+            i.addValueSource(new AbstractValueSource(false) {
+
+                @Override
+                public Object getValue(String expression) {
+                    if (expression.equals("foo")) {
+                        return "bar";
+                    }
+                    return null;
+                }
+            });
+        });
 
         List<FilterWrapper> wrappers = mavenFileFilter.getDefaultFilterWrappers(req);
 

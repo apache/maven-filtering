@@ -23,7 +23,7 @@
   <parent>
     <groupId>org.apache.maven.shared</groupId>
     <artifactId>maven-shared-components</artifactId>
-    <version>42</version>
+    <version>43</version>
     <relativePath />
   </parent>
 
@@ -73,6 +73,9 @@
     <slf4jVersion>2.0.13</slf4jVersion>
 
     <project.build.outputTimestamp>2024-06-26T08:01:47Z</project.build.outputTimestamp>
+    <!-- don't fail check for some rules that are too hard to enforce (could even be told broken for some)
+         and those that are enforced by the formatting checks from spotless -->
+    <checkstyle.violation.ignore>ParameterNumber,MethodLength,FileLength</checkstyle.violation.ignore>
   </properties>
 
   <dependencies>

@@ -13,7 +13,7 @@
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
-# under the License. 
+# under the License.
 
 version: 2
 updates:
@@ -21,9 +21,14 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-    ignore:
-      # Ignore Maven Core updates
-      - dependency-name: "org.apache.maven:*"
+  - package-ecosystem: maven
+    directory: "/"
+    schedule:
+      interval: "daily"
+    target-branch: "maven-filtering-3.x"
+    labels:
+      - "mvn3"
+      - "backport"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:

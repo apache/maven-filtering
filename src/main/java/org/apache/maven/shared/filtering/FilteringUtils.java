@@ -24,6 +24,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.nio.file.FileSystemException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -338,7 +339,7 @@ public final class FilteringUtils {
             Files.setPosixFilePermissions(destination, Files.getPosixFilePermissions(source));
         } catch (NoSuchFileException nsfe) {
             // ignore if destination file or symlink does not exist
-        } catch (UnsupportedOperationException e) {
+        } catch (UnsupportedOperationException | FileSystemException e) {
             // fallback to setting partial permissions
             File sf = source.toFile();
             File df = destination.toFile();

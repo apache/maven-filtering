@@ -61,7 +61,7 @@
   </distributionManagement>
 
   <properties>
-    <mavenVersion>3.6.3</mavenVersion>
+    <mavenVersion>3.9.9</mavenVersion>
     <slf4jVersion>1.7.36</slf4jVersion>
     <plexusBuildApiVersion>0.0.7</plexusBuildApiVersion>
     <project.build.outputTimestamp>2024-08-28T15:27:52Z</project.build.outputTimestamp>

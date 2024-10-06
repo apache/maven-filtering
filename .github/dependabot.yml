@@ -28,7 +28,8 @@ updates:
     target-branch: "maven-filtering-3.x"
     labels:
       - "mvn3"
-      - "backport"
+      - "java"
+      - "dependencies"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:

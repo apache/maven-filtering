@@ -67,7 +67,7 @@
     <hamcrestVersion>3.0</hamcrestVersion>
     <junitVersion>5.10.1</junitVersion>
     <mavenPluginTestingVersion>4.0.0-beta-2-SNAPSHOT</mavenPluginTestingVersion>
-    <mockitoVersion>5.14.1</mockitoVersion>
+    <mockitoVersion>5.14.2</mockitoVersion>
     <plexusBuildApiVersion>0.0.7</plexusBuildApiVersion>
     <plexusInterpolationVersion>1.27</plexusInterpolationVersion>
     <slf4jVersion>2.0.13</slf4jVersion>

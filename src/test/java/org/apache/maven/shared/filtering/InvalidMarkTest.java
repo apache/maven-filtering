@@ -42,7 +42,7 @@ public class InvalidMarkTest {
     @Inject
     Injector container;
 
-    Path outputDirectory = Paths.get(getBasedir(), "target/LongLineTest");
+    final Path outputDirectory = Paths.get(getBasedir(), "target/LongLineTest");
 
     @BeforeEach
     protected void setUp() throws Exception {
@@ -53,7 +53,7 @@ public class InvalidMarkTest {
     }
 
     @Test
-    public void testEscape() throws Exception {
+    public void testEscape() {
         MavenResourcesFiltering mavenResourcesFiltering = container.getInstance(MavenResourcesFiltering.class);
 
         Resource resource = new Resource();
@@ -65,8 +65,8 @@ public class InvalidMarkTest {
                 outputDirectory,
                 new ProjectStub().setBasedir(Paths.get(".")),
                 "UTF-8",
-                Collections.<String>emptyList(),
-                Collections.<String>emptyList(),
+                Collections.emptyList(),
+                Collections.emptyList(),
                 new StubSession());
 
         try {

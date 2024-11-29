@@ -30,8 +30,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
  */
 public class AbstractMavenFilteringRequestTest {
 
-    private AbstractMavenFilteringRequest request = new AbstractMavenFilteringRequest();
-    private LinkedHashSet<String> delimiters = new LinkedHashSet<>();
+    private final AbstractMavenFilteringRequest request = new AbstractMavenFilteringRequest();
+    private final LinkedHashSet<String> delimiters = new LinkedHashSet<>();
 
     @Test
     public void setDelimitersShouldNotChangeAnythingIfUsingNull() {

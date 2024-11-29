@@ -46,7 +46,7 @@ import static org.mockito.Mockito.verify;
  */
 @MavenDITest
 public class PropertyUtilsTest {
-    private static Path testDirectory = Paths.get(getBasedir(), "target/test-classes/");
+    private static final Path testDirectory = Paths.get(getBasedir(), "target/test-classes/");
 
     @Test
     public void testBasic() throws Exception {
@@ -82,7 +82,7 @@ public class PropertyUtilsTest {
     }
 
     @Test
-    public void testException() throws Exception {
+    public void testException() {
         Path nonExistent = testDirectory.resolve("not_existent_file");
 
         assertFalse(Files.exists(nonExistent), "property file exist: " + nonExistent);

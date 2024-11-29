@@ -207,23 +207,23 @@ class BaseFilter implements DefaultFilterInfo {
 
     private static final class Wrapper extends FilterWrapper {
 
-        private LinkedHashSet<String> delimiters;
+        private final LinkedHashSet<String> delimiters;
 
-        private Project project;
+        private final Project project;
 
-        private ValueSource propertiesValueSource;
+        private final ValueSource propertiesValueSource;
 
-        private List<String> projectStartExpressions;
+        private final List<String> projectStartExpressions;
 
-        private String escapeString;
+        private final String escapeString;
 
-        private boolean escapeWindowsPaths;
+        private final boolean escapeWindowsPaths;
 
         private final Session mavenSession;
 
-        private boolean supportMultiLineFiltering;
+        private final boolean supportMultiLineFiltering;
 
-        private Consumer<Interpolator> interpolatorCustomizer;
+        private final Consumer<Interpolator> interpolatorCustomizer;
 
         Wrapper(
                 LinkedHashSet<String> delimiters,
@@ -302,6 +302,7 @@ class BaseFilter implements DefaultFilterInfo {
                     public Object getValue(String expression) {
                         Object value = super.getValue(expression);
                         if (value instanceof Optional) {
+                            //noinspection unchecked
                             value = ((Optional) value).orElse(null);
                         }
                         return value;

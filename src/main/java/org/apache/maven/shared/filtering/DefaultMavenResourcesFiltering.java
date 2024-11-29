@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -123,7 +124,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
 
         if (mavenResourcesExecution.getEncoding() == null
                 || mavenResourcesExecution.getEncoding().isEmpty()) {
-            LOGGER.warn("Using platform encoding (" + System.getProperty("file.encoding")
+            LOGGER.warn("Using platform encoding (" + Charset.defaultCharset().displayName()
                     + " actually) to copy filtered resources, i.e. build is platform dependent!");
         } else {
             LOGGER.debug("Using '" + mavenResourcesExecution.getEncoding() + "' encoding to copy filtered resources.");
@@ -404,7 +405,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
         return destinationFile;
     }
 
-    private String[] setupScanner(Resource resource, Scanner scanner, boolean addDefaultExcludes) {
+    private void setupScanner(Resource resource, Scanner scanner, boolean addDefaultExcludes) {
         String[] includes;
         if (resource.getIncludes() != null && !resource.getIncludes().isEmpty()) {
             includes = resource.getIncludes().toArray(EMPTY_STRING_ARRAY);
@@ -421,7 +422,6 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
         if (addDefaultExcludes) {
             scanner.addDefaultExcludes();
         }
-        return includes;
     }
 
     private void copyDirectoryLayout(Path sourceDirectory, Path destinationDirectory, Scanner scanner)

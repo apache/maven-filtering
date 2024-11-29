@@ -48,14 +48,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @MavenDITest
 public class IncrementalResourceFilteringTest {
 
-    Path baseDirectory = Paths.get(getBasedir());
-    Path outputDirectory = baseDirectory.resolve("target/IncrementalResourceFilteringTest");
-    Path unitDirectory = baseDirectory.resolve("src/test/units-files/incremental");
-    Path filters = unitDirectory.resolve("filters.txt");
-    Path inputFile01 = unitDirectory.resolve("files/file01.txt");
+    final Path baseDirectory = Paths.get(getBasedir());
+    final Path outputDirectory = baseDirectory.resolve("target/IncrementalResourceFilteringTest");
+    final Path unitDirectory = baseDirectory.resolve("src/test/units-files/incremental");
+    final Path filters = unitDirectory.resolve("filters.txt");
+    final Path inputFile01 = unitDirectory.resolve("files/file01.txt");
     Path inputFile02 = unitDirectory.resolve("files/file02.txt");
-    Path outputFile01 = outputDirectory.resolve("file01.txt");
-    Path outputFile02 = outputDirectory.resolve("file02.txt");
+    final Path outputFile01 = outputDirectory.resolve("file01.txt");
+    final Path outputFile02 = outputDirectory.resolve("file02.txt");
 
     @Inject
     Injector container;
@@ -67,7 +67,7 @@ public class IncrementalResourceFilteringTest {
     }
 
     @AfterEach
-    protected void tearDown() throws Exception {
+    protected void tearDown() {
         ThreadBuildContext.setThreadBuildContext(null);
     }
 
@@ -201,7 +201,7 @@ public class IncrementalResourceFilteringTest {
         mre.setEncoding("UTF-8");
         mre.setMavenProject(mavenProject);
         mre.setFilters(filtersFile);
-        mre.setNonFilteredFileExtensions(Collections.<String>emptyList());
+        mre.setNonFilteredFileExtensions(Collections.emptyList());
         mre.setMavenSession(new StubSession());
         mre.setUseDefaultFilterWrappers(true);
 

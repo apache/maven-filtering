@@ -51,9 +51,9 @@ import org.sonatype.plexus.build.incremental.BuildContext;
 public class TestIncrementalBuildContext implements BuildContext {
 
     private final Path basedir;
-    private final Set<Path> refresh = new HashSet<Path>();
-    private final Set<Path> changedFiles = new HashSet<Path>();
-    private final Set<Path> deletedFiles = new HashSet<Path>();
+    private final Set<Path> refresh = new HashSet<>();
+    private final Set<Path> changedFiles = new HashSet<>();
+    private final Set<Path> deletedFiles = new HashSet<>();
     private final Map<String, Object> context = new HashMap<>();
 
     public TestIncrementalBuildContext(Path basedir, Set<Path> changedFiles) {
@@ -71,7 +71,7 @@ public class TestIncrementalBuildContext implements BuildContext {
 
     public static void checkPath(Path path) {
         if (!path.isAbsolute()) {
-            throw new IllegalStateException(String.format("Absolute path are expected. Failing path %s" + path));
+            throw new IllegalStateException(String.format("Absolute path are expected. Failing path %s", path));
         }
     }
 
@@ -85,8 +85,7 @@ public class TestIncrementalBuildContext implements BuildContext {
      */
     @Override
     public boolean hasDelta(String relpath) {
-        Path resolved = basedir.resolve(relpath);
-        Path candidate = resolved;
+        Path candidate = basedir.resolve(relpath);
         boolean changed = false;
         while (candidate != null) {
             changed = changedFiles.contains(candidate) || deletedFiles.contains(candidate);
@@ -100,7 +99,7 @@ public class TestIncrementalBuildContext implements BuildContext {
 
     @SuppressWarnings("unchecked")
     @Override
-    public boolean hasDelta(@SuppressWarnings("rawtypes") List relpaths) {
+    public boolean hasDelta(List relpaths) {
         return ((List<String>) relpaths).stream().anyMatch(this::hasDelta);
     }
 
@@ -200,9 +199,9 @@ public class TestIncrementalBuildContext implements BuildContext {
         public String[] getIncludedFiles() {
             return files.stream()
                     .filter(p -> p.startsWith(basedir))
-                    .map(p -> basedir.relativize(p))
+                    .map(basedir::relativize)
                     .map(Path::toString)
-                    .toArray(i -> new String[i]);
+                    .toArray(String[]::new);
         }
 
         @Override

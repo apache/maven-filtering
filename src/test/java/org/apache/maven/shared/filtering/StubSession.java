@@ -37,9 +37,9 @@ import org.apache.maven.api.settings.Settings;
  */
 public class StubSession implements Session {
 
-    private Map<String, String> userProperties;
+    private final Map<String, String> userProperties;
 
-    private Map<String, String> systemProperties;
+    private final Map<String, String> systemProperties;
 
     private final Settings settings;
 

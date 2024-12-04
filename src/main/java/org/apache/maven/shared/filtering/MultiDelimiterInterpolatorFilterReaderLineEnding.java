@@ -42,7 +42,7 @@ public class MultiDelimiterInterpolatorFilterReaderLineEnding extends AbstractFi
     /**
      * Interpolator used to interpolate
      */
-    private Interpolator interpolator;
+    private final Interpolator interpolator;
 
     private RecursionInterceptor recursionInterceptor;
 
@@ -75,7 +75,7 @@ public class MultiDelimiterInterpolatorFilterReaderLineEnding extends AbstractFi
 
     private String endToken;
 
-    private boolean supportMultiLineFiltering;
+    private final boolean supportMultiLineFiltering;
 
     private static final int MAXIMUM_BUFFER_SIZE = 8192;
 
@@ -283,7 +283,7 @@ public class MultiDelimiterInterpolatorFilterReaderLineEnding extends AbstractFi
         }
 
         // no match means no luck, reset and return
-        if (beginToken == null || beginToken.length() == 0 || endToken == null || endToken.length() == 0) {
+        if (beginToken == null || beginToken.isEmpty() || endToken == null || endToken.isEmpty()) {
 
             in.reset();
             return in.read();

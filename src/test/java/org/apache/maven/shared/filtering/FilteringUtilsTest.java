@@ -38,13 +38,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  *
  */
 public class FilteringUtilsTest {
-    private static Path testDirectory = Paths.get(getBasedir(), "target/test-classes/");
+    private static final Path testDirectory = Paths.get(getBasedir(), "target/test-classes/");
 
     @Test
     public void testMSHARED1213CopyWithTargetAlreadyExisting0ByteFile() throws IOException {
         Path fromFile = Paths.get(getBasedir() + "/src/test/units-files/MSHARED-1213/enunciate.xml");
         Path toFile = testDirectory.resolve("MSHARED-1213-enunciate.xml");
-        Files.write(toFile, "".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(toFile, "");
         FilteringUtils.copyFile(
                 fromFile,
                 toFile,
@@ -67,7 +67,7 @@ public class FilteringUtilsTest {
     public void testMSHARED1213CopyWithTargetAlreadyExistingJunkFile() throws IOException {
         Path fromFile = Paths.get(getBasedir() + "/src/test/units-files/MSHARED-1213/enunciate.xml");
         Path toFile = testDirectory.resolve("MSHARED-1213-enunciate.xml");
-        Files.write(toFile, "junk".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(toFile, "junk");
         FilteringUtils.copyFile(
                 fromFile,
                 toFile,
@@ -142,7 +142,7 @@ public class FilteringUtilsTest {
 
     // MSHARED-179
     @Test
-    public void testEscapeWindowsPathNotAtBeginning() throws Exception {
+    public void testEscapeWindowsPathNotAtBeginning() {
         assertEquals(
                 "jdbc:derby:C:\\\\Users\\\\Administrator/test;create=true",
                 FilteringUtils.escapeWindowsPath("jdbc:derby:C:\\Users\\Administrator/test;create=true"));

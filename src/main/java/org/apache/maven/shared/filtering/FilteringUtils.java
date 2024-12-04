@@ -82,7 +82,7 @@ public final class FilteringUtils {
         if (!isEmpty(val) && PATTERN.matcher(val).matches()) {
             // Adapted from StringUtils.replace in plexus-utils to accommodate pre-escaped backslashes.
             StringBuilder buf = new StringBuilder(val.length());
-            int start = 0, end = 0;
+            int start = 0, end;
             while ((end = val.indexOf('\\', start)) != -1) {
                 buf.append(val, start, end).append("\\\\");
                 start = end + 1;
@@ -267,7 +267,7 @@ public final class FilteringUtils {
             }
         }
 
-        if (relativePath.length() != 0 && toTokeniser.hasMoreTokens()) {
+        if (!relativePath.isEmpty() && toTokeniser.hasMoreTokens()) {
             relativePath.append(separatorChar);
         }
 

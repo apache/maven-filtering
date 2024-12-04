@@ -47,7 +47,7 @@ public class MuliLinesMavenResourcesFilteringTest {
     @Inject
     Injector container;
 
-    Path outputDirectory = Paths.get(getBasedir(), "target/MuliLinesMavenResourcesFilteringTest");
+    final Path outputDirectory = Paths.get(getBasedir(), "target/MuliLinesMavenResourcesFilteringTest");
 
     @BeforeEach
     protected void setUp() throws Exception {

@@ -41,7 +41,7 @@ public abstract class AbstractFilterReaderLineEnding extends FilterReader {
      */
     private boolean preserveEscapeString = false;
 
-    protected LinkedHashSet<DelimiterSpecification> delimiters = new LinkedHashSet<>();
+    protected final LinkedHashSet<DelimiterSpecification> delimiters = new LinkedHashSet<>();
 
     /**
      * must always be bigger than escape string plus delimiters, but doesn't need to be exact
@@ -66,7 +66,7 @@ public abstract class AbstractFilterReaderLineEnding extends FilterReader {
      */
     public void setEscapeString(String escapeString) {
         // TODO NPE if escapeString is null ?
-        if (escapeString != null && escapeString.length() >= 1) {
+        if (escapeString != null && !escapeString.isEmpty()) {
             this.escapeString = escapeString;
             this.useEscape = true;
             calculateMarkLength();

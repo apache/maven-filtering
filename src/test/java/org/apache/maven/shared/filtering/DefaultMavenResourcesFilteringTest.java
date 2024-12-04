@@ -60,9 +60,9 @@ public class DefaultMavenResourcesFilteringTest {
     @Inject
     Injector container;
 
-    private Path outputDirectory = Paths.get(getBasedir(), "target/DefaultMavenResourcesFilteringTest");
-    private Path baseDir = Paths.get(getBasedir());
-    private ProjectStub mavenProject = new ProjectStub().setBasedir(baseDir);
+    private final Path outputDirectory = Paths.get(getBasedir(), "target/DefaultMavenResourcesFilteringTest");
+    private final Path baseDir = Paths.get(getBasedir());
+    private final ProjectStub mavenProject = new ProjectStub().setBasedir(baseDir);
     private MavenResourcesFiltering mavenResourcesFiltering;
 
     @BeforeEach
@@ -137,7 +137,7 @@ public class DefaultMavenResourcesFilteringTest {
         mre.setEncoding("UTF-8");
         mre.setMavenProject(mavenProject);
         mre.setFilters(filtersFile);
-        mre.setNonFilteredFileExtensions(Collections.<String>emptyList());
+        mre.setNonFilteredFileExtensions(Collections.emptyList());
         mre.setMavenSession(session);
         mre.setUseDefaultFilterWrappers(true);
 
@@ -332,7 +332,7 @@ public class DefaultMavenResourcesFilteringTest {
         mre.setEncoding("UTF-8");
         mre.setMavenProject(mavenProject);
         mre.setFilters(null);
-        mre.setNonFilteredFileExtensions(Collections.<String>emptyList());
+        mre.setNonFilteredFileExtensions(Collections.emptyList());
         mre.setMavenSession(new StubSession());
 
         mavenResourcesFiltering.filterResources(mre);
@@ -386,7 +386,7 @@ public class DefaultMavenResourcesFilteringTest {
                 mavenProject,
                 "UTF-8",
                 filtersFile,
-                Collections.<String>emptyList(),
+                Collections.emptyList(),
                 new StubSession());
         mavenResourcesFiltering.filterResources(mavenResourcesExecution);
 
@@ -417,7 +417,7 @@ public class DefaultMavenResourcesFilteringTest {
                 mavenProject,
                 "UTF-8",
                 filtersFile,
-                Collections.<String>emptyList(),
+                Collections.emptyList(),
                 new StubSession());
         mavenResourcesFiltering.filterResources(mavenResourcesExecution);
 
@@ -461,7 +461,7 @@ public class DefaultMavenResourcesFilteringTest {
                 mavenProject,
                 "UTF-8",
                 filtersFile,
-                Collections.<String>emptyList(),
+                Collections.emptyList(),
                 new StubSession());
         mavenResourcesExecution.setFlatten(true);
         mavenResourcesExecution.setOverwrite(true);
@@ -478,7 +478,7 @@ public class DefaultMavenResourcesFilteringTest {
     }
 
     @Test
-    public void testFlattenDirectoryStructureWithoutOverride() throws Exception {
+    public void testFlattenDirectoryStructureWithoutOverride() {
         Path baseDir = Paths.get(getBasedir());
         ProjectStub mavenProject = new ProjectStub().setBasedir(baseDir);
         mavenProject.setVersion("1.0");
@@ -507,7 +507,7 @@ public class DefaultMavenResourcesFilteringTest {
                 mavenProject,
                 "UTF-8",
                 filtersFile,
-                Collections.<String>emptyList(),
+                Collections.emptyList(),
                 new StubSession());
         mavenResourcesExecution.setFlatten(true);
         mavenResourcesExecution.setOverwrite(false);
@@ -542,7 +542,7 @@ public class DefaultMavenResourcesFilteringTest {
                 mavenProject,
                 "UTF-8",
                 filtersFile,
-                Collections.<String>emptyList(),
+                Collections.emptyList(),
                 new StubSession());
         mavenResourcesFiltering.filterResources(mavenResourcesExecution);
 
@@ -590,7 +590,7 @@ public class DefaultMavenResourcesFilteringTest {
                 mavenProject,
                 "UTF-8",
                 filtersFile,
-                Collections.<String>emptyList(),
+                Collections.emptyList(),
                 new StubSession());
         mavenResourcesFiltering.filterResources(mavenResourcesExecution);
 
@@ -621,7 +621,7 @@ public class DefaultMavenResourcesFilteringTest {
                 mavenProject,
                 "UTF-8",
                 filtersFile,
-                Collections.<String>emptyList(),
+                Collections.emptyList(),
                 new StubSession());
         mavenResourcesFiltering.filterResources(mavenResourcesExecution);
 
@@ -632,7 +632,6 @@ public class DefaultMavenResourcesFilteringTest {
         assertEquals("includefile.txt", filename(files.get(0)));
     }
 
-    @SuppressWarnings("serial")
     @Test
     public void testEmptyDirectories() throws Exception {
 
@@ -640,7 +639,7 @@ public class DefaultMavenResourcesFilteringTest {
         resources.add(new Resource() {
             {
                 setDirectory(getBasedir() + "/src/test/units-files/includeEmptyDirs");
-                setExcludes(Arrays.asList("**/.gitignore"));
+                setExcludes(List.of("**/.gitignore"));
             }
         });
         MavenResourcesExecution mavenResourcesExecution = new MavenResourcesExecution(
@@ -648,8 +647,8 @@ public class DefaultMavenResourcesFilteringTest {
                 outputDirectory,
                 mavenProject,
                 "UTF-8",
-                Collections.<String>emptyList(),
-                Collections.<String>emptyList(),
+                Collections.emptyList(),
+                Collections.emptyList(),
                 new StubSession());
         mavenResourcesExecution.setIncludeEmptyDirs(true);
         mavenResourcesFiltering.filterResources(mavenResourcesExecution);
@@ -681,7 +680,6 @@ public class DefaultMavenResourcesFilteringTest {
         }
     }
 
-    @SuppressWarnings("serial")
     @Test
     public void testShouldReturnGitIgnoreFiles() throws Exception {
         createTestDataStructure();
@@ -695,7 +693,7 @@ public class DefaultMavenResourcesFilteringTest {
         resources.add(new Resource() {
             {
                 setDirectory(getBasedir() + "/target/sourceTestGitIgnoreFile");
-                setIncludes(Arrays.asList("**/*"));
+                setIncludes(List.of("**/*"));
             }
         });
         MavenResourcesExecution mavenResourcesExecution = new MavenResourcesExecution(
@@ -774,7 +772,6 @@ public class DefaultMavenResourcesFilteringTest {
     /**
      * unit test for MSHARED-81 : https://issues.apache.org/jira/browse/MSHARED-81
      */
-    @SuppressWarnings("serial")
     @Test
     public void testMSHARED81() throws Exception {
         mavenProject.addProperty("escaped", "this is escaped");
@@ -896,8 +893,8 @@ public class DefaultMavenResourcesFilteringTest {
                 output,
                 mavenProject,
                 "UTF-8",
-                Collections.<String>emptyList(),
-                Collections.<String>emptyList(),
+                Collections.emptyList(),
+                Collections.emptyList(),
                 new StubSession());
         mavenResourcesExecution.setIncludeEmptyDirs(true);
         mavenResourcesExecution.setEscapeString("\\");
@@ -916,7 +913,7 @@ public class DefaultMavenResourcesFilteringTest {
         Properties expectedNonFilteredResult = PropertyUtils.loadPropertyFile(
                 Paths.get(getBasedir() + "/src/test/units-files/edge-cases/resources", "unfiltered.properties"), null);
 
-        assertTrue(nonFilteredResult.equals(expectedNonFilteredResult));
+        assertEquals(nonFilteredResult, expectedNonFilteredResult);
     }
 
     // MSHARED-220: Apply filtering to filenames
@@ -936,8 +933,8 @@ public class DefaultMavenResourcesFilteringTest {
                 outputDirectory,
                 mavenProject,
                 "UTF-8",
-                Collections.<String>emptyList(),
-                Collections.<String>emptyList(),
+                Collections.emptyList(),
+                Collections.emptyList(),
                 new StubSession());
         mavenResourcesExecution.setFilterFilenames(true);
         mavenResourcesFiltering.filterResources(mavenResourcesExecution);
@@ -967,8 +964,8 @@ public class DefaultMavenResourcesFilteringTest {
                 outputDirectory,
                 mavenProject,
                 "UTF-8",
-                Collections.<String>emptyList(),
-                Collections.<String>emptyList(),
+                Collections.emptyList(),
+                Collections.emptyList(),
                 new StubSession());
         mavenResourcesExecution.setPropertiesEncoding("ISO-8859-1");
         mavenResourcesFiltering.filterResources(mavenResourcesExecution);

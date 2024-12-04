@@ -22,6 +22,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Arrays;
 
 import org.junit.jupiter.api.Test;
 
@@ -45,9 +46,7 @@ public class BoundedReaderTest {
     @Test
     public void readMulti() throws IOException {
         char[] cbuf = new char[4];
-        for (int i = 0; i < cbuf.length; i++) {
-            cbuf[i] = 'X';
-        }
+        Arrays.fill(cbuf, 'X');
 
         try (BoundedReader mr = new BoundedReader(sr, 3)) {
             final int read = mr.read(cbuf, 0, 4);
@@ -64,9 +63,7 @@ public class BoundedReaderTest {
     public void readMultiWithOffset() throws IOException {
 
         char[] cbuf = new char[4];
-        for (int i = 0; i < cbuf.length; i++) {
-            cbuf[i] = 'X';
-        }
+        Arrays.fill(cbuf, 'X');
 
         try (BoundedReader mr = new BoundedReader(sr, 3)) {
             final int read = mr.read(cbuf, 1, 2);

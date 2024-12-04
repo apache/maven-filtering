@@ -61,7 +61,7 @@ public class DefaultMavenReaderFilter extends BaseFilter implements MavenReaderF
 
     @Override
     public Reader filter(Reader from, boolean filtering, List<FilterWrapper> filterWrappers) {
-        return filterWrap(from, filtering ? filterWrappers : Collections.<FilterWrapper>emptyList());
+        return filterWrap(from, filtering ? filterWrappers : Collections.emptyList());
     }
 
     private static Reader filterWrap(Reader from, Iterable<FilterWrapper> wrappers) {

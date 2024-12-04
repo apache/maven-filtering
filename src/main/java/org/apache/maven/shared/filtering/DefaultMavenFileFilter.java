@@ -83,15 +83,11 @@ public class DefaultMavenFileFilter extends BaseFilter implements MavenFileFilte
             throws MavenFilteringException {
         try {
             if (filtering) {
-                if (getLogger().isDebugEnabled()) {
-                    getLogger().debug("filtering " + from + " to " + to);
-                }
+                getLogger().debug("filtering {} to {}", from, to);
                 FilterWrapper[] array = filterWrappers.toArray(new FilterWrapper[0]);
                 FilteringUtils.copyFile(from, to, encoding, array, false);
             } else {
-                if (getLogger().isDebugEnabled()) {
-                    getLogger().debug("copy " + from + " to " + to);
-                }
+                getLogger().debug("copy {} to {}", from, to);
                 FilteringUtils.copyFile(from, to, encoding, new FilterWrapper[0], false);
             }
 

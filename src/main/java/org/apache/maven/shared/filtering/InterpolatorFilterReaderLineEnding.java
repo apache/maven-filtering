@@ -40,7 +40,7 @@ public class InterpolatorFilterReaderLineEnding extends AbstractFilterReaderLine
     /**
      * Interpolator used to interpolate
      */
-    private Interpolator interpolator;
+    private final Interpolator interpolator;
 
     private RecursionInterceptor recursionInterceptor;
 
@@ -64,16 +64,16 @@ public class InterpolatorFilterReaderLineEnding extends AbstractFilterReaderLine
      */
     public static final String DEFAULT_END_TOKEN = "}";
 
-    private String beginToken;
+    private final String beginToken;
 
-    private String endToken;
+    private final String endToken;
 
     /**
      * true by default to preserve backward comp
      */
     private boolean interpolateWithPrefixPattern = true;
 
-    private boolean supportMultiLineFiltering;
+    private final boolean supportMultiLineFiltering;
 
     private boolean eof = false;
 

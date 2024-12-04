@@ -45,9 +45,9 @@ public class EscapeStringTest {
     @Inject
     Injector container;
 
-    Path outputDirectory = Paths.get(getBasedir(), "target/EscapeStringTest");
+    final Path outputDirectory = Paths.get(getBasedir(), "target/EscapeStringTest");
 
-    Path unitDirectory = Paths.get(getBasedir(), "src/test/units-files/escape-remove-char");
+    final Path unitDirectory = Paths.get(getBasedir(), "src/test/units-files/escape-remove-char");
 
     @BeforeEach
     protected void setUp() throws Exception {

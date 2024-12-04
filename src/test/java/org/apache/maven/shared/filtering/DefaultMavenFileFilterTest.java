@@ -57,7 +57,7 @@ public class DefaultMavenFileFilterTest {
     @Inject
     Injector container;
 
-    Path to = Paths.get(getBasedir(), "target/reflection-test.properties");
+    final Path to = Paths.get(getBasedir(), "target/reflection-test.properties");
 
     @BeforeEach
     protected void setUp() throws Exception {
@@ -178,18 +178,15 @@ public class DefaultMavenFileFilterTest {
     @Test
     void testInterpolatorCustomizer() throws MavenFilteringException, IOException {
         AbstractMavenFilteringRequest req = new AbstractMavenFilteringRequest();
-        req.setInterpolatorCustomizer(i -> {
-            i.addValueSource(new AbstractValueSource(false) {
-
-                @Override
-                public Object getValue(String expression) {
-                    if (expression.equals("foo")) {
-                        return "bar";
-                    }
-                    return null;
+        req.setInterpolatorCustomizer(i -> i.addValueSource(new AbstractValueSource(false) {
+            @Override
+            public Object getValue(String expression) {
+                if (expression.equals("foo")) {
+                    return "bar";
                 }
-            });
-        });
+                return null;
+            }
+        }));
 
         MavenFileFilter mavenFileFilter = container.getInstance(MavenFileFilter.class);
         List<FilterWrapper> wrappers = mavenFileFilter.getDefaultFilterWrappers(req);

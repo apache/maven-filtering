@@ -15,13 +15,6 @@
 # specific language governing permissions and limitations
 # under the License.
 
-name: Release Drafter
-on:
-  push:
-    branches:
-      - master
-  workflow_dispatch:
+_extends: maven-gh-actions-shared:.github/release-drafter.yml
 
-jobs:
-  update_release_draft:
-    uses: apache/maven-gh-actions-shared/.github/workflows/release-drafter.yml@v4
+tag-template: maven-filtering-$RESOLVED_VERSION

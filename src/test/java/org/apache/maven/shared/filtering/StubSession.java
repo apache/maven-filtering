@@ -37,9 +37,9 @@ import org.apache.maven.api.settings.Settings;
  */
 public class StubSession implements Session {
 
-    private final Map<String, String> userProperties;
+    private Map<String, String> userProperties;
 
-    private final Map<String, String> systemProperties;
+    private Map<String, String> systemProperties;
 
     private final Settings settings;
 
@@ -199,12 +199,14 @@ public class StubSession implements Session {
     }
 
     @Override
-    public ProducedArtifact createProducedArtifact(String s, String s1, String s2, String s3) {
+    public ProducedArtifact createProducedArtifact(
+            String groupId, String artifactId, String version, String extension) {
         return null;
     }
 
     @Override
-    public ProducedArtifact createProducedArtifact(String s, String s1, String s2, String s3, String s4, String s5) {
+    public ProducedArtifact createProducedArtifact(
+            String groupId, String artifactId, String version, String classifier, String extension, String type) {
         return null;
     }
 
@@ -245,17 +247,7 @@ public class StubSession implements Session {
     }
 
     @Override
-    public DownloadedArtifact resolveArtifact(Artifact artifact, List<RemoteRepository> list) {
-        return null;
-    }
-
-    @Override
     public DownloadedArtifact resolveArtifact(ArtifactCoordinates coordinate) {
-        return null;
-    }
-
-    @Override
-    public DownloadedArtifact resolveArtifact(ArtifactCoordinates artifactCoordinates, List<RemoteRepository> list) {
         return null;
     }
 
@@ -270,27 +262,31 @@ public class StubSession implements Session {
     }
 
     @Override
+    public Collection<DownloadedArtifact> resolveArtifacts(Artifact... artifacts) {
+        return null;
+    }
+
+    @Override
+    public DownloadedArtifact resolveArtifact(ArtifactCoordinates artifactCoordinates, List<RemoteRepository> list) {
+        return null;
+    }
+
+    @Override
     public Collection<DownloadedArtifact> resolveArtifacts(
             Collection<? extends ArtifactCoordinates> collection, List<RemoteRepository> list) {
         return List.of();
     }
 
     @Override
-    public Collection<DownloadedArtifact> resolveArtifacts(Artifact... artifacts) {
+    public DownloadedArtifact resolveArtifact(Artifact artifact, List<RemoteRepository> list) {
         return null;
     }
 
     @Override
-    public void installArtifacts(ProducedArtifact... producedArtifacts) {}
-
-    @Override
-    public void installArtifacts(Collection<ProducedArtifact> collection) {}
-
-    @Override
-    public void deployArtifact(RemoteRepository remoteRepository, ProducedArtifact... producedArtifacts) {}
-
-    @Override
-    public void setArtifactPath(ProducedArtifact producedArtifact, Path path) {}
+    public List<Version> resolveVersionRange(ArtifactCoordinates artifactCoordinates, List<RemoteRepository> list)
+            throws VersionResolverException {
+        return List.of();
+    }
 
     @Override
     public List<Node> flattenDependencies(Node node, PathScope scope) {
@@ -323,10 +319,16 @@ public class StubSession implements Session {
     }
 
     @Override
-    public List<Version> resolveVersionRange(ArtifactCoordinates artifactCoordinates, List<RemoteRepository> list)
-            throws VersionResolverException {
-        return List.of();
-    }
+    public void installArtifacts(ProducedArtifact... artifacts) {}
+
+    @Override
+    public void installArtifacts(Collection<ProducedArtifact> artifacts) {}
+
+    @Override
+    public void deployArtifact(RemoteRepository repository, ProducedArtifact... artifacts) {}
+
+    @Override
+    public void setArtifactPath(ProducedArtifact artifact, Path path) {}
 
     @Override
     public Optional<Path> getArtifactPath(Artifact artifact) {
@@ -339,17 +341,17 @@ public class StubSession implements Session {
     }
 
     @Override
-    public Node collectDependencies(Artifact artifact, PathScope pathScope) {
+    public Node collectDependencies(Artifact artifact, PathScope scope) {
         return null;
     }
 
     @Override
-    public Node collectDependencies(Project project, PathScope pathScope) {
+    public Node collectDependencies(Project project, PathScope scope) {
         return null;
     }
 
     @Override
-    public Node collectDependencies(DependencyCoordinates dependencyCoordinates, PathScope pathScope) {
+    public Node collectDependencies(DependencyCoordinates dependencyCoordinate, PathScope scope) {
         return null;
     }
 
@@ -380,7 +382,7 @@ public class StubSession implements Session {
 
     @Override
     public Map<PathType, List<Path>> resolveDependencies(
-            DependencyCoordinates dependencyCoordinates, PathScope scope, Collection<PathType> desiredTypes) {
+            DependencyCoordinates dependencyCoordinate, PathScope scope, Collection<PathType> desiredTypes) {
         return Map.of();
     }
 

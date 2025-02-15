@@ -62,12 +62,12 @@
 
   <properties>
     <javaVersion>17</javaVersion>
-    <mavenVersion>4.0.0-rc-1</mavenVersion>
+    <mavenVersion>4.0.0-rc-2</mavenVersion>
 
     <hamcrestVersion>3.0</hamcrestVersion>
     <junitVersion>5.10.1</junitVersion>
-    <mavenPluginTestingVersion>4.0.0-beta-2</mavenPluginTestingVersion>
     <mockitoVersion>5.15.2</mockitoVersion>
+    <mavenPluginTestingVersion>4.0.0-beta-3</mavenPluginTestingVersion>
     <plexusBuildApiVersion>0.0.7</plexusBuildApiVersion>
     <plexusInterpolationVersion>1.27</plexusInterpolationVersion>
     <slf4jVersion>2.0.13</slf4jVersion>
@@ -96,7 +96,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
-      <artifactId>maven-api-meta</artifactId>
+      <artifactId>maven-api-annotations</artifactId>
       <version>${mavenVersion}</version>
     </dependency>
     <dependency>
@@ -195,6 +195,20 @@
           <artifactId>maven-surefire-plugin</artifactId>
           <configuration>
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <configuration>
+            <rules>
+              <enforceBytecodeVersion>
+                <maxJdkVersion>${maven.compiler.target}</maxJdkVersion>
+                <excludes>
+                  <exclude>org.jline:jline</exclude>
+                </excludes>
+              </enforceBytecodeVersion>
+            </rules>
           </configuration>
         </plugin>
       </plugins>

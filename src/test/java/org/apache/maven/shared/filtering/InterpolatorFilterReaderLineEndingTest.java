@@ -24,12 +24,12 @@ import org.codehaus.plexus.interpolation.Interpolator;
 
 public class InterpolatorFilterReaderLineEndingTest extends AbstractInterpolatorFilterReaderLineEndingTest {
     @Override
-    protected Reader getAaa_AaaReader(Reader in, Interpolator interpolator) {
+    protected Reader getAaaAaaReader(Reader in, Interpolator interpolator) {
         return new InterpolatorFilterReaderLineEnding(in, interpolator, "aaa", "aaa", true);
     }
 
     @Override
-    protected Reader getAbc_AbcReader(Reader in, Interpolator interpolator) {
+    protected Reader getAbcAbcReader(Reader in, Interpolator interpolator) {
         return new InterpolatorFilterReaderLineEnding(in, interpolator, "abc", "abc", true);
     }
 

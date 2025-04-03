@@ -38,12 +38,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  *
  */
 public class FilteringUtilsTest {
-    private static final Path testDirectory = Paths.get(getBasedir(), "target/test-classes/");
+    private static final Path TEST_DIRECTORY = Paths.get(getBasedir(), "target/test-classes/");
 
     @Test
     public void testMSHARED1213CopyWithTargetAlreadyExisting0ByteFile() throws IOException {
         Path fromFile = Paths.get(getBasedir() + "/src/test/units-files/MSHARED-1213/enunciate.xml");
-        Path toFile = testDirectory.resolve("MSHARED-1213-enunciate.xml");
+        Path toFile = TEST_DIRECTORY.resolve("MSHARED-1213-enunciate.xml");
         Files.writeString(toFile, "");
         FilteringUtils.copyFile(
                 fromFile,
@@ -66,7 +66,7 @@ public class FilteringUtilsTest {
     @Test
     public void testMSHARED1213CopyWithTargetAlreadyExistingJunkFile() throws IOException {
         Path fromFile = Paths.get(getBasedir() + "/src/test/units-files/MSHARED-1213/enunciate.xml");
-        Path toFile = testDirectory.resolve("MSHARED-1213-enunciate.xml");
+        Path toFile = TEST_DIRECTORY.resolve("MSHARED-1213-enunciate.xml");
         Files.writeString(toFile, "junk");
         FilteringUtils.copyFile(
                 fromFile,
@@ -89,7 +89,7 @@ public class FilteringUtilsTest {
     @Test
     public void testMSHARED1213CopyWithTargetAlreadyExistingSameFile() throws IOException {
         Path fromFile = Paths.get(getBasedir() + "/src/test/units-files/MSHARED-1213/enunciate.xml");
-        Path toFile = testDirectory.resolve("MSHARED-1213-enunciate.xml");
+        Path toFile = TEST_DIRECTORY.resolve("MSHARED-1213-enunciate.xml");
         Files.copy(fromFile, toFile, StandardCopyOption.REPLACE_EXISTING);
         FilteringUtils.copyFile(
                 fromFile,

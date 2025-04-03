@@ -91,12 +91,12 @@ public abstract class AbstractInterpolatorFilterReaderLineEndingTest {
                 .thenReturn("DONE");
 
         Reader in = new StringReader("aaaFILTER.a.MEaaa");
-        Reader reader = getAaa_AaaReader(in, interpolator);
+        Reader reader = getAaaAaaReader(in, interpolator);
 
         assertEquals("DONE", IOUtils.toString(reader));
 
         in = new StringReader("abcFILTER.a.MEabc");
-        reader = getAbc_AbcReader(in, interpolator);
+        reader = getAbcAbcReader(in, interpolator);
         assertEquals("DONE", IOUtils.toString(reader));
     }
 
@@ -108,9 +108,9 @@ public abstract class AbstractInterpolatorFilterReaderLineEndingTest {
         }
     }
 
-    protected abstract Reader getAbc_AbcReader(Reader in, Interpolator interpolator);
+    protected abstract Reader getAbcAbcReader(Reader in, Interpolator interpolator);
 
-    protected abstract Reader getAaa_AaaReader(Reader in, Interpolator interpolator);
+    protected abstract Reader getAaaAaaReader(Reader in, Interpolator interpolator);
 
     protected abstract Reader getDollarBracesReader(Reader in, Interpolator interpolator, String escapeString);
 

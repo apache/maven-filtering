@@ -46,11 +46,11 @@ import static org.mockito.Mockito.verify;
  */
 @MavenDITest
 public class PropertyUtilsTest {
-    private static final Path testDirectory = Paths.get(getBasedir(), "target/test-classes/");
+    private static final Path TEST_DIRECTORY = Paths.get(getBasedir(), "target/test-classes/");
 
     @Test
     public void testBasic() throws Exception {
-        Path basicProp = testDirectory.resolve("basic.properties");
+        Path basicProp = TEST_DIRECTORY.resolve("basic.properties");
 
         Files.deleteIfExists(basicProp);
 
@@ -68,7 +68,7 @@ public class PropertyUtilsTest {
 
     @Test
     public void testSystemProperties() throws Exception {
-        Path systemProp = testDirectory.resolve("system.properties");
+        Path systemProp = TEST_DIRECTORY.resolve("system.properties");
 
         Files.deleteIfExists(systemProp);
 
@@ -83,7 +83,7 @@ public class PropertyUtilsTest {
 
     @Test
     public void testException() {
-        Path nonExistent = testDirectory.resolve("not_existent_file");
+        Path nonExistent = TEST_DIRECTORY.resolve("not_existent_file");
 
         assertFalse(Files.exists(nonExistent), "property file exist: " + nonExistent);
 
@@ -110,7 +110,7 @@ public class PropertyUtilsTest {
      */
     @Test
     public void testCircularReferences() throws IOException {
-        Path basicProp = testDirectory.resolve("circular.properties");
+        Path basicProp = TEST_DIRECTORY.resolve("circular.properties");
 
         Files.deleteIfExists(basicProp);
 
@@ -138,7 +138,7 @@ public class PropertyUtilsTest {
      */
     @Test
     public void testCircularReferences3Vars() throws IOException {
-        Path basicProp = testDirectory.resolve("circular.properties");
+        Path basicProp = TEST_DIRECTORY.resolve("circular.properties");
 
         Files.deleteIfExists(basicProp);
 

@@ -49,7 +49,7 @@ class MultiDelimiterInterpolatorFilterReaderLineEndingTest extends AbstractInter
     }
 
     @Override
-    protected Reader getAaa_AaaReader(Reader in, Interpolator interpolator) {
+    protected Reader getAaaAaaReader(Reader in, Interpolator interpolator) {
         MultiDelimiterInterpolatorFilterReaderLineEnding reader =
                 new MultiDelimiterInterpolatorFilterReaderLineEnding(in, interpolator, true);
         reader.setDelimiterSpecs(Collections.singleton("aaa*aaa"));
@@ -57,7 +57,7 @@ class MultiDelimiterInterpolatorFilterReaderLineEndingTest extends AbstractInter
     }
 
     @Override
-    protected Reader getAbc_AbcReader(Reader in, Interpolator interpolator) {
+    protected Reader getAbcAbcReader(Reader in, Interpolator interpolator) {
         MultiDelimiterInterpolatorFilterReaderLineEnding reader =
                 new MultiDelimiterInterpolatorFilterReaderLineEnding(in, interpolator, true);
         reader.setDelimiterSpecs(Collections.singleton("abc*abc"));

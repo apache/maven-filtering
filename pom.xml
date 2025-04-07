@@ -69,7 +69,7 @@
     <mockitoVersion>5.18.0</mockitoVersion>
     <mavenPluginTestingVersion>4.0.0-beta-4</mavenPluginTestingVersion>
     <plexusBuildApiVersion>0.0.7</plexusBuildApiVersion>
-    <plexusInterpolationVersion>1.27</plexusInterpolationVersion>
+    <plexusInterpolationVersion>1.28</plexusInterpolationVersion>
     <slf4jVersion>2.0.13</slf4jVersion>
 
     <project.build.outputTimestamp>2024-06-26T08:01:47Z</project.build.outputTimestamp>

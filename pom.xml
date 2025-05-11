@@ -46,8 +46,8 @@
     <url>https://github.com/apache/maven-filtering/tree/${project.scm.tag}</url>
   </scm>
   <issueManagement>
-    <system>JIRA</system>
-    <url>https://issues.apache.org/jira/issues/?jql=project%20%3D%20MSHARED%20AND%20component%20%3D%20maven-filtering</url>
+    <system>GitHub Issues</system>
+    <url>https://github.com/apache/maven-filtering/issues</url>
   </issueManagement>
   <ciManagement>
     <system>Jenkins</system>

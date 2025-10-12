@@ -18,8 +18,14 @@ Contributing to [Apache Maven Filtering](https://maven.apache.org/shared/maven-f
 ======================
 
 [![Apache License, Version 2.0, January 2004](https://img.shields.io/github/license/apache/maven.svg?label=License)][license]
+[![Maven Central](https://img.shields.io/maven-central/v/org.apache.maven.shared/maven-filtering.svg?label=Maven%20Central&filter=3*)](https://search.maven.org/artifact/org.apache.maven.shared/maven-filtering)
+[![Reproducible Builds](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/jvm-repo-rebuild/reproducible-central/master/content/org/apache/maven/shared/maven-filtering/badge.json)](https://github.com/jvm-repo-rebuild/reproducible-central/blob/master/content/org/apache/maven/shared/maven-filtering/README.md)
+[![Jenkins Status](https://img.shields.io/jenkins/s/https/ci-maven.apache.org/job/Maven/job/maven-box/job/maven-filtering/job/maven-filtering-3.x.svg)][build-3]
+[![Jenkins tests](https://img.shields.io/jenkins/t/https/ci-maven.apache.org/job/Maven/job/maven-box/job/maven-filtering/job/maven-filtering-3.x.svg)][test-results-3]
+
+Maven 4: [master](https://github.com/apache/maven-filtering/tree/master)
 [![Maven Central](https://img.shields.io/maven-central/v/org.apache.maven.shared/maven-filtering.svg?label=Maven%20Central)](https://search.maven.org/artifact/org.apache.maven.shared/maven-filtering)
-[![Reproducible Builds](https://img.shields.io/badge/Reproducible_Builds-ok-green?labelColor=blue)](https://github.com/jvm-repo-rebuild/reproducible-central/blob/master/content/org/apache/maven/shared/maven-filtering/README.md)
+[![Reproducible Builds](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/jvm-repo-rebuild/reproducible-central/master/content/org/apache/maven/shared/maven-filtering/badge.json)](https://github.com/jvm-repo-rebuild/reproducible-central/blob/master/content/org/apache/maven/shared/maven-filtering/README.md)
 [![Jenkins Status](https://img.shields.io/jenkins/s/https/ci-maven.apache.org/job/Maven/job/maven-box/job/maven-filtering/job/master.svg)][build]
 [![Jenkins tests](https://img.shields.io/jenkins/t/https/ci-maven.apache.org/job/Maven/job/maven-box/job/maven-filtering/job/master.svg)][test-results]
 
@@ -81,4 +87,6 @@ Additional Resources
 [cla]: https://www.apache.org/licenses/#clas
 [maven-wiki]: https://cwiki.apache.org/confluence/display/MAVEN/Index
 [test-results]: https://ci-maven.apache.org/job/Maven/job/maven-box/job/maven-filtering/job/master/lastCompletedBuild/testReport/
+[test-results-3]: https://ci-maven.apache.org/job/Maven/job/maven-box/job/maven-filtering/job/maven-filtering-3.x/lastCompletedBuild/testReport/
 [build]: https://ci-maven.apache.org/job/Maven/job/maven-box/job/maven-filtering/job/master/
+[build-3]: https://ci-maven.apache.org/job/Maven/job/maven-box/job/maven-filtering/job/maven-filtering-3.x/

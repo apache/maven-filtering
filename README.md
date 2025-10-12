@@ -23,6 +23,12 @@ Contributing to [Apache Maven Filtering](https://maven.apache.org/shared/maven-f
 [![Jenkins Status](https://img.shields.io/jenkins/s/https/ci-maven.apache.org/job/Maven/job/maven-box/job/maven-filtering/job/master.svg)][build]
 [![Jenkins tests](https://img.shields.io/jenkins/t/https/ci-maven.apache.org/job/Maven/job/maven-box/job/maven-filtering/job/master.svg)][test-results]
 
+Maven 3: [maven-filtering-3.x](https://github.com/apache/maven-filtering/tree/maven-filtering-3.x) 
+[![Maven Central](https://img.shields.io/maven-central/v/org.apache.maven.shared/maven-filtering.svg?label=Maven%20Central&filter=3*)](https://search.maven.org/artifact/org.apache.maven.shared/maven-filtering)
+[![Reproducible Builds](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/jvm-repo-rebuild/reproducible-central/master/content/org/apache/maven/shared/maven-filtering/badge.json)](https://github.com/jvm-repo-rebuild/reproducible-central/blob/master/content/org/apache/maven/shared/maven-filtering/README.md)
+[![Jenkins Status](https://img.shields.io/jenkins/s/https/ci-maven.apache.org/job/Maven/job/maven-box/job/maven-filtering/job/maven-filtering-3.x.svg)][build-3]
+[![Jenkins tests](https://img.shields.io/jenkins/t/https/ci-maven.apache.org/job/Maven/job/maven-box/job/maven-filtering/job/maven-filtering-3.x.svg)][test-results-3]
+
 
 You have found a bug, or you have an idea for a cool new feature? Contributing
 code is a great way to give something back to the open source community. Before
@@ -81,4 +87,6 @@ Additional Resources
 [cla]: https://www.apache.org/licenses/#clas
 [maven-wiki]: https://cwiki.apache.org/confluence/display/MAVEN/Index
 [test-results]: https://ci-maven.apache.org/job/Maven/job/maven-box/job/maven-filtering/job/master/lastCompletedBuild/testReport/
+[test-results-3]: https://ci-maven.apache.org/job/Maven/job/maven-box/job/maven-filtering/job/maven-filtering-3.x/lastCompletedBuild/testReport/
 [build]: https://ci-maven.apache.org/job/Maven/job/maven-box/job/maven-filtering/job/master/
+[build-3]: https://ci-maven.apache.org/job/Maven/job/maven-box/job/maven-filtering/job/maven-filtering-3.x/

@@ -46,7 +46,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @MavenDITest
-public class IncrementalResourceFilteringTest {
+class IncrementalResourceFilteringTest {
 
     final Path baseDirectory = Paths.get(getBasedir());
     final Path outputDirectory = baseDirectory.resolve("target/IncrementalResourceFilteringTest");
@@ -72,7 +72,7 @@ public class IncrementalResourceFilteringTest {
     }
 
     @Test
-    public void testSimpleIncrementalFiltering() throws Exception {
+    void simpleIncrementalFiltering() throws Exception {
         // run full build first
         filter("time");
 
@@ -107,7 +107,7 @@ public class IncrementalResourceFilteringTest {
     }
 
     @Test
-    public void testOutputChange() throws Exception {
+    void outputChange() throws Exception {
         // run full build first
         filter("time");
 
@@ -126,7 +126,7 @@ public class IncrementalResourceFilteringTest {
     }
 
     @Test
-    public void testFilterChange() throws Exception {
+    void filterChange() throws Exception {
         // run full build first
         filter("time");
 
@@ -145,7 +145,7 @@ public class IncrementalResourceFilteringTest {
     }
 
     @Test
-    public void testFilterDeleted() throws Exception {
+    void filterDeleted() throws Exception {
         // run full build first
         filter("time");
 

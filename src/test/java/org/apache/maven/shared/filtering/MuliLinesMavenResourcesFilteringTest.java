@@ -42,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  *
  */
 @MavenDITest
-public class MuliLinesMavenResourcesFilteringTest {
+class MuliLinesMavenResourcesFilteringTest {
 
     @Inject
     Injector container;
@@ -58,7 +58,7 @@ public class MuliLinesMavenResourcesFilteringTest {
     /**
      */
     @Test
-    public void testFilteringTokenOnce() throws Exception {
+    void filteringTokenOnce() throws Exception {
         Path baseDir = Paths.get(getBasedir());
         ProjectStub mavenProject = new ProjectStub().setBasedir(baseDir);
         mavenProject.setVersion("1.0");

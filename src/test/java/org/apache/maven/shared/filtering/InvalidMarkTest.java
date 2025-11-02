@@ -27,17 +27,17 @@ import org.apache.maven.api.di.Inject;
 import org.apache.maven.api.di.testing.MavenDITest;
 import org.apache.maven.api.plugin.testing.stubs.ProjectStub;
 import org.apache.maven.di.Injector;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.apache.maven.api.di.testing.MavenDIExtension.getBasedir;
-import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Mikolaj Izdebski
  */
 @MavenDITest
-public class InvalidMarkTest {
+class InvalidMarkTest {
 
     @Inject
     Injector container;
@@ -53,7 +53,7 @@ public class InvalidMarkTest {
     }
 
     @Test
-    public void testEscape() {
+    void escape() {
         MavenResourcesFiltering mavenResourcesFiltering = container.getInstance(MavenResourcesFiltering.class);
 
         Resource resource = new Resource();
@@ -69,10 +69,8 @@ public class InvalidMarkTest {
                 Collections.emptyList(),
                 new StubSession());
 
-        try {
+        Assertions.assertDoesNotThrow(() -> {
             mavenResourcesFiltering.filterResources(mavenResourcesExecution);
-        } catch (MavenFilteringException e) {
-            fail();
-        }
+        });
     }
 }

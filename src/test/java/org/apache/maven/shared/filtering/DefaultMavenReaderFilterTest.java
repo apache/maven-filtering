@@ -33,12 +33,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Kristian Rosenvold
  */
 @MavenDITest
-public class DefaultMavenReaderFilterTest {
+class DefaultMavenReaderFilterTest {
     @Inject
     Injector container;
 
     @Test
-    public void testJustDoSomeFiltering() throws Exception {
+    void justDoSomeFiltering() throws Exception {
         MavenReaderFilter readerFilter = container.getInstance(MavenReaderFilter.class);
 
         StringReader src = new StringReader("toto@titi.com ${foo}");

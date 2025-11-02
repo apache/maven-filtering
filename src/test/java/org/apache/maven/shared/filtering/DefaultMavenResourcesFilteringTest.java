@@ -55,7 +55,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * @since 1.0-beta-1
  */
 @MavenDITest
-public class DefaultMavenResourcesFilteringTest {
+class DefaultMavenResourcesFilteringTest {
 
     @Inject
     Injector container;
@@ -78,7 +78,7 @@ public class DefaultMavenResourcesFilteringTest {
     }
 
     @Test
-    public void testSimpleFiltering() throws Exception {
+    void simpleFiltering() throws Exception {
         mavenProject.addProperty("foo", "bar");
         mavenProject.addProperty("java.version", "zloug");
 
@@ -112,7 +112,7 @@ public class DefaultMavenResourcesFilteringTest {
     }
 
     @Test
-    public void testSessionFiltering() throws Exception {
+    void sessionFiltering() throws Exception {
 
         String unitFilesDir = getBasedir() + "/src/test/units-files/session-filtering";
 
@@ -155,7 +155,7 @@ public class DefaultMavenResourcesFilteringTest {
     }
 
     @Test
-    public void testWithMavenResourcesExecution() throws Exception {
+    void withMavenResourcesExecution() throws Exception {
         mavenProject.addProperty("foo", "bar");
         mavenProject.addProperty("java.version", "zloug");
 
@@ -187,7 +187,7 @@ public class DefaultMavenResourcesFilteringTest {
     }
 
     @Test
-    public void testWithMavenResourcesExecutionWithAdditionalProperties() throws Exception {
+    void withMavenResourcesExecutionWithAdditionalProperties() throws Exception {
         mavenProject.addProperty("foo", "bar");
         mavenProject.addProperty("java.version", "zloug");
 
@@ -278,7 +278,7 @@ public class DefaultMavenResourcesFilteringTest {
     }
 
     @Test
-    public void testAddingTokens() throws Exception {
+    void addingTokens() throws Exception {
         mavenProject.addProperty("foo", "bar");
         mavenProject.addProperty("java.version", "zloug");
 
@@ -314,7 +314,7 @@ public class DefaultMavenResourcesFilteringTest {
     }
 
     @Test
-    public void testNoFiltering() throws Exception {
+    void noFiltering() throws Exception {
 
         String unitFilesDir = getBasedir() + "/src/test/units-files/maven-resources-filtering";
         Path initialImageFile = Paths.get(unitFilesDir, "happy_duke.gif");
@@ -365,7 +365,7 @@ public class DefaultMavenResourcesFilteringTest {
     }
 
     @Test
-    public void testIncludeOneFile() throws Exception {
+    void includeOneFile() throws Exception {
 
         String unitFilesDir = getBasedir() + "/src/test/units-files/maven-resources-filtering";
 
@@ -396,7 +396,7 @@ public class DefaultMavenResourcesFilteringTest {
     }
 
     @Test
-    public void testIncludeOneFileAndDirectory() throws Exception {
+    void includeOneFileAndDirectory() throws Exception {
         String unitFilesDir = getBasedir() + "/src/test/units-files/maven-resources-filtering";
 
         Resource resource = new Resource();
@@ -432,7 +432,7 @@ public class DefaultMavenResourcesFilteringTest {
     }
 
     @Test
-    public void testFlattenDirectoryStructure() throws Exception {
+    void flattenDirectoryStructure() throws Exception {
         Path baseDir = Paths.get(getBasedir());
         ProjectStub mavenProject = new ProjectStub().setBasedir(baseDir);
         mavenProject.setVersion("1.0");
@@ -478,7 +478,7 @@ public class DefaultMavenResourcesFilteringTest {
     }
 
     @Test
-    public void testFlattenDirectoryStructureWithoutOverride() {
+    void flattenDirectoryStructureWithoutOverride() {
         Path baseDir = Paths.get(getBasedir());
         ProjectStub mavenProject = new ProjectStub().setBasedir(baseDir);
         mavenProject.setVersion("1.0");
@@ -520,7 +520,7 @@ public class DefaultMavenResourcesFilteringTest {
     }
 
     @Test
-    public void testExcludeOneFile() throws Exception {
+    void excludeOneFile() throws Exception {
 
         String unitFilesDir = getBasedir() + "/src/test/units-files/maven-resources-filtering";
 
@@ -562,7 +562,7 @@ public class DefaultMavenResourcesFilteringTest {
     }
 
     @Test
-    public void testTargetAbsolutePath() throws Exception {
+    void targetAbsolutePath() throws Exception {
 
         String unitFilesDir = getBasedir() + "/src/test/units-files/maven-resources-filtering";
 
@@ -600,7 +600,7 @@ public class DefaultMavenResourcesFilteringTest {
     }
 
     @Test
-    public void testTargetPath() throws Exception {
+    void targetPath() throws Exception {
 
         String unitFilesDir = getBasedir() + "/src/test/units-files/maven-resources-filtering";
 
@@ -633,7 +633,7 @@ public class DefaultMavenResourcesFilteringTest {
     }
 
     @Test
-    public void testEmptyDirectories() throws Exception {
+    void emptyDirectories() throws Exception {
 
         List<Resource> resources = new ArrayList<>();
         resources.add(new Resource() {
@@ -681,7 +681,7 @@ public class DefaultMavenResourcesFilteringTest {
     }
 
     @Test
-    public void testShouldReturnGitIgnoreFiles() throws Exception {
+    void shouldReturnGitIgnoreFiles() throws Exception {
         createTestDataStructure();
 
         Path outputDirectory = Paths.get(getBasedir(), "target/testGitIgnoreFile");
@@ -773,7 +773,7 @@ public class DefaultMavenResourcesFilteringTest {
      * unit test for MSHARED-81 : https://issues.apache.org/jira/browse/MSHARED-81
      */
     @Test
-    public void testMSHARED81() throws Exception {
+    void mshared81() throws Exception {
         mavenProject.addProperty("escaped", "this is escaped");
         mavenProject.addProperty("escaped.at", "this is escaped.at");
         mavenProject.addProperty("foo", "this is foo");
@@ -864,7 +864,7 @@ public class DefaultMavenResourcesFilteringTest {
      * unit test for edge cases : https://issues.apache.org/jira/browse/MSHARED-228
      */
     @Test
-    public void testEdgeCases() throws Exception {
+    void edgeCases() throws Exception {
         mavenProject.addProperty("escaped", "this is escaped");
         mavenProject.addProperty("escaped.at", "this is escaped.at");
         mavenProject.addProperty("foo", "this is foo");
@@ -918,7 +918,7 @@ public class DefaultMavenResourcesFilteringTest {
 
     // MSHARED-220: Apply filtering to filenames
     @Test
-    public void testFilterFileName() throws Exception {
+    void filterFileName() throws Exception {
 
         String unitFilesDir = getBasedir() + "/src/test/units-files/maven-filename-filtering";
 
@@ -950,7 +950,7 @@ public class DefaultMavenResourcesFilteringTest {
      * MRESOURCES-171: Use correct encoding when filtering properties-files
      */
     @Test
-    public void testFilterPropertiesFiles() throws Exception {
+    void filterPropertiesFiles() throws Exception {
 
         String unitFilesDir = getBasedir() + "/src/test/units-files/MRESOURCES-171";
 
@@ -977,7 +977,7 @@ public class DefaultMavenResourcesFilteringTest {
     }
 
     @Test
-    public void testGetEncoding() {
+    void getEncoding() {
         Path propertiesFile = Paths.get("file.properties");
         Path regularFile = Paths.get("file.xml");
 
@@ -992,7 +992,7 @@ public class DefaultMavenResourcesFilteringTest {
     }
 
     @Test
-    public void testIsPropertiesFile() {
+    void isPropertiesFile() {
         // Properties files
         assertTrue(DefaultMavenResourcesFiltering.isPropertiesFile(Paths.get("file.properties")));
         assertTrue(DefaultMavenResourcesFiltering.isPropertiesFile(Paths.get("some/parent/path", "file.properties")));

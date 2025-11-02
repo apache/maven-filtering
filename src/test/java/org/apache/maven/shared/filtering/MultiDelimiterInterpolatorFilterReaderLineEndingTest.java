@@ -37,7 +37,7 @@ import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class MultiDelimiterInterpolatorFilterReaderLineEndingTest
+class MultiDelimiterInterpolatorFilterReaderLineEndingTest
         extends AbstractInterpolatorFilterReaderLineEndingTest {
 
     @Mock
@@ -79,7 +79,7 @@ public class MultiDelimiterInterpolatorFilterReaderLineEndingTest
 
     // MSHARED-199: Filtering doesn't work if 2 delimiters are used on the same line, the first one being left open
     @Test
-    public void testLineWithSingleAtAndExpression() throws Exception {
+    void lineWithSingleAtAndExpression() throws Exception {
         when(interpolator.interpolate(eq("${foo}"), eq(""), isA(RecursionInterceptor.class)))
                 .thenReturn("bar");
 
@@ -93,7 +93,7 @@ public class MultiDelimiterInterpolatorFilterReaderLineEndingTest
 
     // http://stackoverflow.com/questions/21786805/maven-war-plugin-customize-filter-delimitters-in-webresources/
     @Test
-    public void testAtDollarExpression() throws Exception {
+    void atDollarExpression() throws Exception {
         when(interpolator.interpolate(eq("${db.server}"), eq(""), isA(RecursionInterceptor.class)))
                 .thenReturn("DB_SERVER");
         when(interpolator.interpolate(eq("${db.port}"), eq(""), isA(RecursionInterceptor.class)))

@@ -19,7 +19,6 @@
 package org.apache.maven.shared.filtering;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.nio.file.Files;
@@ -52,7 +51,7 @@ import static org.mockito.Mockito.mock;
  *
  */
 @MavenDITest
-public class DefaultMavenFileFilterTest {
+class DefaultMavenFileFilterTest {
 
     @Inject
     Injector container;
@@ -65,7 +64,7 @@ public class DefaultMavenFileFilterTest {
     }
 
     @Test
-    public void testOverwriteFile() throws Exception {
+    void overwriteFile() throws Exception {
         MavenFileFilter mavenFileFilter = container.getInstance(MavenFileFilter.class);
 
         Path from = Paths.get(getBasedir(), "src/test/units-files/reflection-test.properties");
@@ -86,7 +85,7 @@ public class DefaultMavenFileFilterTest {
     }
 
     @Test
-    public void testNullSafeDefaultFilterWrappers() throws Exception {
+    void nullSafeDefaultFilterWrappers() throws Exception {
         MavenFileFilter mavenFileFilter = container.getInstance(MavenFileFilter.class);
 
         mavenFileFilter.getDefaultFilterWrappers(null, null, false, null, null);
@@ -95,7 +94,7 @@ public class DefaultMavenFileFilterTest {
     }
 
     @Test
-    public void testMultiFilterFileInheritance() throws Exception {
+    void multiFilterFileInheritance() throws Exception {
         DefaultMavenFileFilter mavenFileFilter = new DefaultMavenFileFilter(mock(BuildContext.class));
 
         File testDir = new File(getBasedir(), "src/test/units-files/MSHARED-177");
@@ -116,7 +115,7 @@ public class DefaultMavenFileFilterTest {
     // MSHARED-161: DefaultMavenFileFilter.getDefaultFilterWrappers loads
     // filters from the current directory instead of using basedir
     @Test
-    public void testMavenBasedir() throws Exception {
+    void mavenBasedir() throws Exception {
         MavenFileFilter mavenFileFilter = container.getInstance(MavenFileFilter.class);
 
         AbstractMavenFilteringRequest req = new AbstractMavenFilteringRequest();
@@ -140,7 +139,7 @@ public class DefaultMavenFileFilterTest {
 
     // MSHARED-198: custom delimiters doesn't work as expected
     @Test
-    public void testCustomDelimiters() throws Exception {
+    void customDelimiters() throws Exception {
         MavenFileFilter mavenFileFilter = container.getInstance(MavenFileFilter.class);
 
         AbstractMavenFilteringRequest req = new AbstractMavenFilteringRequest();
@@ -160,7 +159,7 @@ public class DefaultMavenFileFilterTest {
 
     // MSHARED-199: Filtering doesn't work if 2 delimiters are used on the same line, the first one being left open
     @Test
-    public void testLineWithSingleAtAndExpression() throws Exception {
+    void lineWithSingleAtAndExpression() throws Exception {
         MavenFileFilter mavenFileFilter = container.getInstance(MavenFileFilter.class);
 
         AbstractMavenFilteringRequest req = new AbstractMavenFilteringRequest();
@@ -176,7 +175,7 @@ public class DefaultMavenFileFilterTest {
     }
 
     @Test
-    void testInterpolatorCustomizer() throws MavenFilteringException, IOException {
+    void interpolatorCustomizer() throws Exception {
         AbstractMavenFilteringRequest req = new AbstractMavenFilteringRequest();
         req.setInterpolatorCustomizer(i -> i.addValueSource(new AbstractValueSource(false) {
             @Override

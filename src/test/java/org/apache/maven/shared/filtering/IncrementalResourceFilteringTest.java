@@ -30,11 +30,11 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.api.di.Inject;
 import org.apache.maven.api.di.testing.MavenDITest;
 import org.apache.maven.api.plugin.testing.stubs.ProjectStub;
 import org.apache.maven.di.Injector;
-import org.codehaus.plexus.util.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -29,6 +29,7 @@ import java.nio.file.StandardCopyOption;
 import org.junit.jupiter.api.Test;
 
 import static org.apache.maven.api.di.testing.MavenDIExtension.getBasedir;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -146,5 +147,24 @@ public class FilteringUtilsTest {
         assertEquals(
                 "jdbc:derby:C:\\\\Users\\\\Administrator/test;create=true",
                 FilteringUtils.escapeWindowsPath("jdbc:derby:C:\\Users\\Administrator/test;create=true"));
+    }
+
+    @Test
+    public void testDoNotThrowOnBinaryFile() {
+        Path fromFile = Paths.get(getBasedir() + "/src/test/units-files/binary-file/binary-file");
+        Path toFile = TEST_DIRECTORY.resolve("binary-file-copied");
+        assertDoesNotThrow(() -> FilteringUtils.copyFile(
+                fromFile,
+                toFile,
+                "UTF-8",
+                new FilterWrapper[] {
+                    new FilterWrapper() {
+                        @Override
+                        public Reader getReader(Reader fileReader) {
+                            return fileReader;
+                        }
+                    }
+                },
+                false));
     }
 }

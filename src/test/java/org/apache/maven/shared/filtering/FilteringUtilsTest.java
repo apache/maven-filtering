@@ -28,6 +28,7 @@ import java.nio.file.StandardCopyOption;
 import org.junit.jupiter.api.Test;
 
 import static org.apache.maven.api.di.testing.MavenDIExtension.getBasedir;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -149,7 +150,7 @@ class FilteringUtilsTest {
     }
 
     @Test
-    public void testDoNotThrowOnBinaryFile() {
+    public void testBinaryFileWithFiltering() throws IOException {
         Path fromFile = Paths.get(getBasedir() + "/src/test/units-files/binary-file/binary-file");
         Path toFile = TEST_DIRECTORY.resolve("binary-file-copied");
         assertDoesNotThrow(() -> FilteringUtils.copyFile(
@@ -165,5 +166,6 @@ class FilteringUtilsTest {
                     }
                 },
                 false));
+        assertArrayEquals(Files.readAllBytes(toFile), Files.readAllBytes(fromFile), "Binary files differ");
     }
 }

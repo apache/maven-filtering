@@ -55,6 +55,7 @@ import org.apache.maven.api.annotations.Nullable;
 import org.apache.maven.api.model.Repository;
 import org.apache.maven.api.services.VersionResolverException;
 import org.apache.maven.api.settings.Settings;
+import org.apache.maven.api.toolchain.ToolchainModel;
 
 /**
  */
@@ -97,6 +98,11 @@ public class StubSession implements Session {
     @Override
     public Settings getSettings() {
         return settings;
+    }
+
+    @Override
+    public Collection<ToolchainModel> getToolchains() {
+        return List.of();
     }
 
     @Override
@@ -309,6 +315,12 @@ public class StubSession implements Session {
     public List<Version> resolveVersionRange(ArtifactCoordinates artifactCoordinates, List<RemoteRepository> list)
             throws VersionResolverException {
         return List.of();
+    }
+
+    @Override
+    public Optional<Version> resolveHighestVersion(ArtifactCoordinates artifactCoordinates, List<RemoteRepository> list)
+            throws VersionResolverException {
+        return Optional.empty();
     }
 
     @Override

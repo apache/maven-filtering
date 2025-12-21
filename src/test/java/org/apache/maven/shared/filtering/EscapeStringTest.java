@@ -40,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Olivier Lamy
  */
 @MavenDITest
-public class EscapeStringTest {
+class EscapeStringTest {
 
     @Inject
     Injector container;
@@ -56,7 +56,7 @@ public class EscapeStringTest {
     }
 
     @Test
-    public void testEscape() throws Exception {
+    void escape() throws Exception {
         Path baseDir = Paths.get(getBasedir());
         ProjectStub mavenProject = new ProjectStub().setBasedir(baseDir);
         mavenProject.setVersion("1.0");

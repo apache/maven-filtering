@@ -18,7 +18,6 @@
  */
 package org.apache.maven.shared.filtering;
 
-import java.io.IOException;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -37,11 +36,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @since 1.0
  *
  */
-public class FilteringUtilsTest {
+class FilteringUtilsTest {
     private static final Path TEST_DIRECTORY = Paths.get(getBasedir(), "target/test-classes/");
 
     @Test
-    public void testMSHARED1213CopyWithTargetAlreadyExisting0ByteFile() throws IOException {
+    void mshared1213CopyWithTargetAlreadyExisting0ByteFile() throws Exception {
         Path fromFile = Paths.get(getBasedir() + "/src/test/units-files/MSHARED-1213/enunciate.xml");
         Path toFile = TEST_DIRECTORY.resolve("MSHARED-1213-enunciate.xml");
         Files.writeString(toFile, "");
@@ -64,7 +63,7 @@ public class FilteringUtilsTest {
     }
 
     @Test
-    public void testMSHARED1213CopyWithTargetAlreadyExistingJunkFile() throws IOException {
+    void mshared1213CopyWithTargetAlreadyExistingJunkFile() throws Exception {
         Path fromFile = Paths.get(getBasedir() + "/src/test/units-files/MSHARED-1213/enunciate.xml");
         Path toFile = TEST_DIRECTORY.resolve("MSHARED-1213-enunciate.xml");
         Files.writeString(toFile, "junk");
@@ -87,7 +86,7 @@ public class FilteringUtilsTest {
     }
 
     @Test
-    public void testMSHARED1213CopyWithTargetAlreadyExistingSameFile() throws IOException {
+    void mshared1213CopyWithTargetAlreadyExistingSameFile() throws Exception {
         Path fromFile = Paths.get(getBasedir() + "/src/test/units-files/MSHARED-1213/enunciate.xml");
         Path toFile = TEST_DIRECTORY.resolve("MSHARED-1213-enunciate.xml");
         Files.copy(fromFile, toFile, StandardCopyOption.REPLACE_EXISTING);
@@ -110,17 +109,17 @@ public class FilteringUtilsTest {
     }
 
     @Test
-    public void testEscapeWindowsPathStartingWithDrive() {
+    void escapeWindowsPathStartingWithDrive() {
         assertEquals("C:\\\\Users\\\\Administrator", FilteringUtils.escapeWindowsPath("C:\\Users\\Administrator"));
     }
 
     @Test
-    public void testEscapeWindowsPathMissingDriveLetter() {
+    void escapeWindowsPathMissingDriveLetter() {
         assertEquals(":\\Users\\Administrator", FilteringUtils.escapeWindowsPath(":\\Users\\Administrator"));
     }
 
     @Test
-    public void testEscapeWindowsPathInvalidDriveLetter() {
+    void escapeWindowsPathInvalidDriveLetter() {
         assertEquals("4:\\Users\\Administrator", FilteringUtils.escapeWindowsPath("4:\\Users\\Administrator"));
     }
 
@@ -142,7 +141,7 @@ public class FilteringUtilsTest {
 
     // MSHARED-179
     @Test
-    public void testEscapeWindowsPathNotAtBeginning() {
+    void escapeWindowsPathNotAtBeginning() {
         assertEquals(
                 "jdbc:derby:C:\\\\Users\\\\Administrator/test;create=true",
                 FilteringUtils.escapeWindowsPath("jdbc:derby:C:\\Users\\Administrator/test;create=true"));

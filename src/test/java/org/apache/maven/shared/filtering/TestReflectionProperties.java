@@ -41,13 +41,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  *
  */
 @MavenDITest
-public class TestReflectionProperties {
+class TestReflectionProperties {
 
     @Inject
     Injector container;
 
     @Test
-    public void testSimpleFiltering() throws Exception {
+    void simpleFiltering() throws Exception {
         ProjectStub mavenProject = new ProjectStub();
         mavenProject.setVersion("1.0");
         mavenProject.setGroupId("org.apache");
@@ -75,7 +75,7 @@ public class TestReflectionProperties {
     }
 
     @Test
-    public void testSimpleNonFiltering() throws Exception {
+    void simpleNonFiltering() throws Exception {
 
         ProjectStub mavenProject = new ProjectStub();
         mavenProject.setVersion("1.0");

@@ -18,7 +18,6 @@
  */
 package org.apache.maven.shared.filtering;
 
-import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 
@@ -41,7 +40,7 @@ public abstract class AbstractInterpolatorFilterReaderLineEndingTest {
     private Interpolator interpolator;
 
     @Test
-    public void testDefaults() throws Exception {
+    public void defaults() throws Exception {
         when(interpolator.interpolate(eq("${a}"), eq(""), isA(RecursionInterceptor.class)))
                 .thenReturn("DONE_A");
 
@@ -84,7 +83,7 @@ public abstract class AbstractInterpolatorFilterReaderLineEndingTest {
 
     // MSHARED-198: custom delimiters doesn't work as expected
     @Test
-    public void testCustomDelimiters() throws Exception {
+    public void customDelimiters() throws Exception {
         when(interpolator.interpolate(eq("aaaFILTER.a.MEaaa"), eq(""), isA(RecursionInterceptor.class)))
                 .thenReturn("DONE");
         when(interpolator.interpolate(eq("abcFILTER.a.MEabc"), eq(""), isA(RecursionInterceptor.class)))
@@ -102,7 +101,7 @@ public abstract class AbstractInterpolatorFilterReaderLineEndingTest {
 
     // MSHARED-235: reader exceeds readAheadLimit
     @Test
-    public void testMarkInvalid() throws IOException {
+    public void markInvalid() throws Exception {
         try (Reader reader = getAtReader(new StringReader("@\").replace(p,\"]\").replace(q,\""), interpolator, "\\")) {
             assertEquals("@\").replace(p,\"]\").replace(q,\"", IOUtils.toString(reader));
         }

@@ -19,7 +19,6 @@
 package org.apache.maven.shared.filtering;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Arrays;
@@ -28,12 +27,12 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class BoundedReaderTest {
+class BoundedReaderTest {
 
     private final Reader sr = new BufferedReader(new StringReader("01234567890"));
 
     @Test
-    public void readTillEnd() throws IOException {
+    void readTillEnd() throws Exception {
         try (BoundedReader mr = new BoundedReader(sr, 3)) {
             mr.mark(3);
             mr.read();
@@ -44,7 +43,7 @@ public class BoundedReaderTest {
     }
 
     @Test
-    public void readMulti() throws IOException {
+    void readMulti() throws Exception {
         char[] cbuf = new char[4];
         Arrays.fill(cbuf, 'X');
 
@@ -60,7 +59,7 @@ public class BoundedReaderTest {
     }
 
     @Test
-    public void readMultiWithOffset() throws IOException {
+    void readMultiWithOffset() throws Exception {
 
         char[] cbuf = new char[4];
         Arrays.fill(cbuf, 'X');
@@ -77,7 +76,7 @@ public class BoundedReaderTest {
     }
 
     @Test
-    public void resetWorks() throws IOException {
+    void resetWorks() throws Exception {
         try (BoundedReader mr = new BoundedReader(sr, 3)) {
             mr.read();
             mr.read();
@@ -91,7 +90,7 @@ public class BoundedReaderTest {
     }
 
     @Test
-    public void skipTest() throws IOException {
+    void skipTest() throws Exception {
         try (BoundedReader mr = new BoundedReader(sr, 3)) {
             mr.skip(2);
             mr.read();

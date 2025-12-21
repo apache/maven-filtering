@@ -45,11 +45,11 @@ import static org.mockito.Mockito.verify;
  * @since 1.0-beta-1
  */
 @MavenDITest
-public class PropertyUtilsTest {
+class PropertyUtilsTest {
     private static final Path TEST_DIRECTORY = Paths.get(getBasedir(), "target/test-classes/");
 
     @Test
-    public void testBasic() throws Exception {
+    void basic() throws Exception {
         Path basicProp = TEST_DIRECTORY.resolve("basic.properties");
 
         Files.deleteIfExists(basicProp);
@@ -67,7 +67,7 @@ public class PropertyUtilsTest {
     }
 
     @Test
-    public void testSystemProperties() throws Exception {
+    void systemProperties() throws Exception {
         Path systemProp = TEST_DIRECTORY.resolve("system.properties");
 
         Files.deleteIfExists(systemProp);
@@ -82,7 +82,7 @@ public class PropertyUtilsTest {
     }
 
     @Test
-    public void testException() {
+    void exception() {
         Path nonExistent = TEST_DIRECTORY.resolve("not_existent_file");
 
         assertFalse(Files.exists(nonExistent), "property file exist: " + nonExistent);
@@ -91,7 +91,7 @@ public class PropertyUtilsTest {
     }
 
     @Test
-    public void testloadpropertiesFile() throws Exception {
+    void testloadpropertiesFile() throws Exception {
         Path propertyFile = Paths.get(getBasedir() + "/src/test/units-files/propertyutils-test.properties");
         Properties baseProps = new Properties();
         baseProps.put("pom.version", "realVersion");
@@ -109,7 +109,7 @@ public class PropertyUtilsTest {
      * @throws IOException if problem writing file
      */
     @Test
-    public void testCircularReferences() throws IOException {
+    void circularReferences() throws Exception {
         Path basicProp = TEST_DIRECTORY.resolve("circular.properties");
 
         Files.deleteIfExists(basicProp);
@@ -137,7 +137,7 @@ public class PropertyUtilsTest {
      * @throws IOException if problem writing file
      */
     @Test
-    public void testCircularReferences3Vars() throws IOException {
+    void circularReferences3Vars() throws Exception {
         Path basicProp = TEST_DIRECTORY.resolve("circular.properties");
 
         Files.deleteIfExists(basicProp);

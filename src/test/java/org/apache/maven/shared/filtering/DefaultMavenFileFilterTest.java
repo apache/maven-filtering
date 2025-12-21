@@ -21,7 +21,6 @@ package org.apache.maven.shared.filtering;
 import javax.inject.Inject;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.nio.file.Files;
@@ -158,7 +157,7 @@ class DefaultMavenFileFilterTest {
     }
 
     @Test
-    void testInterpolatorCustomizer() throws MavenFilteringException, IOException {
+    void interpolatorCustomizer() throws Exception {
         AbstractMavenFilteringRequest req = new AbstractMavenFilteringRequest();
         req.setInterpolatorCustomizer(i -> {
             i.addValueSource(new AbstractValueSource(false) {

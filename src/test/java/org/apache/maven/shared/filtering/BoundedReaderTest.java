@@ -19,7 +19,6 @@
 package org.apache.maven.shared.filtering;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 
@@ -32,7 +31,7 @@ class BoundedReaderTest {
     private final Reader sr = new BufferedReader(new StringReader("01234567890"));
 
     @Test
-    void readTillEnd() throws IOException {
+    void readTillEnd() throws Exception {
         try (BoundedReader mr = new BoundedReader(sr, 3)) {
             mr.mark(3);
             mr.read();
@@ -43,7 +42,7 @@ class BoundedReaderTest {
     }
 
     @Test
-    void readMulti() throws IOException {
+    void readMulti() throws Exception {
         char[] cbuf = new char[4];
         for (int i = 0; i < cbuf.length; i++) {
             cbuf[i] = 'X';
@@ -61,7 +60,7 @@ class BoundedReaderTest {
     }
 
     @Test
-    void readMultiWithOffset() throws IOException {
+    void readMultiWithOffset() throws Exception {
 
         char[] cbuf = new char[4];
         for (int i = 0; i < cbuf.length; i++) {
@@ -80,7 +79,7 @@ class BoundedReaderTest {
     }
 
     @Test
-    void resetWorks() throws IOException {
+    void resetWorks() throws Exception {
         try (BoundedReader mr = new BoundedReader(sr, 3)) {
             mr.read();
             mr.read();
@@ -94,7 +93,7 @@ class BoundedReaderTest {
     }
 
     @Test
-    void skipTest() throws IOException {
+    void skipTest() throws Exception {
         try (BoundedReader mr = new BoundedReader(sr, 3)) {
             mr.skip(2);
             mr.read();

@@ -18,7 +18,6 @@
  */
 package org.apache.maven.shared.filtering;
 
-import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 
@@ -107,7 +106,7 @@ public abstract class AbstractInterpolatorFilterReaderLineEndingTest {
 
     // MSHARED-235: reader exceeds readAheadLimit
     @Test
-    void markInvalid() throws IOException {
+    void markInvalid() throws Exception {
         try (Reader reader = getAtReader(new StringReader("@\").replace(p,\"]\").replace(q,\""), interpolator, "\\")) {
             assertEquals("@\").replace(p,\"]\").replace(q,\"", IOUtils.toString(reader));
         }

@@ -104,7 +104,7 @@ class PropertyUtilsTest {
      * @throws IOException if problem writing file
      */
     @Test
-    void circularReferences() throws IOException {
+    void circularReferences() throws Exception {
         File circularProperties = File.createTempFile("circular", ".properties");
         circularProperties.deleteOnExit();
 
@@ -125,7 +125,7 @@ class PropertyUtilsTest {
      * @throws IOException if problem writing file
      */
     @Test
-    void circularReferences3Vars() throws IOException {
+    void circularReferences3Vars() throws Exception {
         File circularProperties = File.createTempFile("circular", ".properties");
         circularProperties.deleteOnExit();
 

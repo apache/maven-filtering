@@ -1003,6 +1003,51 @@ class DefaultMavenResourcesFilteringTest {
         assertFalse(DefaultMavenResourcesFiltering.isPropertiesFile(Paths.get("some/parent/path", "file.xml")));
     }
 
+    /**
+     * ISSUE-289: filter file names one component at a time
+     */
+    @Test
+    void testFileNameFilteringWithWindowsEscapeCollision() throws Exception {
+        mavenProject.addProperty("foo", "bar");
+
+        Path unitFilesDir = baseDir.resolve("target/test-windows-collision/src");
+        Path subDir = unitFilesDir.resolve("subdir");
+
+        if (Files.exists(unitFilesDir)) {
+            IOUtils.deleteDirectory(unitFilesDir);
+        }
+        Files.createDirectories(subDir);
+
+        Files.write(subDir.resolve("${foo}.txt"), "content".getBytes());
+
+        Resource resource = new Resource();
+        resource.setDirectory(unitFilesDir.toString());
+        resource.setFiltering(true);
+
+        MavenResourcesExecution mavenResourcesExecution = new MavenResourcesExecution(
+                Collections.singletonList(resource),
+                outputDirectory,
+                mavenProject,
+                "UTF-8",
+                Collections.emptyList(),
+                Collections.emptyList(),
+                new StubSession());
+
+        mavenResourcesExecution.setFilterFilenames(true);
+        mavenResourcesExecution.setEscapeString("\\");
+
+        mavenResourcesFiltering.filterResources(mavenResourcesExecution);
+
+        Path successFile = outputDirectory.resolve("subdir/bar.txt");
+        Path failedFile = outputDirectory.resolve("subdirbar.txt");
+
+        if (Files.exists(failedFile)) {
+            fail("Bug Reproduced: The Windows path separator was interpreted as an escape character, resulting in a flattened filename: " + failedFile);
+        }
+
+        assertTrue(Files.exists(successFile));
+    }
+
     private String filename(Path file) {
         return file.getFileName().toString();
     }

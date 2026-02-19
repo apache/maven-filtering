@@ -42,7 +42,7 @@ public interface MavenFileFilter extends DefaultFilterInfo {
      * @param encoding The encoding which is used during the filtering process.
      * @throws MavenFilteringException in case of failure.
      * @see DefaultFilterInfo#getDefaultFilterWrappers(MavenProject, List, boolean,MavenSession, MavenResourcesExecution)
-     * @deprecated Use copyFile(File, File, boolean, MavenProject, List<String>, boolean, String, ChangeDetection) instead.
+     * @deprecated Use {@link #copyFile(File, File, boolean, MavenProject, List, boolean, String, MavenSession, ChangeDetection)} instead.
      */
     void copyFile(
             File from,

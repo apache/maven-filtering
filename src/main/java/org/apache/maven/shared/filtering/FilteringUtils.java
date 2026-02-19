@@ -320,8 +320,9 @@ public final class FilteringUtils {
      * @param encoding the file output encoding (only if wrappers is not empty)
      * @param wrappers array of {@link FilterWrapper}
      * @throws IOException if an IO error occurs during copying or filtering
+     * @return {@code true} if the file was copied.
      */
-    public static void copyFile(
+    public static boolean copyFile(
             File from, File to, String encoding, FilterWrapper[] wrappers, ChangeDetection changeDetection)
             throws IOException {
         if (!to.isFile()) {
@@ -347,16 +348,18 @@ public final class FilteringUtils {
             default:
                 throw new IllegalArgumentException("Unsupported change detection mode: " + changeDetection);
         }
+        boolean copied = false;
         if (needsCopy) {
             if (unconditionally) {
-                copyUnconditionally(from, to, encoding, wrappers);
+                copied = copyUnconditionally(from, to, encoding, wrappers);
             } else {
-                copyIfContentsChanged(from, to, encoding, wrappers);
+                copied = copyIfContentsChanged(from, to, encoding, wrappers);
             }
         }
+        return copied;
     }
 
-    public static boolean copyUnconditionally(File from, File to, String encoding, FilterWrapper[] wrappers)
+    private static boolean copyUnconditionally(File from, File to, String encoding, FilterWrapper[] wrappers)
             throws IOException {
         setReadWritePermissions(to);
         if (wrappers == null || wrappers.length == 0) {
@@ -383,7 +386,7 @@ public final class FilteringUtils {
         return true;
     }
 
-    public static boolean copyIfContentsChanged(File from, File to, String encoding, FilterWrapper[] wrappers)
+    private static boolean copyIfContentsChanged(File from, File to, String encoding, FilterWrapper[] wrappers)
             throws IOException {
         setReadWritePermissions(to);
         boolean copied = false;

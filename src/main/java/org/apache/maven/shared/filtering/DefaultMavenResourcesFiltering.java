@@ -34,12 +34,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.model.Resource;
 import org.codehaus.plexus.util.DirectoryScanner;
+import org.codehaus.plexus.util.FileUtils;
+import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.Scanner;
+import org.codehaus.plexus.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonatype.plexus.build.incremental.BuildContext;
@@ -93,7 +93,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
     }
 
     private static String getExtension(String fileName) {
-        String rawExt = FilenameUtils.getExtension(fileName);
+        String rawExt = FileUtils.getExtension(fileName);
         return rawExt == null ? null : rawExt.toLowerCase(Locale.ROOT);
     }
 
@@ -507,7 +507,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
         }
 
         try (StringWriter writer = new StringWriter()) {
-            IOUtils.copy(reader, writer);
+            IOUtil.copy(reader, writer);
             String filteredFilename = writer.toString();
 
             if (LOGGER.isDebugEnabled()) {

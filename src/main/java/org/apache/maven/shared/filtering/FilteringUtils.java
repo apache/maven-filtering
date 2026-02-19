@@ -32,7 +32,6 @@ import java.util.EnumSet;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.SystemUtils;
 import org.codehaus.plexus.util.io.CachingOutputStream;
 import org.codehaus.plexus.util.io.CachingWriter;
 
@@ -41,6 +40,12 @@ import org.codehaus.plexus.util.io.CachingWriter;
  * @author Dennis Lundberg
  */
 public final class FilteringUtils {
+    /**
+     * Logic borrowed from Commons-Lang3: we really need only this, to decide is it Windows.
+     * It is nonsense to import whole commons-lang3 just for this test.
+     */
+    private static final boolean IS_WINDOWS =
+            System.getProperty("os.name", "unknown").startsWith("Windows");
     /**
      * The number of bytes in a kilobyte.
      */
@@ -115,7 +120,7 @@ public final class FilteringUtils {
         }
 
         // deal with absolute files
-        if (filenm.startsWith(File.separator) || (SystemUtils.IS_OS_WINDOWS && filenm.indexOf(":") > 0)) {
+        if (filenm.startsWith(File.separator) || (IS_WINDOWS && filenm.indexOf(":") > 0)) {
             File file = new File(filenm);
 
             try {

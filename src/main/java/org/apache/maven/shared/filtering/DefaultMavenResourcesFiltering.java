@@ -280,7 +280,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
                 File destinationFile = getDestinationFile(outputDirectory, targetPath, name, mavenResourcesExecution);
 
                 if (mavenResourcesExecution.isFlatten() && destinationFile.exists()) {
-                    if (mavenResourcesExecution.isOverwrite()) {
+                    if (mavenResourcesExecution.getChangeDetection() == ChangeDetection.ALWAYS) {
                         LOGGER.warn("existing file " + destinationFile.getName() + " will be overwritten by " + name);
                     } else {
                         throw new MavenFilteringException("existing file " + destinationFile.getName()
@@ -303,7 +303,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
                         resource.isFiltering() && filteredExt,
                         mavenResourcesExecution.getFilterWrappers(),
                         encoding,
-                        mavenResourcesExecution.isOverwrite());
+                        mavenResourcesExecution.getChangeDetection());
             }
 
             // deal with deleted source files

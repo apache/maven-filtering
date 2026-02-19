@@ -29,6 +29,8 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.interpolation.StringSearchInterpolator;
 import org.codehaus.plexus.interpolation.ValueSource;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * A bean to configure a resources filtering execution.
  *
@@ -91,7 +93,7 @@ public class MavenResourcesExecution extends AbstractMavenFilteringRequest {
      *
      * @since 1.0-beta-2
      */
-    private boolean overwrite = false;
+    private ChangeDetection changeDetection = ChangeDetection.CONTENT;
 
     /**
      * Copy any empty directories included in the Resources.
@@ -352,11 +354,13 @@ public class MavenResourcesExecution extends AbstractMavenFilteringRequest {
     /**
      * Overwrite existing files even if the destination files are newer.
      *
-     * @return {@link #overwrite}
+     * @return {@code true} if operation always overwrites.
      * @since 1.0-beta-2
+     * @deprecated Use #getChangeDetection() instead.
      */
+    @Deprecated
     public boolean isOverwrite() {
-        return overwrite;
+        return changeDetection == ChangeDetection.ALWAYS;
     }
 
     /**
@@ -364,9 +368,30 @@ public class MavenResourcesExecution extends AbstractMavenFilteringRequest {
      *
      * @param overwrite overwrite true or false.
      * @since 1.0-beta-2
+     * @deprecated Use #setChangeDetection(ChangeDetection) instead.
      */
+    @Deprecated
     public void setOverwrite(boolean overwrite) {
-        this.overwrite = overwrite;
+        this.changeDetection = overwrite ? ChangeDetection.ALWAYS : ChangeDetection.CONTENT;
+    }
+
+    /**
+     * Change detection strategy to determine whether an existing file should be overwritten.
+     *
+     * @since 3.5.0
+     */
+    public ChangeDetection getChangeDetection() {
+        return changeDetection;
+    }
+
+    /**
+     * Sets the change detection strategy to determine whether an existing file should be overwritten.
+     *
+     * @param changeDetection the change detection strategy to use, must not be {@code null}.
+     * @since 3.5.0
+     */
+    public void setChangeDetection(ChangeDetection changeDetection) {
+        this.changeDetection = requireNonNull(changeDetection);
     }
 
     /**
@@ -440,7 +465,7 @@ public class MavenResourcesExecution extends AbstractMavenFilteringRequest {
         mre.setMavenSession(this.getMavenSession());
         mre.setNonFilteredFileExtensions(copyList(this.getNonFilteredFileExtensions()));
         mre.setOutputDirectory(this.getOutputDirectory());
-        mre.setOverwrite(this.isOverwrite());
+        mre.setChangeDetection(this.getChangeDetection());
         mre.setProjectStartExpressions(copyList(this.getProjectStartExpressions()));
         mre.setResources(copyList(this.getResources()));
         mre.setResourcesBaseDirectory(this.getResourcesBaseDirectory());

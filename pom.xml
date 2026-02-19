@@ -63,7 +63,6 @@
   <properties>
     <mavenVersion>3.9.12</mavenVersion>
     <slf4jVersion>1.7.36</slf4jVersion>
-    <plexusBuildApiVersion>0.0.7</plexusBuildApiVersion>
     <version.plexus-utils>3.6.0</version.plexus-utils>
     <project.build.outputTimestamp>2024-08-28T15:27:52Z</project.build.outputTimestamp>
     <!-- don't fail check for some rules that are too hard to enforce (could even be told broken for some)
@@ -83,9 +82,9 @@
       <version>${slf4jVersion}</version>
     </dependency>
     <dependency>
-      <groupId>org.sonatype.plexus</groupId>
+      <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-build-api</artifactId>
-      <version>${plexusBuildApiVersion}</version>
+      <version>1.2.0</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>

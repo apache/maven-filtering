@@ -56,12 +56,37 @@ public class DefaultMavenFileFilter extends BaseFilter implements MavenFileFilte
             String encoding,
             MavenSession mavenSession)
             throws MavenFilteringException {
+        copyFile(
+                from,
+                to,
+                filtering,
+                mavenProject,
+                filters,
+                escapedBackslashesInFilePath,
+                encoding,
+                mavenSession,
+                ChangeDetection.CONTENT);
+    }
+
+    @Override
+    public void copyFile(
+            File from,
+            File to,
+            boolean filtering,
+            MavenProject mavenProject,
+            List<String> filters,
+            boolean escapedBackslashesInFilePath,
+            String encoding,
+            MavenSession mavenSession,
+            ChangeDetection changeDetection)
+            throws MavenFilteringException {
         MavenResourcesExecution mre = new MavenResourcesExecution();
         mre.setMavenProject(mavenProject);
         mre.setFileFilters(filters);
         mre.setEscapeWindowsPaths(escapedBackslashesInFilePath);
         mre.setMavenSession(mavenSession);
         mre.setInjectProjectBuildFilters(true);
+        mre.setChangeDetection(changeDetection);
 
         List<FilterWrapper> filterWrappers = getDefaultFilterWrappers(mre);
         copyFile(from, to, filtering, filterWrappers, encoding);
@@ -82,27 +107,7 @@ public class DefaultMavenFileFilter extends BaseFilter implements MavenFileFilte
     @Override
     public void copyFile(File from, File to, boolean filtering, List<FilterWrapper> filterWrappers, String encoding)
             throws MavenFilteringException {
-        try {
-            if (filtering) {
-                if (getLogger().isDebugEnabled()) {
-                    getLogger().debug("filtering " + from.getPath() + " to " + to.getPath());
-                }
-                FilterWrapper[] array = filterWrappers.toArray(new FilterWrapper[0]);
-                FilteringUtils.copyFile(from, to, encoding, array, false);
-            } else {
-                if (getLogger().isDebugEnabled()) {
-                    getLogger().debug("copy " + from.getPath() + " to " + to.getPath());
-                }
-                FilteringUtils.copyFile(from, to, encoding, new FilterWrapper[0], false);
-            }
-
-            buildContext.refresh(to);
-        } catch (IOException e) {
-            throw new MavenFilteringException(
-                    (filtering ? "filtering " : "copying ") + from.getPath() + " to " + to.getPath() + " failed with "
-                            + e.getClass().getSimpleName(),
-                    e);
-        }
+        copyFile(from, to, filtering, filterWrappers, encoding, ChangeDetection.CONTENT);
     }
 
     @Override
@@ -116,6 +121,44 @@ public class DefaultMavenFileFilter extends BaseFilter implements MavenFileFilte
             boolean overwrite)
             throws MavenFilteringException {
         // overwrite forced to false to preserve backward comp
-        copyFile(from, to, filtering, filterWrappers, encoding);
+        copyFile(
+                from,
+                to,
+                filtering,
+                filterWrappers,
+                encoding,
+                overwrite ? ChangeDetection.ALWAYS : ChangeDetection.CONTENT);
+    }
+
+    @Override
+    public void copyFile(
+            File from,
+            File to,
+            boolean filtering,
+            List<FilterWrapper> filterWrappers,
+            String encoding,
+            ChangeDetection changeDetection)
+            throws MavenFilteringException {
+        try {
+            if (filtering) {
+                if (getLogger().isDebugEnabled()) {
+                    getLogger().debug("filtering " + from.getPath() + " to " + to.getPath());
+                }
+                FilterWrapper[] array = filterWrappers.toArray(new FilterWrapper[0]);
+                FilteringUtils.copyFile(from, to, encoding, array, changeDetection);
+            } else {
+                if (getLogger().isDebugEnabled()) {
+                    getLogger().debug("copy " + from.getPath() + " to " + to.getPath());
+                }
+                FilteringUtils.copyFile(from, to, encoding, new FilterWrapper[0], changeDetection);
+            }
+
+            buildContext.refresh(to);
+        } catch (IOException e) {
+            throw new MavenFilteringException(
+                    (filtering ? "filtering " : "copying ") + from.getPath() + " to " + to.getPath() + " failed with "
+                            + e.getClass().getSimpleName(),
+                    e);
+        }
     }
 }

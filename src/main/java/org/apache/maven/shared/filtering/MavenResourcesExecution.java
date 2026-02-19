@@ -89,9 +89,9 @@ public class MavenResourcesExecution extends AbstractMavenFilteringRequest {
     private boolean addDefaultExcludes = true;
 
     /**
-     * Overwrite existing files even if the destination files are newer. <code>false</code> by default.
+     * Change detection strategy to determine whether an existing file should be overwritten.
      *
-     * @since 1.0-beta-2
+     * @since 3.5.0
      */
     private ChangeDetection changeDetection = ChangeDetection.CONTENT;
 

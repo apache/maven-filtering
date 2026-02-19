@@ -35,7 +35,7 @@ public enum ChangeDetection {
     /**
      * Combine timestamp and content change detection.
      */
-    COMBINED,
+    TIMESTAMP_AND_CONTENT,
     /**
      * Disable change detection; always overwrite.
      */

@@ -342,7 +342,7 @@ public final class FilteringUtils {
             case CONTENT:
                 needsCopy = true;
                 break;
-            case COMBINED:
+            case TIMESTAMP_AND_CONTENT:
                 needsCopy = to.lastModified() < from.lastModified();
                 break;
             default:

@@ -311,7 +311,9 @@ public final class FilteringUtils {
      * @param encoding the file output encoding (only if wrappers is not empty)
      * @param wrappers array of {@link FilterWrapper}
      * @throws IOException if an IO error occurs during copying or filtering
+     * @deprecated Use {@link #copyFile(File, File, String, FilterWrapper[], ChangeDetection)} instead.
      */
+    @Deprecated
     public static void copyFile(File from, File to, String encoding, FilterWrapper[] wrappers) throws IOException {
         copyFile(from, to, encoding, wrappers, ChangeDetection.CONTENT);
     }
@@ -435,7 +437,7 @@ public final class FilteringUtils {
      * @param wrappers array of {@link FilterWrapper}
      * @param overwrite unused
      * @throws IOException if an IO error occurs during copying or filtering
-     * @deprecated use {@link #copyFile(File, File, String, FilterWrapper[])} instead
+     * @deprecated use {@link #copyFile(File, File, String, FilterWrapper[], ChangeDetection)} instead
      */
     @Deprecated
     public static void copyFile(File from, File to, String encoding, FilterWrapper[] wrappers, boolean overwrite)

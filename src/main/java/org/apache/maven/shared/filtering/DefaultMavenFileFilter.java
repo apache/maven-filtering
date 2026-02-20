@@ -45,6 +45,7 @@ public class DefaultMavenFileFilter extends BaseFilter implements MavenFileFilte
         this.buildContext = requireNonNull(buildContext);
     }
 
+    @Deprecated
     @Override
     public void copyFile(
             File from,
@@ -89,7 +90,7 @@ public class DefaultMavenFileFilter extends BaseFilter implements MavenFileFilte
         mre.setChangeDetection(changeDetection);
 
         List<FilterWrapper> filterWrappers = getDefaultFilterWrappers(mre);
-        copyFile(from, to, filtering, filterWrappers, encoding);
+        copyFile(from, to, filtering, filterWrappers, encoding, changeDetection);
     }
 
     @Override
@@ -101,9 +102,11 @@ public class DefaultMavenFileFilter extends BaseFilter implements MavenFileFilte
                 mavenFileFilterRequest.getTo(),
                 mavenFileFilterRequest.isFiltering(),
                 filterWrappers,
-                mavenFileFilterRequest.getEncoding());
+                mavenFileFilterRequest.getEncoding(),
+                mavenFileFilterRequest.getChangeDetection());
     }
 
+    @Deprecated
     @Override
     public void copyFile(File from, File to, boolean filtering, List<FilterWrapper> filterWrappers, String encoding)
             throws MavenFilteringException {

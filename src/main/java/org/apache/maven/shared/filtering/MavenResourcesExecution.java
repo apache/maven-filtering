@@ -29,8 +29,6 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.interpolation.StringSearchInterpolator;
 import org.codehaus.plexus.interpolation.ValueSource;
 
-import static java.util.Objects.requireNonNull;
-
 /**
  * A bean to configure a resources filtering execution.
  *
@@ -87,13 +85,6 @@ public class MavenResourcesExecution extends AbstractMavenFilteringRequest {
      * @since 3.1.0
      */
     private boolean addDefaultExcludes = true;
-
-    /**
-     * Change detection strategy to determine whether an existing file should be overwritten.
-     *
-     * @since 3.5.0
-     */
-    private ChangeDetection changeDetection = ChangeDetection.CONTENT;
 
     /**
      * Copy any empty directories included in the Resources.
@@ -360,7 +351,7 @@ public class MavenResourcesExecution extends AbstractMavenFilteringRequest {
      */
     @Deprecated
     public boolean isOverwrite() {
-        return changeDetection == ChangeDetection.ALWAYS;
+        return getChangeDetection() == ChangeDetection.ALWAYS;
     }
 
     /**
@@ -372,26 +363,7 @@ public class MavenResourcesExecution extends AbstractMavenFilteringRequest {
      */
     @Deprecated
     public void setOverwrite(boolean overwrite) {
-        this.changeDetection = overwrite ? ChangeDetection.ALWAYS : ChangeDetection.CONTENT;
-    }
-
-    /**
-     * Change detection strategy to determine whether an existing file should be overwritten.
-     *
-     * @since 3.5.0
-     */
-    public ChangeDetection getChangeDetection() {
-        return changeDetection;
-    }
-
-    /**
-     * Sets the change detection strategy to determine whether an existing file should be overwritten.
-     *
-     * @param changeDetection the change detection strategy to use, must not be {@code null}.
-     * @since 3.5.0
-     */
-    public void setChangeDetection(ChangeDetection changeDetection) {
-        this.changeDetection = requireNonNull(changeDetection);
+        setChangeDetection(overwrite ? ChangeDetection.ALWAYS : ChangeDetection.CONTENT);
     }
 
     /**

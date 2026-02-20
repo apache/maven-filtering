@@ -319,13 +319,13 @@ public final class FilteringUtils {
     }
 
     /**
-     * <b>If wrappers is null or empty, the file will be copy only if to.lastModified() &lt; from.lastModified() or if
-     * overwrite is true</b>.
+     * Copies a file from the source to the destination, applying the specified filters if provided.
      *
      * @param from the file to copy
      * @param to the destination file
      * @param encoding the file output encoding (only if wrappers is not empty)
      * @param wrappers array of {@link FilterWrapper}
+     * @param changeDetection the strategy to apply if to is existing file
      * @throws IOException if an IO error occurs during copying or filtering
      * @return {@code true} if the file was copied.
      */

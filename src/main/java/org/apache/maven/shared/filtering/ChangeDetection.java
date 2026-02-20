@@ -25,23 +25,23 @@ package org.apache.maven.shared.filtering;
  */
 public enum ChangeDetection {
     /**
-     * Only consider the file timestamp to determine change. This was default before 3.4.0.
+     * Only consider the file timestamp to determine is overwrite of existing file needed. This was default before 3.4.0.
      */
     TIMESTAMP,
     /**
-     * Only consider the content of the file to determine change. This is the default since 3.4.0.
+     * Only consider the content of the file to determine is overwrite of existing file needed. This is the default since 3.4.0.
      */
     CONTENT,
     /**
-     * Combine timestamp and content change detection.
+     * Combine timestamp and content change detection for existing file.
      */
     TIMESTAMP_AND_CONTENT,
     /**
-     * Disable change detection; always overwrite.
+     * Disable change detection; always overwrite existing file.
      */
     ALWAYS,
     /**
-     * Disable change detection; never overwrite.
+     * Disable change detection; never overwrite existing file.
      */
     NEVER;
 }

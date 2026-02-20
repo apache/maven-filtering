@@ -32,7 +32,6 @@ import java.util.EnumSet;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.SystemUtils;
 import org.codehaus.plexus.util.io.CachingOutputStream;
 import org.codehaus.plexus.util.io.CachingWriter;
 
@@ -41,6 +40,12 @@ import org.codehaus.plexus.util.io.CachingWriter;
  * @author Dennis Lundberg
  */
 public final class FilteringUtils {
+    /**
+     * Logic borrowed from Commons-Lang3: we really need only this, to decide is it Windows.
+     * It is nonsense to import whole commons-lang3 just for this test.
+     */
+    private static final boolean IS_WINDOWS =
+            System.getProperty("os.name", "unknown").startsWith("Windows");
     /**
      * The number of bytes in a kilobyte.
      */
@@ -115,7 +120,7 @@ public final class FilteringUtils {
         }
 
         // deal with absolute files
-        if (filenm.startsWith(File.separator) || (SystemUtils.IS_OS_WINDOWS && filenm.indexOf(":") > 0)) {
+        if (filenm.startsWith(File.separator) || (IS_WINDOWS && filenm.indexOf(":") > 0)) {
             File file = new File(filenm);
 
             try {
@@ -306,12 +311,67 @@ public final class FilteringUtils {
      * @param encoding the file output encoding (only if wrappers is not empty)
      * @param wrappers array of {@link FilterWrapper}
      * @throws IOException if an IO error occurs during copying or filtering
+     * @deprecated Use {@link #copyFile(File, File, String, FilterWrapper[], ChangeDetection)} instead.
      */
+    @Deprecated
     public static void copyFile(File from, File to, String encoding, FilterWrapper[] wrappers) throws IOException {
-        setReadWritePermissions(to);
+        copyFile(from, to, encoding, wrappers, ChangeDetection.CONTENT);
+    }
 
+    /**
+     * Copies a file from the source to the destination, applying the specified filters if provided.
+     *
+     * @param from the file to copy
+     * @param to the destination file
+     * @param encoding the file output encoding (only if wrappers is not empty)
+     * @param wrappers array of {@link FilterWrapper}
+     * @param changeDetection the strategy to apply if to is existing file
+     * @throws IOException if an IO error occurs during copying or filtering
+     * @return {@code true} if the file was copied.
+     */
+    public static boolean copyFile(
+            File from, File to, String encoding, FilterWrapper[] wrappers, ChangeDetection changeDetection)
+            throws IOException {
+        boolean needsCopy = false;
+        boolean unconditionally = false;
+        switch (changeDetection) {
+            case NEVER:
+                needsCopy = !to.isFile();
+                unconditionally = true;
+                break;
+            case ALWAYS:
+                needsCopy = true;
+                unconditionally = true;
+                break;
+            case TIMESTAMP:
+                needsCopy = to.lastModified() < from.lastModified();
+                unconditionally = true;
+                break;
+            case CONTENT:
+                needsCopy = true;
+                break;
+            case TIMESTAMP_AND_CONTENT:
+                needsCopy = to.lastModified() < from.lastModified();
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported change detection mode: " + changeDetection);
+        }
+        boolean copied = false;
+        if (needsCopy) {
+            if (unconditionally) {
+                copied = copyUnconditionally(from, to, encoding, wrappers);
+            } else {
+                copied = copyIfContentsChanged(from, to, encoding, wrappers);
+            }
+        }
+        return copied;
+    }
+
+    private static boolean copyUnconditionally(File from, File to, String encoding, FilterWrapper[] wrappers)
+            throws IOException {
+        setReadWritePermissions(to);
         if (wrappers == null || wrappers.length == 0) {
-            try (OutputStream os = new CachingOutputStream(to.toPath())) {
+            try (OutputStream os = Files.newOutputStream(to.toPath())) {
                 Files.copy(from.toPath(), os);
             }
         } else {
@@ -321,7 +381,7 @@ public final class FilteringUtils {
                 for (FilterWrapper wrapper : wrappers) {
                     wrapped = wrapper.getReader(wrapped);
                 }
-                try (Writer writer = new CachingWriter(to.toPath(), charset)) {
+                try (Writer writer = Files.newBufferedWriter(to.toPath(), charset)) {
                     char[] buffer = new char[COPY_BUFFER_LENGTH];
                     int nRead;
                     while ((nRead = wrapped.read(buffer, 0, COPY_BUFFER_LENGTH)) >= 0) {
@@ -330,8 +390,38 @@ public final class FilteringUtils {
                 }
             }
         }
-
         copyFilePermissions(from, to);
+        return true;
+    }
+
+    private static boolean copyIfContentsChanged(File from, File to, String encoding, FilterWrapper[] wrappers)
+            throws IOException {
+        setReadWritePermissions(to);
+        boolean copied = false;
+        if (wrappers == null || wrappers.length == 0) {
+            try (CachingOutputStream os = new CachingOutputStream(to.toPath())) {
+                Files.copy(from.toPath(), os);
+                copied = os.isModified();
+            }
+        } else {
+            Charset charset = charset(encoding);
+            try (Reader fileReader = Files.newBufferedReader(from.toPath(), charset)) {
+                Reader wrapped = fileReader;
+                for (FilterWrapper wrapper : wrappers) {
+                    wrapped = wrapper.getReader(wrapped);
+                }
+                try (CachingWriter writer = new CachingWriter(to.toPath(), charset)) {
+                    char[] buffer = new char[COPY_BUFFER_LENGTH];
+                    int nRead;
+                    while ((nRead = wrapped.read(buffer, 0, COPY_BUFFER_LENGTH)) >= 0) {
+                        writer.write(buffer, 0, nRead);
+                    }
+                    copied = writer.isModified();
+                }
+            }
+        }
+        copyFilePermissions(from, to);
+        return copied;
     }
 
     /**
@@ -344,12 +434,12 @@ public final class FilteringUtils {
      * @param wrappers array of {@link FilterWrapper}
      * @param overwrite unused
      * @throws IOException if an IO error occurs during copying or filtering
-     * @deprecated use {@link #copyFile(File, File, String, FilterWrapper[])} instead
+     * @deprecated use {@link #copyFile(File, File, String, FilterWrapper[], ChangeDetection)} instead
      */
     @Deprecated
     public static void copyFile(File from, File to, String encoding, FilterWrapper[] wrappers, boolean overwrite)
             throws IOException {
-        copyFile(from, to, encoding, wrappers);
+        copyFile(from, to, encoding, wrappers, overwrite ? ChangeDetection.ALWAYS : ChangeDetection.CONTENT);
     }
 
     /**

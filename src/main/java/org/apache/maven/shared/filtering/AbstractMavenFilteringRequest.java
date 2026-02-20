@@ -28,6 +28,8 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.interpolation.Interpolator;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * @since 1.0-beta-3
  */
@@ -82,6 +84,13 @@ public class AbstractMavenFilteringRequest {
     private boolean supportMultiLineFiltering;
 
     private Consumer<Interpolator> interpolatorCustomizer;
+
+    /**
+     * Change detection strategy to determine whether an existing file should be overwritten.
+     *
+     * @since 3.5.0
+     */
+    private ChangeDetection changeDetection = ChangeDetection.CONTENT;
 
     /**
      * Create instance.
@@ -359,5 +368,24 @@ public class AbstractMavenFilteringRequest {
      */
     public void setInterpolatorCustomizer(Consumer<Interpolator> interpolatorCustomizer) {
         this.interpolatorCustomizer = interpolatorCustomizer;
+    }
+
+    /**
+     * Change detection strategy to determine whether an existing file should be overwritten.
+     *
+     * @since 3.5.0
+     */
+    public ChangeDetection getChangeDetection() {
+        return changeDetection;
+    }
+
+    /**
+     * Sets the change detection strategy to determine whether an existing file should be overwritten.
+     *
+     * @param changeDetection the change detection strategy to use, must not be {@code null}.
+     * @since 3.5.0
+     */
+    public void setChangeDetection(ChangeDetection changeDetection) {
+        this.changeDetection = requireNonNull(changeDetection);
     }
 }

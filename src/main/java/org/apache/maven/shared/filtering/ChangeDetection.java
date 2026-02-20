@@ -19,17 +19,17 @@
 package org.apache.maven.shared.filtering;
 
 /**
- * Change detection strategies: to decide whether an existing target file has changed and needs to be overwritten or not.
+ * Change detection strategies: to decide whether an <strong>existing target file</strong> needs to be overwritten or not.
  *
  * @since 3.5.0
  */
 public enum ChangeDetection {
     /**
-     * Only consider the timestamp of the file to determine if it has changed. This was default before 3.4.0.
+     * Only consider the file timestamp to determine change. This was default before 3.4.0.
      */
     TIMESTAMP,
     /**
-     * Consider the content of the file to determine if it has changed. This is the default since 3.4.0.
+     * Only consider the content of the file to determine change. This is the default since 3.4.0.
      */
     CONTENT,
     /**
@@ -39,5 +39,9 @@ public enum ChangeDetection {
     /**
      * Disable change detection; always overwrite.
      */
-    ALWAYS;
+    ALWAYS,
+    /**
+     * Disable change detection; never overwrite.
+     */
+    NEVER;
 }

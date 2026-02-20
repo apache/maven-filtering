@@ -336,6 +336,10 @@ public final class FilteringUtils {
         boolean needsCopy = false;
         boolean unconditionally = false;
         switch (changeDetection) {
+            case NEVER:
+                needsCopy = !to.isFile();
+                unconditionally = true;
+                break;
             case ALWAYS:
                 needsCopy = true;
                 unconditionally = true;

@@ -332,9 +332,6 @@ public final class FilteringUtils {
     public static boolean copyFile(
             File from, File to, String encoding, FilterWrapper[] wrappers, ChangeDetection changeDetection)
             throws IOException {
-        if (!to.isFile()) {
-            changeDetection = ChangeDetection.ALWAYS;
-        }
         boolean needsCopy = false;
         boolean unconditionally = false;
         switch (changeDetection) {

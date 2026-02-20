@@ -123,7 +123,6 @@ public class DefaultMavenFileFilter extends BaseFilter implements MavenFileFilte
             String encoding,
             boolean overwrite)
             throws MavenFilteringException {
-        // overwrite forced to false to preserve backward comp
         copyFile(
                 from,
                 to,

@@ -63,7 +63,6 @@
   <properties>
     <mavenVersion>3.9.12</mavenVersion>
     <slf4jVersion>1.7.36</slf4jVersion>
-    <plexusBuildApiVersion>0.0.7</plexusBuildApiVersion>
     <version.plexus-utils>3.6.0</version.plexus-utils>
     <project.build.outputTimestamp>2024-08-28T15:27:52Z</project.build.outputTimestamp>
     <!-- don't fail check for some rules that are too hard to enforce (could even be told broken for some)
@@ -73,19 +72,30 @@
 
   <dependencies>
     <dependency>
-      <groupId>javax.inject</groupId>
-      <artifactId>javax.inject</artifactId>
-      <version>1</version>
-    </dependency>
-    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>${slf4jVersion}</version>
     </dependency>
     <dependency>
-      <groupId>org.sonatype.plexus</groupId>
+      <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-build-api</artifactId>
-      <version>${plexusBuildApiVersion}</version>
+      <version>1.2.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-utils</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-interpolation</artifactId>
+      <version>1.29</version>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.inject</groupId>
+      <artifactId>javax.inject</artifactId>
+      <version>1</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
@@ -104,25 +114,6 @@
       <artifactId>maven-settings</artifactId>
       <version>${mavenVersion}</version>
       <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.plexus</groupId>
-      <artifactId>plexus-utils</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.plexus</groupId>
-      <artifactId>plexus-interpolation</artifactId>
-      <version>1.29</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-      <version>2.21.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-lang3</artifactId>
-      <version>3.20.0</version>
     </dependency>
 
     <dependency>
@@ -164,7 +155,12 @@
       <artifactId>org.eclipse.sisu.inject</artifactId>
       <scope>test</scope>
     </dependency>
-
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.21.0</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>

@@ -1042,7 +1042,9 @@ class DefaultMavenResourcesFilteringTest {
         Path failedFile = outputDirectory.resolve("subdirbar.txt");
 
         if (Files.exists(failedFile)) {
-            fail("Bug Reproduced: The Windows path separator was interpreted as an escape character, resulting in a flattened filename: " + failedFile);
+            fail(
+                    "Bug Reproduced: The Windows path separator was interpreted as an escape character, resulting in a flattened filename: "
+                            + failedFile);
         }
 
         assertTrue(Files.exists(successFile));

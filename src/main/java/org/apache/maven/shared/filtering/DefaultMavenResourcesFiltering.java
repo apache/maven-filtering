@@ -387,6 +387,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
 
         if (mavenResourcesExecution.isFilterFilenames()
                 && !mavenResourcesExecution.getFilterWrappers().isEmpty()) {
+            destination = destination.replace('\\', '/');
             destination = filterFileName(destination, mavenResourcesExecution.getFilterWrappers());
         }
 

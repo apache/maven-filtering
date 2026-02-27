@@ -23,6 +23,7 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -991,7 +992,7 @@ class DefaultMavenResourcesFilteringTest {
         Resource resource = new Resource();
         resource.setDirectory(unitFilesDir);
         resource.setFiltering(true);
-        resource.addInclude("${pom.version}*");
+        resource.addInclude("**/${pom.version}*");
         resource.setTargetPath("testTargetPath");
 
         MavenResourcesExecution mavenResourcesExecution = new MavenResourcesExecution(
@@ -1008,6 +1009,49 @@ class DefaultMavenResourcesFilteringTest {
         File targetPathFile = new File(outputDirectory, "testTargetPath");
 
         File[] files = targetPathFile.listFiles();
+        assertEquals(1, files.length);
+        assertEquals("subfolder", files[0].getName());
+        assertTrue(files[0].isDirectory());
+
+        files = files[0].listFiles();
+        assertEquals(1, files.length);
+        assertEquals("1.0.txt", files[0].getName());
+    }
+
+    @Test
+    void filterFileNameWithFileSeparatorAsEscape() throws Exception {
+
+        String unitFilesDir = getBasedir() + "/src/test/units-files/maven-filename-filtering";
+
+        Resource resource = new Resource();
+        resource.setDirectory(unitFilesDir);
+        resource.setFiltering(true);
+        resource.addInclude("**/${pom.version}*");
+        resource.setTargetPath("testTargetPath");
+
+        MavenResourcesExecution mavenResourcesExecution = new MavenResourcesExecution(
+                Collections.singletonList(resource),
+                outputDirectory,
+                mavenProject,
+                "UTF-8",
+                Collections.<String>emptyList(),
+                Collections.<String>emptyList(),
+                new StubMavenSession());
+        mavenResourcesExecution.setFilterFilenames(true);
+
+        // more likely to occur on windows, where the file
+        // separator is the same as the common escape string "\"
+        mavenResourcesExecution.setEscapeString(FileSystems.getDefault().getSeparator());
+        mavenResourcesFiltering.filterResources(mavenResourcesExecution);
+
+        File targetPathFile = new File(outputDirectory, "testTargetPath");
+
+        File[] files = targetPathFile.listFiles();
+        assertEquals(1, files.length);
+        assertEquals("subfolder", files[0].getName());
+        assertTrue(files[0].isDirectory());
+
+        files = files[0].listFiles();
         assertEquals(1, files.length);
         assertEquals("1.0.txt", files[0].getName());
     }

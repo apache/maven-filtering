@@ -24,6 +24,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.nio.charset.MalformedInputException;
 import java.nio.file.FileSystemException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
@@ -388,6 +389,9 @@ public final class FilteringUtils {
                         writer.write(buffer, 0, nRead);
                     }
                 }
+            } catch (MalformedInputException e) {
+                throw new IOException(
+                        "using encoding " + charset.name() + ". MalformedInputException: " + e.getMessage(), e);
             }
         }
         copyFilePermissions(from, to);
@@ -418,6 +422,9 @@ public final class FilteringUtils {
                     }
                     copied = writer.isModified();
                 }
+            } catch (MalformedInputException e) {
+                throw new IOException(
+                        "using encoding " + charset.name() + ". MalformedInputException: " + e.getMessage(), e);
             }
         }
         copyFilePermissions(from, to);

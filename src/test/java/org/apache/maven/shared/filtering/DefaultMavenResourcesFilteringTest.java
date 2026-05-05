@@ -1112,4 +1112,50 @@ class DefaultMavenResourcesFilteringTest {
         assertFalse(DefaultMavenResourcesFiltering.isPropertiesFile(new File("file.xml")));
         assertFalse(DefaultMavenResourcesFiltering.isPropertiesFile(new File("some/parent/path", "file.xml")));
     }
+
+    /**
+     * Regression guard for the maven-resources-plugin issue 471 / GH-333 scenario: when the same
+     * destination is reached by a later <resource> entry while overwrite is explicitly enabled,
+     * the later entry must still be allowed to replace the earlier one — the "first entry wins"
+     * skip introduced for the default case must not apply here.
+     */
+    @Test
+    void overlappingEntriesWithExplicitOverwriteStillReplace() throws Exception {
+        Properties projectProperties = new Properties();
+        projectProperties.put("repro.value", "REPLACED_BY_FILTERING");
+        mavenProject.setProperties(projectProperties);
+
+        String unitFilesDir = getBasedir() + "/src/test/units-files/MRP-471";
+
+        Resource filtered = new Resource();
+        filtered.setDirectory(unitFilesDir);
+        filtered.setFiltering(true);
+        filtered.addInclude("config/filtered.xml");
+
+        Resource unfiltered = new Resource();
+        unfiltered.setDirectory(unitFilesDir);
+        unfiltered.setFiltering(false);
+        unfiltered.addInclude("**");
+
+        MavenResourcesExecution execution = new MavenResourcesExecution(
+                Arrays.asList(filtered, unfiltered),
+                outputDirectory,
+                mavenProject,
+                "UTF-8",
+                Collections.emptyList(),
+                Collections.emptyList(),
+                new StubMavenSession());
+        execution.setUseDefaultFilterWrappers(true);
+        execution.setOverwrite(true);
+
+        mavenResourcesFiltering.filterResources(execution);
+
+        File filteredOut = new File(outputDirectory, "config/filtered.xml");
+        String content = new String(java.nio.file.Files.readAllBytes(filteredOut.toPath()), "UTF-8");
+        // With overwrite=true the unfiltered second pass still wins — preserve the historical
+        // 3.3.1 behaviour for callers that opt in to ChangeDetection.ALWAYS.
+        assertTrue(
+                content.contains("${repro.value}"),
+                "with overwrite=true the second <resource> entry must still clobber; got:\n" + content);
+    }
 }

@@ -142,7 +142,7 @@ class OverlappingResourcesFilteringTest {
         // this guards against a fix that just turns filtering on for everything.
         assertTrue(
                 unfilteredContent.contains("${repro.value}"),
-                "static/keep-as-is.txt is matched by filtering=false and must keep the literal "
-                        + "placeholder; got:\n" + unfilteredContent);
+                "static/keep-as-is.txt is matched by filtering=false and must keep the literal " + "placeholder; got:\n"
+                        + unfilteredContent);
     }
 }

@@ -390,7 +390,8 @@ public final class FilteringUtils {
                     }
                 }
             } catch (MalformedInputException e) {
-                throw new IOException(e.getMessage() + " - using encoding " + charset.name(), e);            }
+                throw new IOException(e.getMessage() + " - using encoding " + charset.name(), e);
+            }
         }
         copyFilePermissions(from, to);
         return true;
@@ -421,7 +422,8 @@ public final class FilteringUtils {
                     copied = writer.isModified();
                 }
             } catch (MalformedInputException e) {
-                throw new IOException(e.getMessage() + " - using encoding " + charset.name(), e);            }
+                throw new IOException(e.getMessage() + " - using encoding " + charset.name(), e);
+            }
         }
         copyFilePermissions(from, to);
         return copied;

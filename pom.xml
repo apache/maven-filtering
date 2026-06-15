@@ -63,7 +63,7 @@
   <properties>
     <mavenVersion>3.9.12</mavenVersion>
     <slf4jVersion>1.7.36</slf4jVersion>
-    <version.plexus-utils>3.6.0</version.plexus-utils>
+    <version.plexus-utils>3.6.1</version.plexus-utils>
     <project.build.outputTimestamp>2026-03-02T11:11:47Z</project.build.outputTimestamp>
     <!-- don't fail check for some rules that are too hard to enforce (could even be told broken for some)
          and those that are enforced by the formatting checks from spotless -->

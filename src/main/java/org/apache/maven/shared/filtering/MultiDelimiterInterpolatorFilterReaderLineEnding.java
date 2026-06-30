@@ -274,7 +274,9 @@ public class MultiDelimiterInterpolatorFilterReaderLineEnding extends AbstractFi
             beginToken = null;
             endToken = null;
 
-            key.append((char) ch);
+            if (ch >= 0) {
+                key.append((char) ch);
+            }
 
             replaceData = key.toString();
             replaceIndex = key.length();

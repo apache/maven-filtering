@@ -220,7 +220,7 @@ public class MultiDelimiterInterpolatorFilterReaderLineEnding extends AbstractFi
             for (int i = 0; i < getEscapeString().length(); i++) {
                 key.append((char) ch);
 
-                if (ch != getEscapeString().charAt(i) || ch == '\n' && !supportMultiLineFiltering) {
+                if (ch != getEscapeString().charAt(i) || ch == -1 || ch == '\n' && !supportMultiLineFiltering) {
                     // mismatch, EOF or EOL, no escape string here
                     in.reset();
                     inEscape = false;
@@ -243,7 +243,7 @@ public class MultiDelimiterInterpolatorFilterReaderLineEnding extends AbstractFi
             }
 
             for (int i = 0; i < begin.length(); i++) {
-                if (ch != begin.charAt(i) || ch == '\n' && !supportMultiLineFiltering) {
+                if (ch != begin.charAt(i) || ch == -1 || ch == '\n' && !supportMultiLineFiltering) {
                     // mismatch, EOF or EOL, no match
                     break;
                 }

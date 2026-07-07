@@ -60,5 +60,6 @@ project:
       - Java
   policy:
     github_repository_name: maven-filtering
+    download_path_suffix: shared
   features:
     atr_sync: true

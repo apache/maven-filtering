@@ -75,11 +75,6 @@ class BaseFilter implements DefaultFilterInfo {
     @Override
     public List<FilterWrapper> getDefaultFilterWrappers(final AbstractMavenFilteringRequest request)
             throws MavenFilteringException {
-        // backup values
-        boolean supportMultiLineFiltering = request.isSupportMultiLineFiltering();
-
-        request.setSupportMultiLineFiltering(supportMultiLineFiltering);
-
         // Here we build some properties which will be used to read some properties files
         // to interpolate the expression ${ } in this properties file
 

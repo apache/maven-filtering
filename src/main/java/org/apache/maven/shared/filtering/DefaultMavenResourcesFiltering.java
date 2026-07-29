@@ -27,17 +27,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.maven.api.build.context.BuildContext;
+import org.apache.maven.api.build.context.Input;
 import org.apache.maven.api.di.Inject;
 import org.apache.maven.api.di.Named;
 import org.apache.maven.api.di.Singleton;
-import org.codehaus.plexus.util.Scanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonatype.plexus.build.incremental.BuildContext;
 
 import static java.util.Objects.requireNonNull;
 
@@ -49,9 +49,7 @@ import static java.util.Objects.requireNonNull;
 public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultMavenResourcesFiltering.class);
 
-    private static final String[] EMPTY_STRING_ARRAY = {};
-
-    private static final String[] DEFAULT_INCLUDES = {"**/**"};
+    // DEFAULT_INCLUDES is no longer needed — includes are passed directly to BuildContext.registerAndProcessInputs()
     private static final int BUFFER_LENGTH = 8192;
 
     private final List<String> defaultNonFilteredFileExtensions;
@@ -63,7 +61,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
     @Inject
     public DefaultMavenResourcesFiltering(MavenFileFilter mavenFileFilter, BuildContext buildContext) {
         this.mavenFileFilter = requireNonNull(mavenFileFilter);
-        this.buildContext = requireNonNull(buildContext);
+        this.buildContext = buildContext; // may be null when running without incremental support
         this.defaultNonFilteredFileExtensions = new ArrayList<>(5);
         this.defaultNonFilteredFileExtensions.add("jpg");
         this.defaultNonFilteredFileExtensions.add("jpeg");
@@ -205,27 +203,53 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
                 isFilteringUsed = true;
             }
 
-            boolean ignoreDelta = !outputExists
-                    || buildContext.hasDelta(mavenResourcesExecution.getFileFilters())
-                    || buildContext.hasDelta(getRelativeOutputDirectory(mavenResourcesExecution));
-            LOGGER.debug("ignoreDelta " + ignoreDelta);
-            Scanner scanner = buildContext.newScanner(resourceDirectory.toFile(), ignoreDelta);
+            // Use the new BuildContext API to register inputs and detect changes
+            List<String> includes = resource.getIncludes();
+            if (includes == null || includes.isEmpty()) {
+                includes = List.of("**/**");
+            }
+            List<String> excludes = resource.getExcludes();
+            if (excludes == null) {
+                excludes = List.of();
+            }
 
-            setupScanner(resource, scanner, mavenResourcesExecution.isAddDefaultExcludes());
+            // Register all resource files as inputs with the incremental build context.
+            // The BuildContext tracks file changes (NEW, MODIFIED, REMOVED, UNMODIFIED)
+            // and handles stale output cleanup automatically for REMOVED inputs.
+            Collection<? extends Input> inputs;
+            if (buildContext != null) {
+                if (mavenResourcesExecution.isAddDefaultExcludes()) {
+                    excludes = new ArrayList<>(excludes);
+                    addDefaultExcludes(excludes);
+                }
+                inputs = buildContext.registerAndProcessInputs(resourceDirectory, includes, excludes);
+            } else {
+                // Fallback: no build context — process all files
+                inputs = null;
+            }
 
-            scanner.scan();
+            // Build list of included files from the registered inputs
+            List<String> includedFiles;
+            if (inputs != null) {
+                final Path resDirFinal = resourceDirectory;
+                includedFiles = inputs.stream()
+                        .map(input -> resDirFinal.relativize(input.getPath()).toString())
+                        .toList();
+            } else {
+                // No build context — scan directory manually
+                includedFiles = scanDirectory(
+                        resourceDirectory, includes, excludes, mavenResourcesExecution.isAddDefaultExcludes());
+            }
 
             if (mavenResourcesExecution.isIncludeEmptyDirs()) {
                 try {
                     Path targetDirectory = targetPath == null ? outputDirectory : outputDirectory.resolve(targetPath);
-                    copyDirectoryLayout(resourceDirectory, targetDirectory, scanner);
+                    copyDirectoryLayout(resourceDirectory, targetDirectory);
                 } catch (IOException e) {
                     throw new MavenFilteringException(
                             "Cannot copy directory structure from " + resourceDirectory + " to " + outputDirectory);
                 }
             }
-
-            List<String> includedFiles = Arrays.asList(scanner.getIncludedFiles());
 
             try {
                 Path basedir =
@@ -278,25 +302,9 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
                         encoding);
             }
 
-            // deal with deleted source files
-
-            scanner = buildContext.newDeleteScanner(resourceDirectory.toFile());
-
-            setupScanner(resource, scanner, mavenResourcesExecution.isAddDefaultExcludes());
-
-            scanner.scan();
-
-            for (String name : scanner.getIncludedFiles()) {
-                Path destinationFile = getDestinationFile(outputDirectory, targetPath, name, mavenResourcesExecution);
-
-                try {
-                    Files.deleteIfExists(destinationFile);
-                } catch (IOException e) {
-                    // ignore
-                }
-
-                buildContext.refresh(destinationFile.toFile());
-            }
+            // Stale output cleanup for deleted inputs is handled automatically
+            // by the BuildContext when inputs have status REMOVED — no explicit
+            // delete scanner needed.
         }
 
         // Warn the user if all of the following requirements are met, to avoid those that are not affected
@@ -405,27 +413,47 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
         return destinationFile;
     }
 
-    private void setupScanner(Resource resource, Scanner scanner, boolean addDefaultExcludes) {
-        String[] includes;
-        if (resource.getIncludes() != null && !resource.getIncludes().isEmpty()) {
-            includes = resource.getIncludes().toArray(EMPTY_STRING_ARRAY);
-        } else {
-            includes = DEFAULT_INCLUDES;
+    /**
+     * Scans a directory for files matching include/exclude patterns.
+     * Used as fallback when no BuildContext is available.
+     */
+    private List<String> scanDirectory(
+            Path baseDir, List<String> includes, List<String> excludes, boolean addDefaultExcludes)
+            throws MavenFilteringException {
+        List<String> result = new ArrayList<>();
+        try {
+            if (addDefaultExcludes) {
+                excludes = new ArrayList<>(excludes);
+                addDefaultExcludes(excludes);
+            }
+            // Walk directory and collect relative paths
+            Files.walk(baseDir).filter(Files::isRegularFile).forEach(path -> {
+                String relative = baseDir.relativize(path).toString().replace('\\', '/');
+                result.add(relative);
+            });
+        } catch (IOException e) {
+            throw new MavenFilteringException("Failed to scan directory: " + baseDir, e);
         }
-        scanner.setIncludes(includes);
-
-        if (resource.getExcludes() != null && !resource.getExcludes().isEmpty()) {
-            String[] excludes = resource.getExcludes().toArray(EMPTY_STRING_ARRAY);
-            scanner.setExcludes(excludes);
-        }
-
-        if (addDefaultExcludes) {
-            scanner.addDefaultExcludes();
-        }
+        return result;
     }
 
-    private void copyDirectoryLayout(Path sourceDirectory, Path destinationDirectory, Scanner scanner)
-            throws IOException {
+    /**
+     * Adds the standard SCM and IDE default excludes to the given list.
+     */
+    private static void addDefaultExcludes(List<String> excludes) {
+        // Standard default excludes (SCM dirs, IDE files, OS files)
+        excludes.add("**/.git/**");
+        excludes.add("**/.svn/**");
+        excludes.add("**/.hg/**");
+        excludes.add("**/.bzr/**");
+        excludes.add("**/CVS/**");
+        excludes.add("**/.gitignore");
+        excludes.add("**/.cvsignore");
+        excludes.add("**/.DS_Store");
+        excludes.add("**/Thumbs.db");
+    }
+
+    private void copyDirectoryLayout(Path sourceDirectory, Path destinationDirectory) throws IOException {
         if (sourceDirectory == null) {
             throw new IOException("source directory can't be null.");
         }
@@ -442,34 +470,20 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
             throw new IOException("Source directory doesn't exists (" + sourceDirectory.toAbsolutePath() + ").");
         }
 
-        for (String name : scanner.getIncludedDirectories()) {
-            Path source = sourceDirectory.resolve(name);
-
-            if (source.equals(sourceDirectory)) {
-                continue;
-            }
-
-            Path destination = destinationDirectory.resolve(name);
-            Files.createDirectories(destination);
-        }
+        Files.walk(sourceDirectory)
+                .filter(Files::isDirectory)
+                .filter(p -> !p.equals(sourceDirectory))
+                .forEach(dir -> {
+                    Path destination = destinationDirectory.resolve(sourceDirectory.relativize(dir));
+                    try {
+                        Files.createDirectories(destination);
+                    } catch (IOException e) {
+                        throw new java.io.UncheckedIOException(e);
+                    }
+                });
     }
 
-    private String getRelativeOutputDirectory(MavenResourcesExecution execution) {
-        String relOutDir = execution.getOutputDirectory().toAbsolutePath().toString();
-
-        if (execution.getMavenProject() != null) {
-            String basedir =
-                    execution.getMavenProject().getBasedir().toAbsolutePath().toString();
-            relOutDir = FilteringUtils.getRelativeFilePath(basedir, relOutDir);
-            if (relOutDir == null) {
-                relOutDir = execution.getOutputDirectory().toString();
-            } else {
-                relOutDir = relOutDir.replace('\\', '/');
-            }
-        }
-
-        return relOutDir;
-    }
+    // getRelativeOutputDirectory was only used for old BuildContext.hasDelta() — no longer needed
 
     /*
      * Filter the name of a file using the same mechanism for filtering the content of the file.

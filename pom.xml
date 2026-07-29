@@ -62,7 +62,7 @@
 
   <properties>
     <javaVersion>17</javaVersion>
-    <mavenVersion>4.0.0-rc-5</mavenVersion>
+    <mavenVersion>4.1.0-SNAPSHOT</mavenVersion>
 
     <hamcrestVersion>3.0</hamcrestVersion>
     <junitVersion>5.14.4</junitVersion>
@@ -109,11 +109,7 @@
       <artifactId>slf4j-api</artifactId>
       <version>${slf4jVersion}</version>
     </dependency>
-    <dependency>
-      <groupId>org.sonatype.plexus</groupId>
-      <artifactId>plexus-build-api</artifactId>
-      <version>${plexusBuildApiVersion}</version>
-    </dependency>
+    <!-- plexus-build-api replaced by org.apache.maven.api.build.context.BuildContext from maven-api-core -->
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-utils</artifactId>

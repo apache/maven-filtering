@@ -24,12 +24,8 @@ import java.util.List;
 
 import org.apache.maven.api.Project;
 import org.apache.maven.api.Session;
-import org.apache.maven.api.di.Inject;
 import org.apache.maven.api.di.Named;
 import org.apache.maven.api.di.Singleton;
-import org.sonatype.plexus.build.incremental.BuildContext;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * @author Olivier Lamy
@@ -37,12 +33,6 @@ import static java.util.Objects.requireNonNull;
 @Singleton
 @Named
 public class DefaultMavenFileFilter extends BaseFilter implements MavenFileFilter {
-    private final BuildContext buildContext;
-
-    @Inject
-    public DefaultMavenFileFilter(BuildContext buildContext) {
-        this.buildContext = requireNonNull(buildContext);
-    }
 
     @Override
     public void copyFile(
@@ -90,8 +80,7 @@ public class DefaultMavenFileFilter extends BaseFilter implements MavenFileFilte
                 getLogger().debug("copy {} to {}", from, to);
                 FilteringUtils.copyFile(from, to, encoding, new FilterWrapper[0], false);
             }
-
-            buildContext.refresh(to.toFile());
+            // Output refresh is handled by the BuildContext output association in the mojo
         } catch (IOException e) {
             throw new MavenFilteringException(
                     (filtering ? "filtering " : "copying ") + from + " to " + to + " failed with "

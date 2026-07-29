@@ -23,16 +23,20 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.maven.api.annotations.Nullable;
 import org.apache.maven.api.build.context.BuildContext;
 import org.apache.maven.api.build.context.Input;
+import org.apache.maven.api.build.context.Status;
 import org.apache.maven.api.di.Inject;
 import org.apache.maven.api.di.Named;
 import org.apache.maven.api.di.Singleton;
@@ -59,9 +63,9 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
     private final BuildContext buildContext;
 
     @Inject
-    public DefaultMavenResourcesFiltering(MavenFileFilter mavenFileFilter, BuildContext buildContext) {
+    public DefaultMavenResourcesFiltering(MavenFileFilter mavenFileFilter, @Nullable BuildContext buildContext) {
         this.mavenFileFilter = requireNonNull(mavenFileFilter);
-        this.buildContext = buildContext; // may be null when running without incremental support
+        this.buildContext = buildContext; // null when running without incremental support (e.g. tests)
         this.defaultNonFilteredFileExtensions = new ArrayList<>(5);
         this.defaultNonFilteredFileExtensions.add("jpg");
         this.defaultNonFilteredFileExtensions.add("jpeg");
@@ -203,7 +207,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
                 isFilteringUsed = true;
             }
 
-            // Use the new BuildContext API to register inputs and detect changes
+            // Resolve include/exclude patterns for this resource
             List<String> includes = resource.getIncludes();
             if (includes == null || includes.isEmpty()) {
                 includes = List.of("**/**");
@@ -212,33 +216,39 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
             if (excludes == null) {
                 excludes = List.of();
             }
-
-            // Register all resource files as inputs with the incremental build context.
-            // The BuildContext tracks file changes (NEW, MODIFIED, REMOVED, UNMODIFIED)
-            // and handles stale output cleanup automatically for REMOVED inputs.
-            Collection<? extends Input> inputs;
-            if (buildContext != null) {
-                if (mavenResourcesExecution.isAddDefaultExcludes()) {
-                    excludes = new ArrayList<>(excludes);
-                    addDefaultExcludes(excludes);
-                }
-                inputs = buildContext.registerAndProcessInputs(resourceDirectory, includes, excludes);
-            } else {
-                // Fallback: no build context — process all files
-                inputs = null;
+            if (mavenResourcesExecution.isAddDefaultExcludes()) {
+                excludes = new ArrayList<>(excludes);
+                addDefaultExcludes(excludes);
             }
 
-            // Build list of included files from the registered inputs
-            List<String> includedFiles;
-            if (inputs != null) {
-                final Path resDirFinal = resourceDirectory;
-                includedFiles = inputs.stream()
-                        .map(input -> resDirFinal.relativize(input.getPath()).toString())
-                        .toList();
+            // Register inputs with the BuildContext and get per-file change status.
+            // registerAndProcessInputs() returns ALL matching inputs (including UNMODIFIED)
+            // and internally marks NEW/MODIFIED ones as "processed".
+            // For REMOVED inputs, the BuildContext automatically cleans up associated outputs.
+            Collection<? extends Input> allInputs;
+            if (buildContext != null) {
+                allInputs = buildContext.registerAndProcessInputs(resourceDirectory, includes, excludes);
             } else {
-                // No build context — scan directory manually
-                includedFiles = scanDirectory(
-                        resourceDirectory, includes, excludes, mavenResourcesExecution.isAddDefaultExcludes());
+                allInputs = null;
+            }
+
+            // Separate changed inputs from unchanged ones
+            List<Input> changedInputs;
+            List<String> allFiles;
+            if (allInputs != null) {
+                final Path resDirFinal = resourceDirectory;
+                changedInputs = new ArrayList<>();
+                allFiles = new ArrayList<>();
+                for (Input input : allInputs) {
+                    allFiles.add(resDirFinal.relativize(input.getPath()).toString());
+                    if (input.getStatus() != Status.UNMODIFIED) {
+                        changedInputs.add(input);
+                    }
+                }
+            } else {
+                // No build context — scan directory manually and process everything
+                changedInputs = null;
+                allFiles = scanDirectory(resourceDirectory, includes, excludes, false);
             }
 
             if (mavenResourcesExecution.isIncludeEmptyDirs()) {
@@ -251,60 +261,117 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
                 }
             }
 
+            // Determine which files to actually process
+            boolean incremental = changedInputs != null;
+            int totalCount = allFiles.size();
+            int processCount = incremental ? changedInputs.size() : totalCount;
+
+            // Log the processing summary
             try {
                 Path basedir =
                         mavenResourcesExecution.getMavenProject().getBasedir().toAbsolutePath();
                 Path destination = getDestinationFile(outputDirectory, targetPath, "", mavenResourcesExecution)
                         .toAbsolutePath();
-                LOGGER.info("Copying " + includedFiles.size() + " resource" + (includedFiles.size() > 1 ? "s" : "")
-                        + " from "
-                        + basedir.relativize(resourceDirectory.toAbsolutePath())
-                        + " to "
-                        + basedir.relativize(destination));
+                if (incremental && processCount < totalCount) {
+                    LOGGER.info("Copying " + processCount + " of " + totalCount + " resource"
+                            + (totalCount > 1 ? "s" : "") + " from "
+                            + basedir.relativize(resourceDirectory.toAbsolutePath()) + " to "
+                            + basedir.relativize(destination)
+                            + " (" + (totalCount - processCount) + " unchanged)");
+                } else {
+                    LOGGER.info("Copying " + totalCount + " resource" + (totalCount > 1 ? "s" : "") + " from "
+                            + basedir.relativize(resourceDirectory.toAbsolutePath()) + " to "
+                            + basedir.relativize(destination));
+                }
             } catch (Exception e) {
                 // be foolproof: if for ANY reason throws, do not abort, just fall back to old message
-                LOGGER.info("Copying " + includedFiles.size() + " resource" + (includedFiles.size() > 1 ? "s" : "")
+                LOGGER.info("Copying " + processCount + " resource" + (processCount > 1 ? "s" : "")
                         + (targetPath == null ? "" : " to " + targetPath));
             }
 
-            for (String name : includedFiles) {
+            // Process only changed files (or all files when no BuildContext is available)
+            if (incremental) {
+                // Incremental mode: only copy/filter files with status NEW or MODIFIED,
+                // then register input→output associations for stale output cleanup
+                for (Input input : changedInputs) {
+                    Path source = input.getPath();
+                    String name = resourceDirectory.relativize(source).toString();
 
-                LOGGER.debug("Copying file " + name);
-                Path source = resourceDirectory.resolve(name);
+                    Path destinationFile =
+                            getDestinationFile(outputDirectory, targetPath, name, mavenResourcesExecution);
 
-                Path destinationFile = getDestinationFile(outputDirectory, targetPath, name, mavenResourcesExecution);
-
-                if (mavenResourcesExecution.isFlatten() && Files.exists(destinationFile)) {
-                    if (mavenResourcesExecution.isOverwrite()) {
-                        LOGGER.warn(
-                                "existing file " + destinationFile.getFileName() + " will be overwritten by " + name);
-                    } else {
-                        throw new MavenFilteringException("existing file " + destinationFile.getFileName()
-                                + " will be overwritten by " + name + " and overwrite was not set to true");
+                    if (mavenResourcesExecution.isFlatten() && Files.exists(destinationFile)) {
+                        if (mavenResourcesExecution.isOverwrite()) {
+                            LOGGER.warn("existing file " + destinationFile.getFileName() + " will be overwritten by "
+                                    + name);
+                        } else {
+                            throw new MavenFilteringException("existing file " + destinationFile.getFileName()
+                                    + " will be overwritten by " + name + " and overwrite was not set to true");
+                        }
                     }
-                }
-                boolean filteredExt = filteredFileExtension(
-                        source.getFileName().toString(), mavenResourcesExecution.getNonFilteredFileExtensions());
-                if (resource.isFiltering() && isPropertiesFile(source)) {
-                    propertiesFiles.add(source);
-                }
 
-                // Determine which encoding to use when filtering this file
-                String encoding = getEncoding(
-                        source, mavenResourcesExecution.getEncoding(), mavenResourcesExecution.getPropertiesEncoding());
-                LOGGER.debug(
-                        "Using '" + encoding + "' encoding to copy filtered resource '" + source.getFileName() + "'.");
-                mavenFileFilter.copyFile(
-                        source,
-                        destinationFile,
-                        resource.isFiltering() && filteredExt,
-                        mavenResourcesExecution.getFilterWrappers(),
-                        encoding);
+                    boolean filteredExt = filteredFileExtension(
+                            source.getFileName().toString(), mavenResourcesExecution.getNonFilteredFileExtensions());
+                    if (resource.isFiltering() && isPropertiesFile(source)) {
+                        propertiesFiles.add(source);
+                    }
+
+                    String encoding = getEncoding(
+                            source,
+                            mavenResourcesExecution.getEncoding(),
+                            mavenResourcesExecution.getPropertiesEncoding());
+                    LOGGER.debug("Using '" + encoding + "' encoding to copy filtered resource '" + source.getFileName()
+                            + "'.");
+                    mavenFileFilter.copyFile(
+                            source,
+                            destinationFile,
+                            resource.isFiltering() && filteredExt,
+                            mavenResourcesExecution.getFilterWrappers(),
+                            encoding);
+
+                    // Register the input→output association so the BuildContext can:
+                    // 1. Track which outputs belong to which inputs
+                    // 2. Automatically delete stale outputs when their input is removed
+                    input.associateOutput(destinationFile);
+                }
+            } else {
+                // Non-incremental mode: process all files
+                for (String name : allFiles) {
+                    LOGGER.debug("Copying file " + name);
+                    Path source = resourceDirectory.resolve(name);
+                    Path destinationFile =
+                            getDestinationFile(outputDirectory, targetPath, name, mavenResourcesExecution);
+
+                    if (mavenResourcesExecution.isFlatten() && Files.exists(destinationFile)) {
+                        if (mavenResourcesExecution.isOverwrite()) {
+                            LOGGER.warn("existing file " + destinationFile.getFileName() + " will be overwritten by "
+                                    + name);
+                        } else {
+                            throw new MavenFilteringException("existing file " + destinationFile.getFileName()
+                                    + " will be overwritten by " + name + " and overwrite was not set to true");
+                        }
+                    }
+
+                    boolean filteredExt = filteredFileExtension(
+                            source.getFileName().toString(), mavenResourcesExecution.getNonFilteredFileExtensions());
+                    if (resource.isFiltering() && isPropertiesFile(source)) {
+                        propertiesFiles.add(source);
+                    }
+
+                    String encoding = getEncoding(
+                            source,
+                            mavenResourcesExecution.getEncoding(),
+                            mavenResourcesExecution.getPropertiesEncoding());
+                    LOGGER.debug("Using '" + encoding + "' encoding to copy filtered resource '" + source.getFileName()
+                            + "'.");
+                    mavenFileFilter.copyFile(
+                            source,
+                            destinationFile,
+                            resource.isFiltering() && filteredExt,
+                            mavenResourcesExecution.getFilterWrappers(),
+                            encoding);
+                }
             }
-
-            // Stale output cleanup for deleted inputs is handled automatically
-            // by the BuildContext when inputs have status REMOVED — no explicit
-            // delete scanner needed.
         }
 
         // Warn the user if all of the following requirements are met, to avoid those that are not affected
@@ -426,15 +493,94 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
                 excludes = new ArrayList<>(excludes);
                 addDefaultExcludes(excludes);
             }
-            // Walk directory and collect relative paths
+            List<PathMatcher> includeMatchers = toPathMatchers(baseDir, includes);
+            List<PathMatcher> excludeMatchers = toPathMatchers(baseDir, excludes);
+
+            // Walk directory and collect relative paths that match includes and don't match excludes
             Files.walk(baseDir).filter(Files::isRegularFile).forEach(path -> {
                 String relative = baseDir.relativize(path).toString().replace('\\', '/');
-                result.add(relative);
+                if (matchesAny(relative, includeMatchers) && !matchesAny(relative, excludeMatchers)) {
+                    result.add(relative);
+                }
             });
         } catch (IOException e) {
             throw new MavenFilteringException("Failed to scan directory: " + baseDir, e);
         }
         return result;
+    }
+
+    /**
+     * Converts Ant-style include/exclude patterns to Java {@link PathMatcher} instances.
+     * <p>
+     * Ant-style patterns treat leading {@code ** /} as matching zero or more directories,
+     * but Java's glob {@code ** /} requires at least one directory segment. This method
+     * normalizes patterns so that both interpretations are handled correctly.
+     */
+    private static List<PathMatcher> toPathMatchers(Path baseDir, List<String> patterns) {
+        if (patterns == null || patterns.isEmpty()) {
+            return List.of();
+        }
+        FileSystem fs = baseDir.getFileSystem();
+        List<PathMatcher> matchers = new ArrayList<>(patterns.size());
+        for (String pattern : patterns) {
+            // Normalize separators to forward slash for glob matching
+            String normalized = pattern.replace('\\', '/');
+            // Ant-style "**/**" means "all files recursively" — normalize to "**"
+            if ("**/**".equals(normalized)) {
+                normalized = "**";
+            }
+            // Escape glob metacharacters that Ant patterns treat as literals.
+            // Ant only uses *, ?, and ** as wildcards; characters like { } [ ]
+            // are literal in Ant but have special meaning in Java glob.
+            normalized = escapeGlobMetachars(normalized);
+
+            matchers.add(fs.getPathMatcher("glob:" + normalized));
+            // In Ant, leading "**/" matches zero or more directories, but Java's
+            // glob requires at least one segment for "**/". Add a second matcher
+            // without the leading "**/" to handle the zero-directory case.
+            if (normalized.startsWith("**/")) {
+                matchers.add(fs.getPathMatcher("glob:" + normalized.substring(3)));
+            }
+        }
+        return matchers;
+    }
+
+    /**
+     * Escapes characters that have special meaning in Java's glob syntax but are
+     * treated as literals in Ant-style patterns. In glob, {@code [c]} matches the
+     * literal character {@code c}, so we wrap each special char in brackets.
+     */
+    private static String escapeGlobMetachars(String pattern) {
+        StringBuilder sb = null;
+        for (int i = 0; i < pattern.length(); i++) {
+            char c = pattern.charAt(i);
+            if (c == '{' || c == '}' || c == '[' || c == ']') {
+                if (sb == null) {
+                    sb = new StringBuilder(pattern.length() + 8);
+                    sb.append(pattern, 0, i);
+                }
+                sb.append('[').append(c).append(']');
+            } else if (sb != null) {
+                sb.append(c);
+            }
+        }
+        return sb != null ? sb.toString() : pattern;
+    }
+
+    /**
+     * Returns true if the relative path matches any of the given matchers.
+     */
+    private static boolean matchesAny(String relativePath, List<PathMatcher> matchers) {
+        if (matchers.isEmpty()) {
+            return false;
+        }
+        Path path = Paths.get(relativePath);
+        for (PathMatcher matcher : matchers) {
+            if (matcher.matches(path)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

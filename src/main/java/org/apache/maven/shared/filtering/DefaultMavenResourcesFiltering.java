@@ -23,7 +23,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
-import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
@@ -40,6 +39,7 @@ import org.apache.maven.api.build.context.Status;
 import org.apache.maven.api.di.Inject;
 import org.apache.maven.api.di.Named;
 import org.apache.maven.api.di.Singleton;
+import org.apache.maven.api.services.PathMatcherFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,10 +62,16 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
 
     private final BuildContext buildContext;
 
+    private final PathMatcherFactory pathMatcherFactory;
+
     @Inject
-    public DefaultMavenResourcesFiltering(MavenFileFilter mavenFileFilter, @Nullable BuildContext buildContext) {
+    public DefaultMavenResourcesFiltering(
+            MavenFileFilter mavenFileFilter,
+            @Nullable BuildContext buildContext,
+            @Nullable PathMatcherFactory pathMatcherFactory) {
         this.mavenFileFilter = requireNonNull(mavenFileFilter);
         this.buildContext = buildContext; // null when running without incremental support (e.g. tests)
+        this.pathMatcherFactory = pathMatcherFactory; // null when running outside Maven 4 DI
         this.defaultNonFilteredFileExtensions = new ArrayList<>(5);
         this.defaultNonFilteredFileExtensions.add("jpg");
         this.defaultNonFilteredFileExtensions.add("jpeg");
@@ -216,10 +222,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
             if (excludes == null) {
                 excludes = List.of();
             }
-            if (mavenResourcesExecution.isAddDefaultExcludes()) {
-                excludes = new ArrayList<>(excludes);
-                addDefaultExcludes(excludes);
-            }
+            boolean addDefaultExcludes = mavenResourcesExecution.isAddDefaultExcludes();
 
             // Register inputs with the BuildContext and get per-file change status.
             // registerAndProcessInputs() returns ALL matching inputs (including UNMODIFIED)
@@ -227,7 +230,13 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
             // For REMOVED inputs, the BuildContext automatically cleans up associated outputs.
             Collection<? extends Input> allInputs;
             if (buildContext != null) {
-                allInputs = buildContext.registerAndProcessInputs(resourceDirectory, includes, excludes);
+                // BuildContext needs default excludes in the excludes list directly
+                List<String> effectiveExcludes = excludes;
+                if (addDefaultExcludes) {
+                    effectiveExcludes = new ArrayList<>(excludes);
+                    addDefaultExcludes(effectiveExcludes);
+                }
+                allInputs = buildContext.registerAndProcessInputs(resourceDirectory, includes, effectiveExcludes);
             } else {
                 allInputs = null;
             }
@@ -246,9 +255,10 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
                     }
                 }
             } else {
-                // No build context — scan directory manually and process everything
+                // No build context — scan directory with PathMatcherFactory (handles
+                // Ant-style patterns and default excludes) and process everything
                 changedInputs = null;
-                allFiles = scanDirectory(resourceDirectory, includes, excludes, false);
+                allFiles = scanDirectory(resourceDirectory, includes, excludes, addDefaultExcludes);
             }
 
             if (mavenResourcesExecution.isIncludeEmptyDirs()) {
@@ -482,24 +492,23 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
 
     /**
      * Scans a directory for files matching include/exclude patterns.
-     * Used as fallback when no BuildContext is available.
+     * Uses {@link PathMatcherFactory} when available (Maven 4 API — handles Ant-style
+     * patterns correctly), otherwise falls back to a simple unfiltered walk.
      */
     private List<String> scanDirectory(
             Path baseDir, List<String> includes, List<String> excludes, boolean addDefaultExcludes)
             throws MavenFilteringException {
         List<String> result = new ArrayList<>();
         try {
-            if (addDefaultExcludes) {
-                excludes = new ArrayList<>(excludes);
-                addDefaultExcludes(excludes);
+            PathMatcher matcher;
+            if (pathMatcherFactory != null) {
+                matcher = pathMatcherFactory.createPathMatcher(baseDir, includes, excludes, addDefaultExcludes);
+            } else {
+                matcher = null; // no filtering available — include everything
             }
-            List<PathMatcher> includeMatchers = toPathMatchers(baseDir, includes);
-            List<PathMatcher> excludeMatchers = toPathMatchers(baseDir, excludes);
-
-            // Walk directory and collect relative paths that match includes and don't match excludes
             Files.walk(baseDir).filter(Files::isRegularFile).forEach(path -> {
-                String relative = baseDir.relativize(path).toString().replace('\\', '/');
-                if (matchesAny(relative, includeMatchers) && !matchesAny(relative, excludeMatchers)) {
+                if (matcher == null || matcher.matches(path)) {
+                    String relative = baseDir.relativize(path).toString().replace('\\', '/');
                     result.add(relative);
                 }
             });
@@ -507,80 +516,6 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
             throw new MavenFilteringException("Failed to scan directory: " + baseDir, e);
         }
         return result;
-    }
-
-    /**
-     * Converts Ant-style include/exclude patterns to Java {@link PathMatcher} instances.
-     * <p>
-     * Ant-style patterns treat leading {@code ** /} as matching zero or more directories,
-     * but Java's glob {@code ** /} requires at least one directory segment. This method
-     * normalizes patterns so that both interpretations are handled correctly.
-     */
-    private static List<PathMatcher> toPathMatchers(Path baseDir, List<String> patterns) {
-        if (patterns == null || patterns.isEmpty()) {
-            return List.of();
-        }
-        FileSystem fs = baseDir.getFileSystem();
-        List<PathMatcher> matchers = new ArrayList<>(patterns.size());
-        for (String pattern : patterns) {
-            // Normalize separators to forward slash for glob matching
-            String normalized = pattern.replace('\\', '/');
-            // Ant-style "**/**" means "all files recursively" — normalize to "**"
-            if ("**/**".equals(normalized)) {
-                normalized = "**";
-            }
-            // Escape glob metacharacters that Ant patterns treat as literals.
-            // Ant only uses *, ?, and ** as wildcards; characters like { } [ ]
-            // are literal in Ant but have special meaning in Java glob.
-            normalized = escapeGlobMetachars(normalized);
-
-            matchers.add(fs.getPathMatcher("glob:" + normalized));
-            // In Ant, leading "**/" matches zero or more directories, but Java's
-            // glob requires at least one segment for "**/". Add a second matcher
-            // without the leading "**/" to handle the zero-directory case.
-            if (normalized.startsWith("**/")) {
-                matchers.add(fs.getPathMatcher("glob:" + normalized.substring(3)));
-            }
-        }
-        return matchers;
-    }
-
-    /**
-     * Escapes characters that have special meaning in Java's glob syntax but are
-     * treated as literals in Ant-style patterns. In glob, {@code [c]} matches the
-     * literal character {@code c}, so we wrap each special char in brackets.
-     */
-    private static String escapeGlobMetachars(String pattern) {
-        StringBuilder sb = null;
-        for (int i = 0; i < pattern.length(); i++) {
-            char c = pattern.charAt(i);
-            if (c == '{' || c == '}' || c == '[' || c == ']') {
-                if (sb == null) {
-                    sb = new StringBuilder(pattern.length() + 8);
-                    sb.append(pattern, 0, i);
-                }
-                sb.append('[').append(c).append(']');
-            } else if (sb != null) {
-                sb.append(c);
-            }
-        }
-        return sb != null ? sb.toString() : pattern;
-    }
-
-    /**
-     * Returns true if the relative path matches any of the given matchers.
-     */
-    private static boolean matchesAny(String relativePath, List<PathMatcher> matchers) {
-        if (matchers.isEmpty()) {
-            return false;
-        }
-        Path path = Paths.get(relativePath);
-        for (PathMatcher matcher : matchers) {
-            if (matcher.matches(path)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**

@@ -108,7 +108,6 @@
       <artifactId>slf4j-api</artifactId>
       <version>${slf4jVersion}</version>
     </dependency>
-    <!-- plexus-build-api replaced by org.apache.maven.api.build.context.BuildContext from maven-api-core -->
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-utils</artifactId>

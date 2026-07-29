@@ -196,6 +196,10 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
                 continue;
             }
 
+            // Normalize to absolute path for consistent path operations
+            // (BuildContext canonicalizes paths, so relativize() would fail on mixed relative/absolute)
+            resourceDirectory = resourceDirectory.toAbsolutePath().normalize();
+
             // this part is required in case the user specified "../something"
             // as destination
             // see MNG-1345
@@ -342,7 +346,11 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
                     // Register the input→output association so the BuildContext can:
                     // 1. Track which outputs belong to which inputs
                     // 2. Automatically delete stale outputs when their input is removed
-                    input.associateOutput(destinationFile);
+                    // Skip when flattening: multiple inputs may map to the same output file,
+                    // which violates the BuildContext's one-input-to-one-output constraint.
+                    if (!mavenResourcesExecution.isFlatten()) {
+                        input.associateOutput(destinationFile);
+                    }
                 }
             } else {
                 // Non-incremental mode: process all files

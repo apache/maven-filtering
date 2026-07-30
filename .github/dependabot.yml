@@ -21,6 +21,7 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+
   - package-ecosystem: maven
     directory: "/"
     schedule:
@@ -30,7 +31,18 @@ updates:
       - "mvn3"
       - "java"
       - "dependencies"
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "daily"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    target-branch: "maven-filtering-3.x"
+    labels:
+      - "mvn3"
+      - "github_actions"
+      - "dependencies"

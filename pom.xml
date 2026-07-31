@@ -62,13 +62,12 @@
 
   <properties>
     <javaVersion>17</javaVersion>
-    <mavenVersion>4.0.0-rc-5</mavenVersion>
+    <mavenVersion>4.1.0-SNAPSHOT</mavenVersion>
 
     <hamcrestVersion>3.0</hamcrestVersion>
     <junitVersion>5.14.4</junitVersion>
     <mockitoVersion>5.23.0</mockitoVersion>
     <mavenPluginTestingVersion>4.0.0-beta-4</mavenPluginTestingVersion>
-    <plexusBuildApiVersion>0.0.7</plexusBuildApiVersion>
     <plexusInterpolationVersion>1.29</plexusInterpolationVersion>
     <slf4jVersion>2.0.13</slf4jVersion>
 
@@ -108,11 +107,6 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>${slf4jVersion}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sonatype.plexus</groupId>
-      <artifactId>plexus-build-api</artifactId>
-      <version>${plexusBuildApiVersion}</version>
     </dependency>
     <dependency>
       <groupId>org.codehaus.plexus</groupId>

@@ -40,11 +40,9 @@ import org.apache.maven.di.Injector;
 import org.codehaus.plexus.interpolation.AbstractValueSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.sonatype.plexus.build.incremental.BuildContext;
 
 import static org.apache.maven.api.di.testing.MavenDIExtension.getBasedir;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
 
 /**
  * @author Olivier Lamy
@@ -95,7 +93,7 @@ class DefaultMavenFileFilterTest {
 
     @Test
     void multiFilterFileInheritance() throws Exception {
-        DefaultMavenFileFilter mavenFileFilter = new DefaultMavenFileFilter(mock(BuildContext.class));
+        DefaultMavenFileFilter mavenFileFilter = new DefaultMavenFileFilter();
 
         File testDir = new File(getBasedir(), "src/test/units-files/MSHARED-177");
 

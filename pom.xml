@@ -62,7 +62,7 @@
 
   <properties>
     <javaVersion>17</javaVersion>
-    <mavenVersion>4.0.0-rc-5</mavenVersion>
+    <mavenVersion>4.0.0-rc-6</mavenVersion>
 
     <hamcrestVersion>3.0</hamcrestVersion>
     <junitVersion>5.14.4</junitVersion>

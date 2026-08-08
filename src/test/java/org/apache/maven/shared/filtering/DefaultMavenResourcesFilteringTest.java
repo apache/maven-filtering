@@ -291,10 +291,6 @@ class DefaultMavenResourcesFilteringTest {
         resource.setDirectory(unitFilesDir);
         resource.setFiltering(true);
 
-        List<String> filtersFile = new ArrayList<>();
-        filtersFile.add(
-                getBasedir() + "/src/test/units-files/maven-resources-filtering/empty-maven-resources-filtering.txt");
-
         List<String> nonFilteredFileExtensions = Collections.singletonList("gif");
 
         MavenResourcesExecution mavenResourcesExecution = new MavenResourcesExecution(

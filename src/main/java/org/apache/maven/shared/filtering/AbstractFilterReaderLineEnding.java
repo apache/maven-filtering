@@ -65,12 +65,14 @@ public abstract class AbstractFilterReaderLineEnding extends FilterReader {
      * @param escapeString Set the value of the escape string.
      */
     public void setEscapeString(String escapeString) {
-        // TODO NPE if escapeString is null ?
         if (escapeString != null && !escapeString.isEmpty()) {
             this.escapeString = escapeString;
             this.useEscape = true;
-            calculateMarkLength();
+        } else {
+            this.escapeString = null;
+            this.useEscape = false;
         }
+        calculateMarkLength();
     }
 
     /**

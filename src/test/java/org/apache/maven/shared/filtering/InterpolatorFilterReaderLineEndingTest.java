@@ -19,9 +19,17 @@
 package org.apache.maven.shared.filtering;
 
 import java.io.Reader;
+import java.io.StringReader;
 
 import org.codehaus.plexus.interpolation.Interpolator;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+@ExtendWith(MockitoExtension.class)
 public class InterpolatorFilterReaderLineEndingTest extends AbstractInterpolatorFilterReaderLineEndingTest {
     @Override
     protected Reader getAaaAaaReader(Reader in, Interpolator interpolator) {
@@ -47,5 +55,29 @@ public class InterpolatorFilterReaderLineEndingTest extends AbstractInterpolator
                 new InterpolatorFilterReaderLineEnding(in, interpolator, "@", "@", true);
         reader.setEscapeString(escapeString);
         return reader;
+    }
+
+    @Test
+    public void setEscapeStringNullShouldDisableEscaping() throws Exception {
+        InterpolatorFilterReaderLineEnding reader =
+                new InterpolatorFilterReaderLineEnding(new StringReader("\\${a}"), null, "${", "}", true);
+        reader.setEscapeString("\\");
+        assertEquals("\\", reader.getEscapeString());
+
+        // Now disable escaping by setting to null
+        reader.setEscapeString(null);
+        assertNull(reader.getEscapeString());
+    }
+
+    @Test
+    public void setEscapeStringEmptyShouldDisableEscaping() throws Exception {
+        InterpolatorFilterReaderLineEnding reader =
+                new InterpolatorFilterReaderLineEnding(new StringReader("\\${a}"), null, "${", "}", true);
+        reader.setEscapeString("\\");
+        assertEquals("\\", reader.getEscapeString());
+
+        // Now disable escaping by setting to empty string
+        reader.setEscapeString("");
+        assertNull(reader.getEscapeString());
     }
 }

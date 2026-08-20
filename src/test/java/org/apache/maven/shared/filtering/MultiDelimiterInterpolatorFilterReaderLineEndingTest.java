@@ -108,4 +108,15 @@ class MultiDelimiterInterpolatorFilterReaderLineEndingTest extends AbstractInter
 
         assertEquals("  url=\"jdbc:oracle:thin:@DB_SERVER:DB_PORT:DB_NAME\"", IOUtils.toString(reader));
     }
+
+    @Test
+    void eofAfterEscapeCharDoesNotProduceGarbage() throws Exception {
+        Reader in = new StringReader("\\");
+        MultiDelimiterInterpolatorFilterReaderLineEnding reader =
+                new MultiDelimiterInterpolatorFilterReaderLineEnding(in, interpolator, true);
+        reader.setDelimiterSpecs(Collections.singleton("@"));
+        reader.setEscapeString("\\");
+
+        assertEquals("\\", IOUtils.toString(reader));
+    }
 }

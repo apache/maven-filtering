@@ -62,7 +62,7 @@
 
   <properties>
     <mavenVersion>3.9.16</mavenVersion>
-    <slf4jVersion>1.7.36</slf4jVersion>
+    <slf4jVersion>2.0.0</slf4jVersion>
     <version.plexus-utils>3.6.1</version.plexus-utils>
     <project.build.outputTimestamp>2026-06-30T14:34:27Z</project.build.outputTimestamp>
     <!-- don't fail check for some rules that are too hard to enforce (could even be told broken for some)

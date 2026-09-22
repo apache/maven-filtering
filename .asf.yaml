@@ -45,7 +45,7 @@ project:
   metadata:
     key: maven-filtering
     committee: maven
-    name: Maven Filtering
+    name: Apache Maven Filtering
     description: A shared component for all plugins that needs to filter resources.
     short_description: A shared component for all plugins that needs to filter resources.
     homepage: https://maven.apache.org/shared/maven-filtering/

@@ -56,7 +56,7 @@ public final class FilteringUtils {
      */
     private static final int FILE_COPY_BUFFER_SIZE = ONE_MB * 30;
 
-    private static final String WINDOWS_PATH_PATTERN = "^(.*)[a-zA-Z]:\\\\(.*)";
+    private static final String WINDOWS_PATH_PATTERN = "^(?:.*[a-zA-Z]:\\\\|[^:]+\\\\).*";
 
     private static final Pattern PATTERN = Pattern.compile(WINDOWS_PATH_PATTERN);
 
@@ -72,8 +72,6 @@ public final class FilteringUtils {
         // nothing just an util class
     }
 
-    // TODO: Correct to handle relative windows paths. (http://jira.apache.org/jira/browse/MSHARED-121)
-    // How do we distinguish a relative windows path from some other value that happens to contain backslashes??
     /**
      * @param val The value to be escaped.
      * @return Escaped value

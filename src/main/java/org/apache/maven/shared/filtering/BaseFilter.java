@@ -201,7 +201,7 @@ class BaseFilter implements DefaultFilterInfo {
 
             for (String filterFile : propertiesFilePaths) {
                 if (filterFile == null || filterFile.trim().isEmpty()) {
-                    // skip empty file name
+                    getLogger().warn("Skipping empty filter file entry");
                     continue;
                 }
                 try {

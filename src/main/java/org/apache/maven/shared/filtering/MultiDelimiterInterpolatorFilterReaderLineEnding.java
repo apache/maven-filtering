@@ -77,6 +77,8 @@ public class MultiDelimiterInterpolatorFilterReaderLineEnding extends AbstractFi
 
     private final boolean supportMultiLineFiltering;
 
+    private BoundedReader boundedReader;
+
     private static final int MAXIMUM_BUFFER_SIZE = 8192;
 
     private boolean eof = false;
@@ -204,7 +206,12 @@ public class MultiDelimiterInterpolatorFilterReaderLineEnding extends AbstractFi
             return -1;
         }
 
-        BoundedReader in = new BoundedReader(this.in, markLength);
+        if (boundedReader == null) {
+            boundedReader = new BoundedReader(this.in, markLength);
+        } else {
+            boundedReader.mark(markLength);
+        }
+        BoundedReader in = boundedReader;
 
         int ch = in.read();
         if (ch == -1 || (ch == '\n' && !supportMultiLineFiltering)) {

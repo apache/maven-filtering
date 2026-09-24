@@ -58,6 +58,7 @@ public class BoundedReader extends Reader {
 
     @Override
     public void mark(int theReadAheadLimit) throws IOException {
+        pos = 0;
         this.readAheadLimit = theReadAheadLimit;
         target.mark(theReadAheadLimit);
     }

@@ -90,6 +90,21 @@ class BoundedReaderTest {
     }
 
     @Test
+    void markStartsNewReadWindow() throws Exception {
+        try (BoundedReader mr = new BoundedReader(sr, 3)) {
+            mr.read();
+            mr.mark(2);
+
+            assertEquals('1', mr.read());
+            assertEquals('2', mr.read());
+            assertEquals(-1, mr.read());
+
+            mr.reset();
+            assertEquals('1', mr.read());
+        }
+    }
+
+    @Test
     void skipTest() throws Exception {
         try (BoundedReader mr = new BoundedReader(sr, 3)) {
             mr.skip(2);

@@ -134,8 +134,8 @@ public class MultiDelimiterInterpolatorFilterReaderLineEnding extends AbstractFi
         delimiters.clear();
         for (String spec : specs) {
             delimiters.add(DelimiterSpecification.parse(spec));
-            markLength += spec.length() * 2;
         }
+        calculateMarkLength();
 
         return this;
     }

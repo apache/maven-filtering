@@ -114,6 +114,17 @@ class FilteringUtilsTest {
     }
 
     @Test
+    void escapeWindowsPathRelative() {
+        assertEquals("src\\\\main\\\\java", FilteringUtils.escapeWindowsPath("src\\main\\java"));
+    }
+
+    @Test
+    void escapeWindowsPathPreservesRepeatedBackslashes() {
+        // Already-escaped backslash pairs (\\) are preserved as-is (idempotent guard)
+        assertEquals("C:\\\\Users", FilteringUtils.escapeWindowsPath("C:\\\\Users"));
+    }
+
+    @Test
     void escapeWindowsPathMissingDriveLetter() {
         assertEquals(":\\Users\\Administrator", FilteringUtils.escapeWindowsPath(":\\Users\\Administrator"));
     }
@@ -123,21 +134,15 @@ class FilteringUtilsTest {
         assertEquals("4:\\Users\\Administrator", FilteringUtils.escapeWindowsPath("4:\\Users\\Administrator"));
     }
 
-    // This doesn't work, see MSHARED-121
-    /*
-     * public void testEscapeWindowsPathStartingWithDrivelessAbsolutePath()
-     * {
-     * assertEquals( "\\\\Users\\\\Administrator", FilteringUtils.escapeWindowsPath( "\\Users\\Administrator" ) );
-     * }
-     */
+    @Test
+    void escapeWindowsPathStartingWithDrivelessAbsolutePath() {
+        assertEquals("\\\\Users\\\\Administrator", FilteringUtils.escapeWindowsPath("\\Users\\Administrator"));
+    }
 
-    // This doesn't work, see MSHARED-121
-    /*
-     * public void testEscapeWindowsPathStartingWithExpression()
-     * {
-     * assertEquals( "${pathExpr}\\\\Documents", FilteringUtils.escapeWindowsPath( "${pathExpr}\\Documents" ) );
-     * }
-     */
+    @Test
+    void escapeWindowsPathStartingWithExpression() {
+        assertEquals("${pathExpr}\\\\Documents", FilteringUtils.escapeWindowsPath("${pathExpr}\\Documents"));
+    }
 
     // MSHARED-179
     @Test

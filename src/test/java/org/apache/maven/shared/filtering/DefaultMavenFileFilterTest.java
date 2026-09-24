@@ -40,11 +40,14 @@ import org.apache.maven.di.Injector;
 import org.codehaus.plexus.interpolation.AbstractValueSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
 import static org.apache.maven.api.di.testing.MavenDIExtension.getBasedir;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -58,6 +61,9 @@ class DefaultMavenFileFilterTest {
 
     @Inject
     Injector container;
+
+    @TempDir
+    private Path tempDir;
 
     final Path to = Paths.get(getBasedir(), "target/reflection-test.properties");
 
@@ -85,6 +91,31 @@ class DefaultMavenFileFilterTest {
 
         Properties properties = PropertyUtils.loadPropertyFile(to, null);
         assertEquals("older file", properties.getProperty("version"));
+    }
+
+    @Test
+    void malformedInputReportsEncoding() throws Exception {
+        Path source = tempDir.resolve("malformed.txt");
+        Path destination = tempDir.resolve("filtered.txt");
+        Files.write(source, new byte[] {(byte) 0xC3, 0x28});
+
+        MavenFileFilter mavenFileFilter = container.getInstance(MavenFileFilter.class);
+
+        MavenFilteringException exception = assertThrows(
+                MavenFilteringException.class,
+                () -> mavenFileFilter.copyFile(
+                        source,
+                        destination,
+                        true,
+                        List.of(new FilterWrapper() {
+                            @Override
+                            public Reader getReader(Reader fileReader) {
+                                return fileReader;
+                            }
+                        }),
+                        "UTF-8"));
+
+        assertTrue(exception.getMessage().contains("while reading with UTF-8 encoding"));
     }
 
     @Test

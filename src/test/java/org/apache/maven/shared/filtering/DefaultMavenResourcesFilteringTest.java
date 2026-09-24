@@ -28,6 +28,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
 
@@ -1009,17 +1010,26 @@ class DefaultMavenResourcesFilteringTest {
         File targetPathFile = new File(outputDirectory, "testTargetPath");
 
         File[] files = targetPathFile.listFiles();
-        assertEquals(1, files.length);
-        assertEquals("subfolder", files[0].getName());
-        assertTrue(files[0].isDirectory());
+        assertNotNull(files);
+        Arrays.sort(files, Comparator.comparing(File::getName));
+        assertEquals(2, files.length);
 
-        files = files[0].listFiles();
-        assertEquals(1, files.length);
+        // flat-file case: ${pom.version}.txt at resource root → 1.0.txt
         assertEquals("1.0.txt", files[0].getName());
+        assertTrue(files[0].isFile());
+
+        // subdirectory case: subfolder/${pom.version}.txt → subfolder/1.0.txt
+        assertEquals("subfolder", files[1].getName());
+        assertTrue(files[1].isDirectory());
+
+        File[] subfolderFiles = files[1].listFiles();
+        assertNotNull(subfolderFiles);
+        assertEquals(1, subfolderFiles.length);
+        assertEquals("1.0.txt", subfolderFiles[0].getName());
     }
 
     @Test
-    void filterFileNameWithFileSeparatorAsEscape() throws Exception {
+    public void testFilterFileNameWithFileSeparatorAsEscape() throws Exception {
 
         String unitFilesDir = getBasedir() + "/src/test/units-files/maven-filename-filtering";
 
@@ -1039,21 +1049,30 @@ class DefaultMavenResourcesFilteringTest {
                 new StubMavenSession());
         mavenResourcesExecution.setFilterFilenames(true);
 
-        // more likely to occur on windows, where the file
-        // separator is the same as the common escape string "\"
-        mavenResourcesExecution.setEscapeString(FileSystems.getDefault().getSeparator());
+        // simulate Windows behaviour where the escape string "\" is the same as the file
+        // separator — using a hardcoded value so this test exercises the bug on all platforms
+        mavenResourcesExecution.setEscapeString("\\");
         mavenResourcesFiltering.filterResources(mavenResourcesExecution);
 
-        File targetPathFile = new File(outputDirectory, "testTargetPath");
+        File targetPathFile = new File(outputDirectory.toFile(), "testTargetPath");
 
         File[] files = targetPathFile.listFiles();
-        assertEquals(1, files.length);
-        assertEquals("subfolder", files[0].getName());
-        assertTrue(files[0].isDirectory());
+        assertNotNull(files);
+        Arrays.sort(files, Comparator.comparing(File::getName));
+        assertEquals(2, files.length);
 
-        files = files[0].listFiles();
-        assertEquals(1, files.length);
+        // flat-file case: ${pom.version}.txt at resource root → 1.0.txt
         assertEquals("1.0.txt", files[0].getName());
+        assertTrue(files[0].isFile());
+
+        // subdirectory case: subfolder/${pom.version}.txt → subfolder/1.0.txt
+        assertEquals("subfolder", files[1].getName());
+        assertTrue(files[1].isDirectory());
+
+        File[] subfolderFiles = files[1].listFiles();
+        assertNotNull(subfolderFiles);
+        assertEquals(1, subfolderFiles.length);
+        assertEquals("1.0.txt", subfolderFiles[0].getName());
     }
 
     /**

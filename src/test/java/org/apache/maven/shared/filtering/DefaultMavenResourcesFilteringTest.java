@@ -27,6 +27,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -925,7 +926,7 @@ public class DefaultMavenResourcesFilteringTest {
         Resource resource = new Resource();
         resource.setDirectory(unitFilesDir);
         resource.setFiltering(true);
-        resource.addInclude("${pom.version}*");
+        resource.addInclude("**/${pom.version}*");
         resource.setTargetPath("testTargetPath");
 
         MavenResourcesExecution mavenResourcesExecution = new MavenResourcesExecution(
@@ -941,9 +942,69 @@ public class DefaultMavenResourcesFilteringTest {
 
         Path targetPathFile = outputDirectory.resolve("testTargetPath");
 
-        List<Path> files = list(targetPathFile);
-        assertEquals(1, files.size());
+        List<Path> files = list(targetPathFile).stream()
+                .sorted(Comparator.comparing(Path::getFileName))
+                .collect(Collectors.toList());
+        assertEquals(2, files.size());
+
+        // flat-file case: ${pom.version}.txt at resource root → 1.0.txt
         assertEquals("1.0.txt", filename(files.get(0)));
+        assertTrue(Files.isRegularFile(files.get(0)));
+
+        // subdirectory case: subfolder/${pom.version}.txt → subfolder/1.0.txt
+        assertEquals("subfolder", filename(files.get(1)));
+        assertTrue(Files.isDirectory(files.get(1)));
+
+        List<Path> subfolderFiles = list(files.get(1));
+        assertEquals(1, subfolderFiles.size());
+        assertEquals("1.0.txt", filename(subfolderFiles.get(0)));
+    }
+
+    @Test
+    public void testFilterFileNameWithFileSeparatorAsEscape() throws Exception {
+
+        String unitFilesDir = getBasedir() + "/src/test/units-files/maven-filename-filtering";
+
+        Resource resource = new Resource();
+        resource.setDirectory(unitFilesDir);
+        resource.setFiltering(true);
+        resource.addInclude("**/${pom.version}*");
+        resource.setTargetPath("testTargetPath");
+
+        MavenResourcesExecution mavenResourcesExecution = new MavenResourcesExecution(
+                Collections.singletonList(resource),
+                outputDirectory,
+                mavenProject,
+                "UTF-8",
+                Collections.<String>emptyList(),
+                Collections.<String>emptyList(),
+                new StubSession());
+        mavenResourcesExecution.setFilterFilenames(true);
+
+        // simulate Windows behaviour where the escape string "\" is the same as the file
+        // separator — using a hardcoded value so this test exercises the bug on all platforms
+        mavenResourcesExecution.setEscapeString("\\");
+        mavenResourcesFiltering.filterResources(mavenResourcesExecution);
+
+        Path targetPathFile = outputDirectory.resolve("testTargetPath");
+
+        List<Path> files = list(targetPathFile).stream()
+                .sorted(Comparator.comparing(Path::getFileName))
+                .collect(Collectors.toList());
+        assertEquals(2, files.size());
+
+        // flat-file case: ${pom.version}.txt at resource root → 1.0.txt (escape string must not break single-component
+        // names)
+        assertEquals("1.0.txt", filename(files.get(0)));
+        assertTrue(Files.isRegularFile(files.get(0)));
+
+        // subdirectory case: subfolder/${pom.version}.txt → subfolder/1.0.txt
+        assertEquals("subfolder", filename(files.get(1)));
+        assertTrue(Files.isDirectory(files.get(1)));
+
+        List<Path> subfolderFiles = list(files.get(1));
+        assertEquals(1, subfolderFiles.size());
+        assertEquals("1.0.txt", filename(subfolderFiles.get(0)));
     }
 
     /**

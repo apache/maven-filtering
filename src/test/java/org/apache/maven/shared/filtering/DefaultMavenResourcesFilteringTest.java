@@ -23,7 +23,6 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -1064,7 +1063,7 @@ class DefaultMavenResourcesFilteringTest {
         mavenResourcesExecution.setEscapeString("\\");
         mavenResourcesFiltering.filterResources(mavenResourcesExecution);
 
-        File targetPathFile = new File(outputDirectory.toFile(), "testTargetPath");
+        File targetPathFile = new File(outputDirectory, "testTargetPath");
 
         File[] files = targetPathFile.listFiles();
         assertNotNull(files);

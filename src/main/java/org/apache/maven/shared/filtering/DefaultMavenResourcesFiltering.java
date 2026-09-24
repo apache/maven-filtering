@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -41,7 +40,6 @@ import java.util.Set;
 import org.apache.maven.model.Resource;
 import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.FileUtils;
-import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.Scanner;
 import org.codehaus.plexus.util.StringUtils;
 import org.slf4j.Logger;
@@ -61,6 +59,8 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
     private static final String[] EMPTY_STRING_ARRAY = {};
 
     private static final String[] DEFAULT_INCLUDES = {"**/**"};
+
+    private static final int BUFFER_LENGTH = 8192;
 
     private final List<String> defaultNonFilteredFileExtensions;
 
@@ -278,7 +278,8 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
                 }
                 LOGGER.info("Copying " + includedFiles.size() + " resource" + (includedFiles.size() > 1 ? "s" : "")
                         + " from "
-                        + getRelativePath(basedir, resourceDirectory.toAbsolutePath())
+                        + getRelativePath(
+                                basedir, resourceDirectory.getAbsoluteFile().toPath())
                         + " to "
                         + getRelativePath(basedir, destination));
             } catch (Exception e) {

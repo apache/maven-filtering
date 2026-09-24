@@ -21,10 +21,10 @@ package org.apache.maven.shared.filtering;
 import javax.inject.Inject;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.io.Reader;
 import java.io.StringReader;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -148,7 +148,7 @@ class DefaultMavenFileFilterTest {
         };
 
         mavenFileFilter.loadProperties(
-                new Properties(), Paths.get(getBasedir()), Arrays.asList(null, "  "), new Properties());
+                new Properties(), new File(getBasedir()), Arrays.asList(null, "  "), new Properties());
 
         verify(logger, times(2)).warn("Skipping empty filter file entry");
     }

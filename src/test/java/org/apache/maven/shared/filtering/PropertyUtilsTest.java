@@ -20,6 +20,7 @@ package org.apache.maven.shared.filtering;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -34,6 +35,7 @@ import org.slf4j.Logger;
 import static org.apache.maven.api.di.testing.MavenDIExtension.getBasedir;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -88,6 +90,15 @@ class PropertyUtilsTest {
         assertFalse(Files.exists(nonExistent), "property file exist: " + nonExistent);
 
         assertThrows(Exception.class, () -> PropertyUtils.loadPropertyFile(nonExistent, true, false));
+    }
+
+    @Test
+    void missingPropertyValue() throws Exception {
+        Method getPropertyValue =
+                PropertyUtils.class.getDeclaredMethod("getPropertyValue", String.class, Properties.class, Logger.class);
+        getPropertyValue.setAccessible(true);
+
+        assertNull(getPropertyValue.invoke(null, "missing", new Properties(), null));
     }
 
     @Test

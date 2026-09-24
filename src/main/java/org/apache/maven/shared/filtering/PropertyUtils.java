@@ -177,6 +177,9 @@ public final class PropertyUtils {
         valueChain.add(k);
 
         String v = p.getProperty(k);
+        if (v == null) {
+            return null;
+        }
         String defaultValue = v;
         StringBuilder ret = new StringBuilder();
         int idx, idx2;

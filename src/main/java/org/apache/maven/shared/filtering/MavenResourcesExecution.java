@@ -21,6 +21,7 @@ package org.apache.maven.shared.filtering;
 import java.io.Reader;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.apache.maven.api.Project;
@@ -446,6 +447,10 @@ public class MavenResourcesExecution extends AbstractMavenFilteringRequest {
         mre.setUseDefaultFilterWrappers(this.isUseDefaultFilterWrappers());
         mre.setAddDefaultExcludes(this.isAddDefaultExcludes());
         mre.setSupportMultiLineFiltering(this.isSupportMultiLineFiltering());
+        mre.setFlatten(this.isFlatten());
+        mre.setPropertiesEncoding(this.getPropertiesEncoding());
+        mre.setDelimiters(new LinkedHashSet<>(this.getDelimiters()));
+        mre.setInterpolatorCustomizer(this.getInterpolatorCustomizer());
         return mre;
     }
 

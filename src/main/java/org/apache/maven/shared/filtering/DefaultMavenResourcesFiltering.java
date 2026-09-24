@@ -269,7 +269,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
                 boolean filteredExt = filteredFileExtension(
                         source.getFileName().toString(), mavenResourcesExecution.getNonFilteredFileExtensions());
                 boolean filteredGlob = !matchesNonFilteredGlob(name, resource.getNonFilteredFiles());
-                if (resource.isFiltering() && isPropertiesFile(source)) {
+                if (resource.isFiltering() && filteredExt && filteredGlob && isPropertiesFile(source)) {
                     propertiesFiles.add(source);
                 }
 

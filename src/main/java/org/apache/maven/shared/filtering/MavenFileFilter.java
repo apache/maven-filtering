@@ -84,12 +84,14 @@ public interface MavenFileFilter extends DefaultFilterInfo {
      * @throws MavenFilteringException In case of an error.
      * @since 3.4.0
      */
-    void copyFile(
+    default void copyFile(
             Path from,
             Path to,
             boolean filtering,
             List<FilterWrapper> filterWrappers,
             String encoding,
             boolean gracefulBinaryHandling)
-            throws MavenFilteringException;
+            throws MavenFilteringException {
+        copyFile(from, to, filtering, filterWrappers, encoding);
+    }
 }

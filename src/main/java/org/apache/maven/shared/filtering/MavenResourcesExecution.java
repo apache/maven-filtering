@@ -476,8 +476,8 @@ public class MavenResourcesExecution extends AbstractMavenFilteringRequest {
     }
 
     /**
-     * Returns whether files that cannot be filtered due to charset decoding errors are silently
-     * copied as binary instead of failing the build.
+     * Returns whether files that cannot be filtered due to charset decoding errors are copied
+     * as-is with a WARN log entry instead of failing the build.
      *
      * @return {@code true} if graceful binary handling is enabled
      * @since 3.4.0

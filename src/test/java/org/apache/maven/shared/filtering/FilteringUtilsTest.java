@@ -146,4 +146,17 @@ class FilteringUtilsTest {
                 "jdbc:derby:C:\\\\Users\\\\Administrator/test;create=true",
                 FilteringUtils.escapeWindowsPath("jdbc:derby:C:\\Users\\Administrator/test;create=true"));
     }
+
+    @Test
+    void relativeFilePathStripsLeadingSeparatorFromWindowsDrivePath() {
+        assertEquals("file.txt", FilteringUtils.getRelativeFilePath("C:/base", "/C:/base/file.txt"));
+        assertEquals("../other/file.txt", FilteringUtils.getRelativeFilePath("/C:/base/dir", "C:/base/other/file.txt"));
+    }
+
+    @Test
+    void relativeFilePathUnixStylePaths() {
+        assertEquals("java/bin", FilteringUtils.getRelativeFilePath("/usr/local", "/usr/local/java/bin"));
+        assertEquals("../../bin", FilteringUtils.getRelativeFilePath("/usr/local/", "/bin"));
+        assertEquals("../usr/local/", FilteringUtils.getRelativeFilePath("/bin", "/usr/local/"));
+    }
 }

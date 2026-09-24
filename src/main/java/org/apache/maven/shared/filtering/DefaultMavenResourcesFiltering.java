@@ -536,18 +536,24 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
                 reader = wrapper.getReader(reader);
             }
 
-            try (StringWriter writer = new StringWriter()) {
-                IOUtil.copy(reader, writer);
+            try (Reader closeable = reader;
+                    StringWriter writer = new StringWriter()) {
+                char[] buffer = new char[BUFFER_LENGTH];
+                int nRead;
+                while ((nRead = reader.read(buffer, 0, buffer.length)) >= 0) {
+                    writer.write(buffer, 0, nRead);
+                }
                 String filteredComponent = writer.toString();
                 sb.append(filteredComponent);
                 if (iterator.hasNext()) {
-                    sb.append(FileSystems.getDefault().getSeparator());
+                    sb.append(File.separator);
                 }
 
             } catch (IOException e) {
-                throw new MavenFilteringException("Failed filtering filename" + name, e);
+                throw new MavenFilteringException("Failed filtering filename: " + name, e);
             }
         }
+
         String filteredFilename = sb.toString();
 
         if (LOGGER.isDebugEnabled()) {

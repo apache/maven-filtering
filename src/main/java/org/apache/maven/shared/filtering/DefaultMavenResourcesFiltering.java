@@ -98,6 +98,10 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
                 : fileName.substring(extensionPos + 1).toLowerCase(Locale.ROOT);
     }
 
+    static String getRelativePath(Path base, Path path) {
+        return base.equals(path) ? "." : base.relativize(path).toString();
+    }
+
     @Override
     public List<String> getDefaultNonFilteredFileExtensions() {
         return this.defaultNonFilteredFileExtensions;
@@ -234,9 +238,9 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
                         .toAbsolutePath();
                 LOGGER.info("Copying " + includedFiles.size() + " resource" + (includedFiles.size() > 1 ? "s" : "")
                         + " from "
-                        + basedir.relativize(resourceDirectory.toAbsolutePath())
+                        + getRelativePath(basedir, resourceDirectory.toAbsolutePath())
                         + " to "
-                        + basedir.relativize(destination));
+                        + getRelativePath(basedir, destination));
             } catch (Exception e) {
                 // be foolproof: if for ANY reason throws, do not abort, just fall back to old message
                 LOGGER.info("Copying " + includedFiles.size() + " resource" + (includedFiles.size() > 1 ? "s" : "")

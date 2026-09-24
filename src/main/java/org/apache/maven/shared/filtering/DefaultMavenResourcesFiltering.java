@@ -18,6 +18,7 @@
  */
 package org.apache.maven.shared.filtering;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -28,6 +29,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
@@ -476,26 +478,39 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
      */
     private String filterFileName(String name, List<FilterWrapper> wrappers) throws MavenFilteringException {
 
-        Reader reader = new StringReader(name);
-        for (FilterWrapper wrapper : wrappers) {
-            reader = wrapper.getReader(reader);
-        }
-
-        try (StringWriter writer = new StringWriter()) {
-            char[] buffer = new char[BUFFER_LENGTH];
-            int nRead;
-            while ((nRead = reader.read(buffer, 0, buffer.length)) >= 0) {
-                writer.write(buffer, 0, nRead);
+        StringBuilder sb = new StringBuilder();
+        Path path = Path.of(name);
+        Iterator<Path> iterator = path.iterator();
+        while (iterator.hasNext()) {
+            String component = iterator.next().toString();
+            Reader reader = new StringReader(component);
+            for (FilterWrapper wrapper : wrappers) {
+                reader = wrapper.getReader(reader);
             }
 
-            String filteredFilename = writer.toString();
+            try (Reader closeable = reader;
+                    StringWriter writer = new StringWriter()) {
+                char[] buffer = new char[BUFFER_LENGTH];
+                int nRead;
+                while ((nRead = reader.read(buffer, 0, buffer.length)) >= 0) {
+                    writer.write(buffer, 0, nRead);
+                }
+                String filteredComponent = writer.toString();
+                sb.append(filteredComponent);
+                if (iterator.hasNext()) {
+                    sb.append(File.separator);
+                }
 
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("renaming filename " + name + " to " + filteredFilename);
+            } catch (IOException e) {
+                throw new MavenFilteringException("Failed filtering filename: " + name, e);
             }
-            return filteredFilename;
-        } catch (IOException e) {
-            throw new MavenFilteringException("Failed filtering filename" + name, e);
         }
+
+        String filteredFilename = sb.toString();
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("renaming filename " + name + " to " + filteredFilename);
+        }
+        return filteredFilename;
     }
 }

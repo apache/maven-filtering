@@ -101,6 +101,10 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
         return rawExt == null ? null : rawExt.toLowerCase(Locale.ROOT);
     }
 
+    static String getRelativePath(Path base, Path path) {
+        return base.equals(path) ? "." : base.relativize(path).toString();
+    }
+
     @Override
     public List<String> getDefaultNonFilteredFileExtensions() {
         return this.defaultNonFilteredFileExtensions;
@@ -274,9 +278,9 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
                 }
                 LOGGER.info("Copying " + includedFiles.size() + " resource" + (includedFiles.size() > 1 ? "s" : "")
                         + " from "
-                        + origin
+                        + getRelativePath(basedir, resourceDirectory.toAbsolutePath())
                         + " to "
-                        + basedir.relativize(destination));
+                        + getRelativePath(basedir, destination));
             } catch (Exception e) {
                 // be foolproof: if for ANY reason throws, do not abort, just fall back to old message
                 LOGGER.info("Copying " + includedFiles.size() + " resource" + (includedFiles.size() > 1 ? "s" : "")

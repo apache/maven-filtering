@@ -23,7 +23,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.Properties;
 
 import org.junit.jupiter.api.Test;
@@ -31,7 +36,13 @@ import org.junit.jupiter.api.Test;
 import static org.codehaus.plexus.testing.PlexusExtension.getBasedir;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Olivier Lamy
@@ -83,6 +94,15 @@ class PropertyUtilsTest {
         } catch (Exception ex) {
             // exception ok
         }
+    }
+
+    @Test
+    void missingPropertyValue() throws Exception {
+        Method getPropertyValue =
+                PropertyUtils.class.getDeclaredMethod("getPropertyValue", String.class, Properties.class, Logger.class);
+        getPropertyValue.setAccessible(true);
+
+        assertNull(getPropertyValue.invoke(null, "missing", new Properties(), null));
     }
 
     @Test

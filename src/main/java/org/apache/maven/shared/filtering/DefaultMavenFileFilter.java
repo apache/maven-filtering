@@ -78,7 +78,8 @@ public class DefaultMavenFileFilter extends BaseFilter implements MavenFileFilte
                 mavenFileFilterRequest.getTo(),
                 mavenFileFilterRequest.isFiltering(),
                 filterWrappers,
-                mavenFileFilterRequest.getEncoding());
+                mavenFileFilterRequest.getEncoding(),
+                mavenFileFilterRequest.isGracefulBinaryHandling());
     }
 
     @Override

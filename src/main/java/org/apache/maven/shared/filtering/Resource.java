@@ -19,6 +19,7 @@
 package org.apache.maven.shared.filtering;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -63,7 +64,7 @@ public class Resource {
      * @since 3.4.0
      */
     public List<String> getNonFilteredFiles() {
-        return nonFilteredFiles;
+        return nonFilteredFiles == null ? null : Collections.unmodifiableList(nonFilteredFiles);
     }
 
     /**

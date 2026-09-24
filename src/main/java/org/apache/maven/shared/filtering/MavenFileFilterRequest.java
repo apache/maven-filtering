@@ -39,6 +39,8 @@ public class MavenFileFilterRequest extends AbstractMavenFilteringRequest {
 
     private String encoding;
 
+    private boolean gracefulBinaryHandling;
+
     /**
      * The constructor.
      */
@@ -134,5 +136,23 @@ public class MavenFileFilterRequest extends AbstractMavenFilteringRequest {
      */
     public void setFiltering(boolean filtering) {
         this.filtering = filtering;
+    }
+
+    /**
+     * @return {@code true} if files that cannot be filtered due to binary content should be copied as-is
+     *         with a warning instead of failing the build.
+     * @since 3.4.0
+     */
+    public boolean isGracefulBinaryHandling() {
+        return gracefulBinaryHandling;
+    }
+
+    /**
+     * @param gracefulBinaryHandling set to {@code true} to copy binary files as-is instead of failing
+     *        when a {@link java.nio.charset.MalformedInputException} is encountered.
+     * @since 3.4.0
+     */
+    public void setGracefulBinaryHandling(boolean gracefulBinaryHandling) {
+        this.gracefulBinaryHandling = gracefulBinaryHandling;
     }
 }

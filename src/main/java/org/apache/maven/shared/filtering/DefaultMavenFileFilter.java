@@ -19,6 +19,7 @@
 package org.apache.maven.shared.filtering;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.charset.MalformedInputException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -122,10 +123,15 @@ public class DefaultMavenFileFilter extends BaseFilter implements MavenFileFilte
 
             buildContext.refresh(to.toFile());
         } catch (IOException e) {
+            String reason = e.getClass().getSimpleName() + ": " + e.getMessage();
+            if (e instanceof MalformedInputException) {
+                String charsetName = encoding == null || encoding.isEmpty()
+                        ? Charset.defaultCharset().name()
+                        : encoding;
+                reason += " while reading with " + charsetName + " encoding";
+            }
             throw new MavenFilteringException(
-                    (filtering ? "filtering " : "copying ") + from + " to " + to + " failed with "
-                            + e.getClass().getSimpleName() + ": " + e.getMessage(),
-                    e);
+                    (filtering ? "filtering " : "copying ") + from + " to " + to + " failed with " + reason, e);
         }
     }
 }

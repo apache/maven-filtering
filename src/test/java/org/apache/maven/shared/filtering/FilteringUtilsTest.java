@@ -26,9 +26,13 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.api.io.TempDir;
 
 import static org.apache.maven.api.di.testing.MavenDIExtension.getBasedir;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author John Casey
@@ -38,6 +42,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 class FilteringUtilsTest {
     private static final Path TEST_DIRECTORY = Paths.get(getBasedir(), "target/test-classes/");
+
+    @TempDir
+    Path tempDir;
 
     @Test
     void mshared1213CopyWithTargetAlreadyExisting0ByteFile() throws Exception {
@@ -163,5 +170,81 @@ class FilteringUtilsTest {
         assertEquals("java/bin", FilteringUtils.getRelativeFilePath("/usr/local", "/usr/local/java/bin"));
         assertEquals("../../bin", FilteringUtils.getRelativeFilePath("/usr/local/", "/bin"));
         assertEquals("../usr/local/", FilteringUtils.getRelativeFilePath("/bin", "/usr/local/"));
+    }
+
+    // MSHARED-1004: symbolic links in resources
+
+    /**
+     * A file-symlink in the source directory must be followed: the target file's content is
+     * copied to the destination as a regular file (not as a symlink).
+     */
+    @Test
+    @DisabledOnOs(OS.WINDOWS)
+    void copyFileSymlinkIsFollowedAndWrittenAsRegularFile() throws Exception {
+        // real file
+        Path realFile = tempDir.resolve("real.txt");
+        Files.writeString(realFile, "symlink content");
+
+        // symlink → real file
+        Path symlink = tempDir.resolve("link.txt");
+        Files.createSymbolicLink(symlink, realFile.getFileName()); // relative: ../real.txt
+
+        Path toFile = tempDir.resolve("output.txt");
+        FilteringUtils.copyFile(symlink, toFile, "UTF-8", new FilterWrapper[0], false);
+
+        assertFalse(Files.isSymbolicLink(toFile), "destination must be a regular file, not a symlink");
+        assertEquals("symlink content", Files.readString(toFile));
+    }
+
+    /**
+     * When the destination is a dangling symlink left by a previous build (e.g. from an older
+     * version of maven-filtering that copied symlinks verbatim), copyFile must replace it with a
+     * regular file instead of failing with NoSuchFileException.
+     */
+    @Test
+    @DisabledOnOs(OS.WINDOWS)
+    void copyFileReplacesDanglingSymlinkAtDestination() throws Exception {
+        Path realFile = tempDir.resolve("real.txt");
+        Files.writeString(realFile, "hello");
+
+        Path toFile = tempDir.resolve("output.txt");
+        // Simulate a dangling symlink left by old code
+        Files.createSymbolicLink(toFile, Path.of("../nonexistent/B"));
+
+        // Must succeed even though the symlink is dangling
+        FilteringUtils.copyFile(realFile, toFile, "UTF-8", new FilterWrapper[0], false);
+
+        assertFalse(Files.isSymbolicLink(toFile), "dangling symlink must be replaced by a regular file");
+        assertEquals("hello", Files.readString(toFile));
+    }
+
+    /**
+     * Same as above but with filtering active (wrappers path through CachingWriter).
+     */
+    @Test
+    @DisabledOnOs(OS.WINDOWS)
+    void copyFileWithFilteringReplacesDanglingSymlinkAtDestination() throws Exception {
+        Path realFile = tempDir.resolve("real.txt");
+        Files.writeString(realFile, "hello");
+
+        Path toFile = tempDir.resolve("output.txt");
+        Files.createSymbolicLink(toFile, Path.of("../nonexistent/B"));
+
+        FilteringUtils.copyFile(
+                realFile,
+                toFile,
+                "UTF-8",
+                new FilterWrapper[] {
+                    new FilterWrapper() {
+                        @Override
+                        public Reader getReader(Reader fileReader) {
+                            return fileReader;
+                        }
+                    }
+                },
+                false);
+
+        assertFalse(Files.isSymbolicLink(toFile), "dangling symlink must be replaced by a regular file");
+        assertEquals("hello", Files.readString(toFile));
     }
 }

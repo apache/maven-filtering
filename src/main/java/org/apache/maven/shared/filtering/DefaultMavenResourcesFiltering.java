@@ -37,6 +37,7 @@ import org.apache.maven.api.di.Inject;
 import org.apache.maven.api.di.Named;
 import org.apache.maven.api.di.Singleton;
 import org.codehaus.plexus.util.Scanner;
+import org.codehaus.plexus.util.SelectorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonatype.plexus.build.incremental.BuildContext;
@@ -267,6 +268,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
                 }
                 boolean filteredExt = filteredFileExtension(
                         source.getFileName().toString(), mavenResourcesExecution.getNonFilteredFileExtensions());
+                boolean filteredGlob = !matchesNonFilteredGlob(name, resource.getNonFilteredFiles());
                 if (resource.isFiltering() && isPropertiesFile(source)) {
                     propertiesFiles.add(source);
                 }
@@ -279,9 +281,10 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
                 mavenFileFilter.copyFile(
                         source,
                         destinationFile,
-                        resource.isFiltering() && filteredExt,
+                        resource.isFiltering() && filteredExt && filteredGlob,
                         mavenResourcesExecution.getFilterWrappers(),
-                        encoding);
+                        encoding,
+                        mavenResourcesExecution.isGracefulBinaryHandling());
             }
 
             // deal with deleted source files
@@ -367,6 +370,30 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
      */
     static boolean isPropertiesFile(Path file) {
         return "properties".equals(getExtension(file.getFileName().toString()));
+    }
+
+    /**
+     * Returns {@code true} if the given relative file path matches any of the provided
+     * Ant-style glob patterns, meaning the file should NOT be filtered.
+     *
+     * @param relativePath the file path relative to the resource directory (forward-slash separated)
+     * @param nonFilteredGlobs the list of glob patterns from {@link Resource#getNonFilteredFiles()},
+     *                         or {@code null} / empty if none
+     * @return {@code true} if the path matches at least one pattern
+     * @since 3.4.0
+     */
+    static boolean matchesNonFilteredGlob(String relativePath, List<String> nonFilteredGlobs) {
+        if (nonFilteredGlobs == null || nonFilteredGlobs.isEmpty()) {
+            return false;
+        }
+        // Normalize separators — plexus SelectorUtils expects forward slashes
+        String normalizedPath = relativePath.replace('\\', '/');
+        for (String glob : nonFilteredGlobs) {
+            if (SelectorUtils.matchPath(glob.replace('\\', '/'), normalizedPath, false)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void handleDefaultFilterWrappers(MavenResourcesExecution mavenResourcesExecution)

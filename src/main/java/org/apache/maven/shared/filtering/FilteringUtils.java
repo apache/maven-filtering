@@ -180,9 +180,9 @@ public final class FilteringUtils {
      * PathTool.getRelativeFilePath( "/usr/local/", "/usr/local/java/bin/java.sh" ) = "java/bin/java.sh"
      * PathTool.getRelativeFilePath( "/usr/local/java/bin/java.sh", "/usr/local/" ) = "../../.."
      * PathTool.getRelativeFilePath( "/usr/local/", "/bin" )                        = "../../bin"
-     * PathTool.getRelativeFilePath( "/bin", "/usr/local/" )                        = "../usr/local"
+     * PathTool.getRelativeFilePath( "/bin", "/usr/local/" )                        = "../usr/local/"
      * </pre>
-     * Note: On Windows based system, the <code>/</code> character should be replaced by <code>\</code> character.
+     * Note: The path separator is always {@code /}, regardless of the operating system.
      *
      * @param oldPath old path
      * @param newPath new path
@@ -193,15 +193,17 @@ public final class FilteringUtils {
             return "";
         }
 
-        // normalise the path delimiters
-        String fromPath = new File(oldPath).getPath();
-        String toPath = new File(newPath).getPath();
+        // normalise the path delimiters to forward slashes for cross-platform consistency
+        String fromPath = new File(oldPath).getPath().replace('\\', '/');
+        String toPath = new File(newPath).getPath().replace('\\', '/');
 
-        // strip any leading slashes if its a windows path
-        if (toPath.matches("^\\[a-zA-Z]:")) {
+        // strip any leading slashes if its a windows path (require separator after colon to avoid
+        // false positives on unusual Unix paths like /a:/something); backslashes are already
+        // normalised to forward slashes above, so only '/' needs to be matched here
+        if (toPath.matches("^/[a-zA-Z]:/.*")) {
             toPath = toPath.substring(1);
         }
-        if (fromPath.matches("^\\[a-zA-Z]:")) {
+        if (fromPath.matches("^/[a-zA-Z]:/.*")) {
             fromPath = fromPath.substring(1);
         }
 
@@ -229,10 +231,10 @@ public final class FilteringUtils {
             return null;
         }
 
-        String resultPath = buildRelativePath(toPath, fromPath, File.separatorChar);
+        String resultPath = buildRelativePath(toPath, fromPath, '/');
 
-        if (newPath.endsWith(File.separator) && !resultPath.endsWith(File.separator)) {
-            return resultPath + File.separator;
+        if ((newPath.endsWith("/") || newPath.endsWith(File.separator)) && !resultPath.endsWith("/")) {
+            return resultPath + "/";
         }
 
         return resultPath;

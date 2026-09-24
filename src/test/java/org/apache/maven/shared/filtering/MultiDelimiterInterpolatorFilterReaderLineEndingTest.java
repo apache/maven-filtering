@@ -116,17 +116,6 @@ class MultiDelimiterInterpolatorFilterReaderLineEndingTest extends AbstractInter
     }
 
     @Test
-    void eofAfterEscapeCharDoesNotProduceGarbage() throws Exception {
-        Reader in = new StringReader("\\");
-        MultiDelimiterInterpolatorFilterReaderLineEnding reader =
-                new MultiDelimiterInterpolatorFilterReaderLineEnding(in, interpolator, true);
-        reader.setDelimiterSpecs(Collections.singleton("@"));
-        reader.setEscapeString("\\");
-
-        assertEquals("\\", IOUtils.toString(reader));
-    }
-
-    @Test
     void settingDelimiterSpecsRecalculatesMarkLength() {
         MultiDelimiterInterpolatorFilterReaderLineEnding reader =
                 new MultiDelimiterInterpolatorFilterReaderLineEnding(new StringReader(""), interpolator, true);

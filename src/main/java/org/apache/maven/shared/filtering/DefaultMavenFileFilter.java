@@ -160,15 +160,15 @@ public class DefaultMavenFileFilter extends BaseFilter implements MavenFileFilte
             buildContext.refresh(to);
         } catch (IOException e) {
             String reason = e.getClass().getSimpleName() + ": " + e.getMessage();
-            if (e instanceof MalformedInputException) {
+            if (e instanceof MalformedInputException || e.getCause() instanceof MalformedInputException) {
                 String charsetName = encoding == null || encoding.isEmpty()
                         ? Charset.defaultCharset().name()
                         : encoding;
                 reason += " while reading with " + charsetName + " encoding";
             }
             throw new MavenFilteringException(
-                    (filtering ? "filtering " : "copying ") + from.getPath() + " to " + to.getPath()
-                            + " failed with " + reason,
+                    (filtering ? "filtering " : "copying ") + from.getPath() + " to " + to.getPath() + " failed with "
+                            + reason,
                     e);
         }
     }

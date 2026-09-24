@@ -58,6 +58,14 @@ import static org.junit.jupiter.api.Assertions.fail;
 @MavenDITest
 class DefaultMavenResourcesFilteringTest {
 
+    @Test
+    void relativePathForBaseDirectoryIsDisplayedClearly() {
+        Path base = Paths.get("/project");
+
+        assertEquals(".", DefaultMavenResourcesFiltering.getRelativePath(base, base));
+        assertEquals("target", DefaultMavenResourcesFiltering.getRelativePath(base, base.resolve("target")));
+    }
+
     @Inject
     Injector container;
 

@@ -25,6 +25,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -61,6 +63,14 @@ class DefaultMavenResourcesFilteringTest {
     private File outputDirectory = new File(getBasedir(), "target/DefaultMavenResourcesFilteringTest");
     private File baseDir = new File(getBasedir());
     private StubMavenProject mavenProject = new StubMavenProject(baseDir);
+
+    @Test
+    void relativePathForBaseDirectoryIsDisplayedClearly() {
+        Path base = Paths.get("/project");
+
+        assertEquals(".", DefaultMavenResourcesFiltering.getRelativePath(base, base));
+        assertEquals("target", DefaultMavenResourcesFiltering.getRelativePath(base, base.resolve("target")));
+    }
 
     @Inject
     private MavenResourcesFiltering mavenResourcesFiltering;

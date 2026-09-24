@@ -40,11 +40,14 @@ import org.apache.maven.di.Injector;
 import org.codehaus.plexus.interpolation.AbstractValueSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
 import static org.apache.maven.api.di.testing.MavenDIExtension.getBasedir;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Olivier Lamy
@@ -110,6 +113,22 @@ class DefaultMavenFileFilterTest {
         mavenFileFilter.loadProperties(filterProperties, Paths.get(getBasedir()), filters, new Properties());
 
         assertEquals("first and second", filterProperties.getProperty("third_filter_key"));
+    }
+
+    @Test
+    void emptyFilterFileEntriesAreReported() throws Exception {
+        Logger logger = mock(Logger.class);
+        DefaultMavenFileFilter mavenFileFilter = new DefaultMavenFileFilter(mock(BuildContext.class)) {
+            @Override
+            protected Logger getLogger() {
+                return logger;
+            }
+        };
+
+        mavenFileFilter.loadProperties(
+                new Properties(), Paths.get(getBasedir()), Arrays.asList(null, "  "), new Properties());
+
+        verify(logger, times(2)).warn("Skipping empty filter file entry");
     }
 
     // MSHARED-161: DefaultMavenFileFilter.getDefaultFilterWrappers loads

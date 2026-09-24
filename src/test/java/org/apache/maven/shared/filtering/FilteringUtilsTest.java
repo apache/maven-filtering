@@ -164,5 +164,17 @@ class FilteringUtilsTest {
 
         FilteringUtils.copyFile(temp, out, "UTF-8", new FilterWrapper[0]);
         assertFalse(out.canWrite());
+
+    @Test
+    void relativeFilePathStripsLeadingSeparatorFromWindowsDrivePath() {
+        assertEquals("file.txt", FilteringUtils.getRelativeFilePath("C:/base", "/C:/base/file.txt"));
+        assertEquals("../other/file.txt", FilteringUtils.getRelativeFilePath("/C:/base/dir", "C:/base/other/file.txt"));
+    }
+
+    @Test
+    void relativeFilePathUnixStylePaths() {
+        assertEquals("java/bin", FilteringUtils.getRelativeFilePath("/usr/local", "/usr/local/java/bin"));
+        assertEquals("../../bin", FilteringUtils.getRelativeFilePath("/usr/local/", "/bin"));
+        assertEquals("../usr/local/", FilteringUtils.getRelativeFilePath("/bin", "/usr/local/"));
     }
 }

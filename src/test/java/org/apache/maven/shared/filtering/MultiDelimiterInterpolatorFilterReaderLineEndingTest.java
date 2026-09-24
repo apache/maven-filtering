@@ -119,4 +119,17 @@ class MultiDelimiterInterpolatorFilterReaderLineEndingTest extends AbstractInter
 
         assertEquals("\\", IOUtils.toString(reader));
     }
+
+    @Test
+    void settingDelimiterSpecsRecalculatesMarkLength() {
+        MultiDelimiterInterpolatorFilterReaderLineEnding reader =
+                new MultiDelimiterInterpolatorFilterReaderLineEnding(new StringReader(""), interpolator, true);
+
+        reader.setDelimiterSpecs(Collections.singleton("@"));
+        int markLength = reader.markLength;
+
+        reader.setDelimiterSpecs(Collections.singleton("@"));
+
+        assertEquals(markLength, reader.markLength, "mark length should reflect the current delimiter set");
+    }
 }

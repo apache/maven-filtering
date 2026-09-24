@@ -53,3 +53,4 @@ updates:
       - "mvn3"
       - "github_actions"
       - "dependencies"
+# trigger rescan: 2026-09-25

@@ -21,7 +21,9 @@ package org.apache.maven.shared.filtering;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.MalformedInputException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 import org.apache.maven.api.Project;
@@ -77,17 +79,43 @@ public class DefaultMavenFileFilter extends BaseFilter implements MavenFileFilte
                 mavenFileFilterRequest.getTo(),
                 mavenFileFilterRequest.isFiltering(),
                 filterWrappers,
-                mavenFileFilterRequest.getEncoding());
+                mavenFileFilterRequest.getEncoding(),
+                mavenFileFilterRequest.isGracefulBinaryHandling());
     }
 
     @Override
     public void copyFile(Path from, Path to, boolean filtering, List<FilterWrapper> filterWrappers, String encoding)
             throws MavenFilteringException {
+        copyFile(from, to, filtering, filterWrappers, encoding, false);
+    }
+
+    @Override
+    public void copyFile(
+            Path from,
+            Path to,
+            boolean filtering,
+            List<FilterWrapper> filterWrappers,
+            String encoding,
+            boolean gracefulBinaryHandling)
+            throws MavenFilteringException {
         try {
             if (filtering) {
                 getLogger().debug("filtering {} to {}", from, to);
                 FilterWrapper[] array = filterWrappers.toArray(new FilterWrapper[0]);
-                FilteringUtils.copyFile(from, to, encoding, array, false);
+                try {
+                    FilteringUtils.copyFile(from, to, encoding, array, false);
+                } catch (MalformedInputException e) {
+                    if (!gracefulBinaryHandling) {
+                        throw e;
+                    }
+                    getLogger()
+                            .warn(
+                                    "File '{}' could not be filtered (MalformedInputException) — file appears to be binary"
+                                            + " and will be copied without filtering. Consider adding it to"
+                                            + " <nonFilteredFiles> or <nonFilteredFileExtensions>.",
+                                    from);
+                    Files.copy(from, to, StandardCopyOption.REPLACE_EXISTING);
+                }
             } else {
                 getLogger().debug("copy {} to {}", from, to);
                 FilteringUtils.copyFile(from, to, encoding, new FilterWrapper[0], false);

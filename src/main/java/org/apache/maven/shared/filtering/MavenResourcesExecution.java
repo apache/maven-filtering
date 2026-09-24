@@ -114,6 +114,16 @@ public class MavenResourcesExecution extends AbstractMavenFilteringRequest {
     private boolean flatten = false;
 
     /**
+     * When {@code true}, files that cause {@link java.nio.charset.MalformedInputException} during
+     * filtering (i.e. binary files opened with a text charset) are copied as-is with a {@code WARN}
+     * log entry instead of failing the build. Defaults to {@code false} so that real encoding
+     * errors are not silently swallowed.
+     *
+     * @since 3.4.0
+     */
+    private boolean gracefulBinaryHandling = false;
+
+    /**
      * Do nothing.
      */
     public MavenResourcesExecution() {
@@ -451,6 +461,7 @@ public class MavenResourcesExecution extends AbstractMavenFilteringRequest {
         mre.setPropertiesEncoding(this.getPropertiesEncoding());
         mre.setDelimiters(new LinkedHashSet<>(this.getDelimiters()));
         mre.setInterpolatorCustomizer(this.getInterpolatorCustomizer());
+        mre.setGracefulBinaryHandling(this.isGracefulBinaryHandling());
         return mre;
     }
 
@@ -462,6 +473,29 @@ public class MavenResourcesExecution extends AbstractMavenFilteringRequest {
         } else {
             return new ArrayList<>(lst);
         }
+    }
+
+    /**
+     * Returns whether files that cannot be filtered due to charset decoding errors are copied
+     * as-is with a WARN log entry instead of failing the build.
+     *
+     * @return {@code true} if graceful binary handling is enabled
+     * @since 3.4.0
+     */
+    public boolean isGracefulBinaryHandling() {
+        return gracefulBinaryHandling;
+    }
+
+    /**
+     * Sets whether files that cause {@link java.nio.charset.MalformedInputException} during
+     * filtering should be copied as-is with a {@code WARN} log entry instead of failing the build.
+     * Defaults to {@code false}.
+     *
+     * @param gracefulBinaryHandling {@code true} to enable graceful binary handling
+     * @since 3.4.0
+     */
+    public void setGracefulBinaryHandling(boolean gracefulBinaryHandling) {
+        this.gracefulBinaryHandling = gracefulBinaryHandling;
     }
 
     @Override

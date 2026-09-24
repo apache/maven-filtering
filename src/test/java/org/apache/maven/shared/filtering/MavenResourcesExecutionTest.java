@@ -75,6 +75,16 @@ class MavenResourcesExecutionTest {
     }
 
     @Test
+    void copyOfShouldPreserveGracefulBinaryHandling() {
+        MavenResourcesExecution original = new MavenResourcesExecution();
+        original.setGracefulBinaryHandling(true);
+
+        MavenResourcesExecution copy = original.copyOf();
+
+        Assertions.assertTrue(copy.isGracefulBinaryHandling(), "gracefulBinaryHandling should be copied");
+    }
+
+    @Test
     void copyOfShouldCopyAllFourMissingFields() {
         Consumer<Interpolator> customizer = interpolator -> {};
         LinkedHashSet<String> delimiters = new LinkedHashSet<>();

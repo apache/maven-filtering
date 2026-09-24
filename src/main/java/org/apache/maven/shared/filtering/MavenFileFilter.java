@@ -71,4 +71,27 @@ public interface MavenFileFilter extends DefaultFilterInfo {
      */
     void copyFile(Path from, Path to, boolean filtering, List<FilterWrapper> filterWrappers, String encoding)
             throws MavenFilteringException;
+
+    /**
+     * @param from The source file
+     * @param to The target file
+     * @param filtering true to apply filtering
+     * @param filterWrappers {@link List} of FileUtils.FilterWrapper
+     * @param encoding The encoding used during the filtering.
+     * @param gracefulBinaryHandling when {@code true}, files that cause
+     *        {@link java.nio.charset.MalformedInputException} are copied as-is with a warning
+     *        instead of failing the build
+     * @throws MavenFilteringException In case of an error.
+     * @since 3.4.0
+     */
+    default void copyFile(
+            Path from,
+            Path to,
+            boolean filtering,
+            List<FilterWrapper> filterWrappers,
+            String encoding,
+            boolean gracefulBinaryHandling)
+            throws MavenFilteringException {
+        copyFile(from, to, filtering, filterWrappers, encoding);
+    }
 }

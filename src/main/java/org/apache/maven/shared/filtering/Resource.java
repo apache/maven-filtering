@@ -19,6 +19,7 @@
 package org.apache.maven.shared.filtering;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -30,6 +31,7 @@ public class Resource {
 
     List<String> includes;
     List<String> excludes;
+    List<String> nonFilteredFiles;
     String directory;
     String targetPath;
     boolean filtering;
@@ -51,6 +53,41 @@ public class Resource {
 
     public void setExcludes(List<String> excludes) {
         this.excludes = excludes;
+    }
+
+    /**
+     * Returns the list of Ant-style glob patterns that should be copied as-is (without filtering),
+     * even when this resource has {@code <filtering>true</filtering>}. Patterns are matched
+     * against the relative file path within the resource directory.
+     *
+     * @return the list of non-filtered file glob patterns, or {@code null} if none are configured
+     * @since 3.4.0
+     */
+    public List<String> getNonFilteredFiles() {
+        return nonFilteredFiles == null ? null : Collections.unmodifiableList(nonFilteredFiles);
+    }
+
+    /**
+     * Sets the list of Ant-style glob patterns for files that should be copied without filtering.
+     *
+     * @param nonFilteredFiles the Ant-style glob patterns, e.g. {@code **&#47;*.p12} or {@code **&#47;certs/**}
+     * @since 3.4.0
+     */
+    public void setNonFilteredFiles(List<String> nonFilteredFiles) {
+        this.nonFilteredFiles = nonFilteredFiles;
+    }
+
+    /**
+     * Adds a single Ant-style glob pattern to the list of non-filtered files.
+     *
+     * @param nonFilteredFile the glob pattern to add
+     * @since 3.4.0
+     */
+    public void addNonFilteredFile(String nonFilteredFile) {
+        if (nonFilteredFiles == null) {
+            nonFilteredFiles = new ArrayList<>();
+        }
+        nonFilteredFiles.add(nonFilteredFile);
     }
 
     public String getDirectory() {

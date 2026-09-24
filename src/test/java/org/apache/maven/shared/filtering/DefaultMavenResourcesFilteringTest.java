@@ -1068,6 +1068,89 @@ class DefaultMavenResourcesFilteringTest {
         assertFalse(DefaultMavenResourcesFiltering.isPropertiesFile(Paths.get("some/parent/path", "file.xml")));
     }
 
+    @Test
+    void matchesNonFilteredGlobReturnsFalseForNullOrEmptyList() {
+        assertFalse(DefaultMavenResourcesFiltering.matchesNonFilteredGlob("some/file.p12", null));
+        assertFalse(DefaultMavenResourcesFiltering.matchesNonFilteredGlob("some/file.p12", List.of()));
+    }
+
+    @Test
+    void matchesNonFilteredGlobByExtension() {
+        List<String> globs = List.of("**/*.p12", "**/*.jks");
+        assertTrue(DefaultMavenResourcesFiltering.matchesNonFilteredGlob("certs/server.p12", globs));
+        assertTrue(DefaultMavenResourcesFiltering.matchesNonFilteredGlob("server.jks", globs));
+        assertFalse(DefaultMavenResourcesFiltering.matchesNonFilteredGlob("config.properties", globs));
+    }
+
+    @Test
+    void matchesNonFilteredGlobByDirectory() {
+        List<String> globs = List.of("**/certs/**");
+        assertTrue(DefaultMavenResourcesFiltering.matchesNonFilteredGlob("certs/server.p12", globs));
+        assertTrue(DefaultMavenResourcesFiltering.matchesNonFilteredGlob("a/b/certs/key.bin", globs));
+        assertFalse(DefaultMavenResourcesFiltering.matchesNonFilteredGlob("config/server.p12", globs));
+    }
+
+    @Test
+    void matchesNonFilteredGlobByExactName() {
+        List<String> globs = List.of("binary-fixture");
+        assertTrue(DefaultMavenResourcesFiltering.matchesNonFilteredGlob("binary-fixture", globs));
+        assertFalse(DefaultMavenResourcesFiltering.matchesNonFilteredGlob("other-file", globs));
+    }
+
+    @Test
+    void nonFilteredFilesGlobSkipsFilteringForMatchingFiles() throws Exception {
+        // Mixed resource directory: a properties file that should be filtered + binary files that should not
+        mavenProject.addProperty("greeting", "Hello");
+        String unitFilesDir = getBasedir() + "/src/test/units-files/binary-file";
+
+        Resource resource = new Resource();
+        resource.setDirectory(unitFilesDir);
+        resource.setFiltering(true);
+        resource.setNonFilteredFiles(List.of("binary-file", "**/*.jks"));
+
+        MavenResourcesExecution mre = new MavenResourcesExecution();
+        mre.setResources(List.of(resource));
+        mre.setOutputDirectory(outputDirectory);
+        mre.setEncoding("UTF-8");
+        mre.setMavenProject(mavenProject);
+        mre.setMavenSession(new StubSession());
+        mre.setNonFilteredFileExtensions(Collections.emptyList());
+        mre.setUseDefaultFilterWrappers(true);
+        mavenResourcesFiltering.filterResources(mre);
+
+        // Binary files must be copied byte-for-byte
+        assertTrue(contentEquals(Paths.get(unitFilesDir, "binary-file"), outputDirectory.resolve("binary-file")));
+        assertTrue(contentEquals(Paths.get(unitFilesDir, "dummy.jks"), outputDirectory.resolve("dummy.jks")));
+        // Properties file must have been filtered
+        String content = Files.readString(outputDirectory.resolve("app.properties"), StandardCharsets.UTF_8);
+        assertEquals("message=Hello", content.replace("\r\n", "\n").trim());
+    }
+
+    @Test
+    void gracefulBinaryHandlingCopiesBinaryFileWithoutThrowing() throws Exception {
+        mavenProject.addProperty("greeting", "Hello");
+        String unitFilesDir = getBasedir() + "/src/test/units-files/binary-file";
+
+        Resource resource = new Resource();
+        resource.setDirectory(unitFilesDir);
+        resource.setFiltering(true);
+        // No nonFilteredFiles — relies on graceful fallback
+
+        MavenResourcesExecution mre = new MavenResourcesExecution();
+        mre.setResources(List.of(resource));
+        mre.setOutputDirectory(outputDirectory);
+        mre.setEncoding("UTF-8");
+        mre.setMavenProject(mavenProject);
+        mre.setMavenSession(new StubSession());
+        mre.setNonFilteredFileExtensions(Collections.emptyList());
+        mre.setUseDefaultFilterWrappers(true);
+        mre.setGracefulBinaryHandling(true);
+        // Must NOT throw, and binary file must be copied byte-for-byte
+        mavenResourcesFiltering.filterResources(mre);
+
+        assertTrue(contentEquals(Paths.get(unitFilesDir, "binary-file"), outputDirectory.resolve("binary-file")));
+    }
+
     private String filename(Path file) {
         return file.getFileName().toString();
     }

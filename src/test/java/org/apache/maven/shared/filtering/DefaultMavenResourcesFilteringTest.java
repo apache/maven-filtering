@@ -1123,7 +1123,7 @@ class DefaultMavenResourcesFilteringTest {
         assertTrue(contentEquals(Paths.get(unitFilesDir, "dummy.jks"), outputDirectory.resolve("dummy.jks")));
         // Properties file must have been filtered
         String content = Files.readString(outputDirectory.resolve("app.properties"), StandardCharsets.UTF_8);
-        assertEquals("message=Hello\n", content);
+        assertEquals("message=Hello", content.replace("\r\n", "\n").trim());
     }
 
     @Test

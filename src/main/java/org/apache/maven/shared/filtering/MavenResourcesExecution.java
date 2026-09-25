@@ -87,13 +87,6 @@ public class MavenResourcesExecution extends AbstractMavenFilteringRequest {
     private boolean addDefaultExcludes = true;
 
     /**
-     * Overwrite existing files even if the destination files are newer. <code>false</code> by default.
-     *
-     * @since 1.0-beta-2
-     */
-    private boolean overwrite = false;
-
-    /**
      * Copy any empty directories included in the Resources.
      *
      * @since 1.0-beta-2
@@ -362,11 +355,13 @@ public class MavenResourcesExecution extends AbstractMavenFilteringRequest {
     /**
      * Overwrite existing files even if the destination files are newer.
      *
-     * @return {@link #overwrite}
+     * @return {@code true} if operation always overwrites.
      * @since 1.0-beta-2
+     * @deprecated Use {@link #getChangeDetection()} instead.
      */
+    @Deprecated
     public boolean isOverwrite() {
-        return overwrite;
+        return getChangeDetection() == ChangeDetection.ALWAYS;
     }
 
     /**
@@ -374,9 +369,11 @@ public class MavenResourcesExecution extends AbstractMavenFilteringRequest {
      *
      * @param overwrite overwrite true or false.
      * @since 1.0-beta-2
+     * @deprecated Use {@link #setChangeDetection(ChangeDetection)} instead.
      */
+    @Deprecated
     public void setOverwrite(boolean overwrite) {
-        this.overwrite = overwrite;
+        setChangeDetection(overwrite ? ChangeDetection.ALWAYS : ChangeDetection.CONTENT);
     }
 
     /**
@@ -450,7 +447,7 @@ public class MavenResourcesExecution extends AbstractMavenFilteringRequest {
         mre.setMavenSession(this.getMavenSession());
         mre.setNonFilteredFileExtensions(copyList(this.getNonFilteredFileExtensions()));
         mre.setOutputDirectory(this.getOutputDirectory());
-        mre.setOverwrite(this.isOverwrite());
+        mre.setChangeDetection(this.getChangeDetection());
         mre.setProjectStartExpressions(copyList(this.getProjectStartExpressions()));
         mre.setResources(copyList(this.getResources()));
         mre.setResourcesBaseDirectory(this.getResourcesBaseDirectory());

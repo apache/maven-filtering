@@ -294,9 +294,71 @@ public final class FilteringUtils {
      * @param to the destination file
      * @param encoding the file output encoding (only if wrappers is not empty)
      * @param wrappers array of {@link FilterWrapper}
+     * @param overwrite if {@code true}, uses {@link ChangeDetection#ALWAYS}; if {@code false}, uses {@link ChangeDetection#CONTENT}
      * @throws IOException if an IO error occurs during copying or filtering
+     * @deprecated use {@link #copyFile(Path, Path, String, FilterWrapper[], ChangeDetection)} instead
      */
+    @Deprecated
     public static void copyFile(Path from, Path to, String encoding, FilterWrapper[] wrappers, boolean overwrite)
+            throws IOException {
+        copyFile(from, to, encoding, wrappers, overwrite ? ChangeDetection.ALWAYS : ChangeDetection.CONTENT);
+    }
+
+    /**
+     * Copies a file from the source to the destination, applying the specified filters if provided.
+     *
+     * @param from the file to copy
+     * @param to the destination file
+     * @param encoding the file output encoding (only if wrappers is not empty)
+     * @param wrappers array of {@link FilterWrapper}
+     * @param changeDetection the strategy to apply if to is existing file
+     * @return {@code true} if the file was copied.
+     * @throws IOException if an IO error occurs during copying or filtering
+     * @since 4.0.0-beta-2
+     */
+    public static boolean copyFile(
+            Path from, Path to, String encoding, FilterWrapper[] wrappers, ChangeDetection changeDetection)
+            throws IOException {
+        boolean needsCopy = false;
+        boolean unconditionally = false;
+        switch (changeDetection) {
+            case NEVER:
+                needsCopy = !Files.isRegularFile(to);
+                unconditionally = true;
+                break;
+            case ALWAYS:
+                needsCopy = true;
+                unconditionally = true;
+                break;
+            case TIMESTAMP:
+                needsCopy = !Files.exists(to)
+                        || Files.getLastModifiedTime(to).toMillis()
+                                < Files.getLastModifiedTime(from).toMillis();
+                unconditionally = true;
+                break;
+            case CONTENT:
+                needsCopy = true;
+                break;
+            case TIMESTAMP_AND_CONTENT:
+                needsCopy = !Files.exists(to)
+                        || Files.getLastModifiedTime(to).toMillis()
+                                < Files.getLastModifiedTime(from).toMillis();
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported change detection mode: " + changeDetection);
+        }
+        boolean copied = false;
+        if (needsCopy) {
+            if (unconditionally) {
+                copied = copyUnconditionally(from, to, encoding, wrappers);
+            } else {
+                copied = copyIfContentsChanged(from, to, encoding, wrappers);
+            }
+        }
+        return copied;
+    }
+
+    private static boolean copyUnconditionally(Path from, Path to, String encoding, FilterWrapper[] wrappers)
             throws IOException {
         // If the destination is a symbolic link (dangling or pointing to a regular file left by an
         // earlier build that used NOFOLLOW_LINKS), delete it before writing so that the output is
@@ -306,18 +368,17 @@ public final class FilteringUtils {
             Files.delete(to);
         }
         if (wrappers == null || wrappers.length == 0) {
-            try (OutputStream os = new CachingOutputStream(to)) {
+            try (OutputStream os = Files.newOutputStream(to)) {
                 Files.copy(from, os);
             }
         } else {
             Charset charset = charset(encoding);
-
             try (Reader fileReader = Files.newBufferedReader(from, charset)) {
                 Reader wrapped = fileReader;
                 for (FilterWrapper wrapper : wrappers) {
                     wrapped = wrapper.getReader(wrapped);
                 }
-                try (Writer writer = new CachingWriter(to, charset)) {
+                try (Writer writer = Files.newBufferedWriter(to, charset)) {
                     char[] buffer = new char[COPY_BUFFER_LENGTH];
                     int nRead;
                     while ((nRead = wrapped.read(buffer, 0, COPY_BUFFER_LENGTH)) >= 0) {
@@ -326,8 +387,37 @@ public final class FilteringUtils {
                 }
             }
         }
-
         copyFilePermissions(from, to);
+        return true;
+    }
+
+    private static boolean copyIfContentsChanged(Path from, Path to, String encoding, FilterWrapper[] wrappers)
+            throws IOException {
+        boolean copied = false;
+        if (wrappers == null || wrappers.length == 0) {
+            try (CachingOutputStream os = new CachingOutputStream(to)) {
+                Files.copy(from, os);
+                copied = os.isModified();
+            }
+        } else {
+            Charset charset = charset(encoding);
+            try (Reader fileReader = Files.newBufferedReader(from, charset)) {
+                Reader wrapped = fileReader;
+                for (FilterWrapper wrapper : wrappers) {
+                    wrapped = wrapper.getReader(wrapped);
+                }
+                try (CachingWriter writer = new CachingWriter(to, charset)) {
+                    char[] buffer = new char[COPY_BUFFER_LENGTH];
+                    int nRead;
+                    while ((nRead = wrapped.read(buffer, 0, COPY_BUFFER_LENGTH)) >= 0) {
+                        writer.write(buffer, 0, nRead);
+                    }
+                    copied = writer.isModified();
+                }
+            }
+        }
+        copyFilePermissions(from, to);
+        return copied;
     }
 
     /**

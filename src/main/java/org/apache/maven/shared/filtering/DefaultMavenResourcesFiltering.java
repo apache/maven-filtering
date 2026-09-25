@@ -299,7 +299,6 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
 
             for (String name : includedFiles) {
 
-                LOGGER.debug("Copying file " + name);
                 Path source = resourceDirectory.resolve(name);
 
                 Path destinationFile = getDestinationFile(outputDirectory, targetPath, name, mavenResourcesExecution);
@@ -318,8 +317,13 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
                     continue;
                 }
 
+                // Per-resource changeDetection overrides the request-level setting
+                ChangeDetection changeDetection = resource.getChangeDetection() != null
+                        ? resource.getChangeDetection()
+                        : mavenResourcesExecution.getChangeDetection();
+
                 if (mavenResourcesExecution.isFlatten() && Files.exists(destinationFile)) {
-                    if (mavenResourcesExecution.isOverwrite()) {
+                    if (changeDetection == ChangeDetection.ALWAYS) {
                         LOGGER.warn(
                                 "existing file " + destinationFile.getFileName() + " will be overwritten by " + name);
                     } else {
@@ -339,13 +343,41 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
                         source, mavenResourcesExecution.getEncoding(), mavenResourcesExecution.getPropertiesEncoding());
                 LOGGER.debug(
                         "Using '" + encoding + "' encoding to copy filtered resource '" + source.getFileName() + "'.");
-                mavenFileFilter.copyFile(
-                        source,
-                        destinationFile,
-                        resource.isFiltering() && filteredExt && filteredGlob,
-                        mavenResourcesExecution.getFilterWrappers(),
-                        encoding,
-                        mavenResourcesExecution.isGracefulBinaryHandling());
+                boolean doFiltering = resource.isFiltering() && filteredExt && filteredGlob;
+                boolean copied;
+                try {
+                    copied = mavenFileFilter.copyFileWithResult(
+                            source,
+                            destinationFile,
+                            doFiltering,
+                            mavenResourcesExecution.getFilterWrappers(),
+                            encoding,
+                            changeDetection);
+                } catch (MavenFilteringException e) {
+                    if (!mavenResourcesExecution.isGracefulBinaryHandling()
+                            || !(e.getCause() instanceof java.nio.charset.MalformedInputException)) {
+                        throw e;
+                    }
+                    LOGGER.warn(
+                            "File '{}' could not be filtered (MalformedInputException) — file appears to be binary"
+                                    + " and will be copied without filtering. Consider adding it to"
+                                    + " <nonFilteredFiles> or <nonFilteredFileExtensions>.",
+                            source);
+                    copied = mavenFileFilter.copyFileWithResult(
+                            source,
+                            destinationFile,
+                            false,
+                            mavenResourcesExecution.getFilterWrappers(),
+                            encoding,
+                            changeDetection);
+                }
+                if (LOGGER.isDebugEnabled()) {
+                    if (copied) {
+                        LOGGER.debug("Copying file " + name);
+                    } else {
+                        LOGGER.debug("Skipping file " + name + " (up to date)");
+                    }
+                }
             }
 
             // deal with deleted source files

@@ -67,26 +67,52 @@ public class DefaultMavenFileFilter extends BaseFilter implements MavenFileFilte
         mre.setInjectProjectBuildFilters(true);
 
         List<FilterWrapper> filterWrappers = getDefaultFilterWrappers(mre);
-        copyFile(from, to, filtering, filterWrappers, encoding);
+        copyFile(from, to, filtering, filterWrappers, encoding, ChangeDetection.CONTENT);
     }
 
     @Override
     public void copyFile(MavenFileFilterRequest mavenFileFilterRequest) throws MavenFilteringException {
         List<FilterWrapper> filterWrappers = getDefaultFilterWrappers(mavenFileFilterRequest);
 
-        copyFile(
+        doCopyFile(
                 mavenFileFilterRequest.getFrom(),
                 mavenFileFilterRequest.getTo(),
                 mavenFileFilterRequest.isFiltering(),
                 filterWrappers,
                 mavenFileFilterRequest.getEncoding(),
+                mavenFileFilterRequest.getChangeDetection(),
                 mavenFileFilterRequest.isGracefulBinaryHandling());
     }
 
+    @Deprecated
     @Override
     public void copyFile(Path from, Path to, boolean filtering, List<FilterWrapper> filterWrappers, String encoding)
             throws MavenFilteringException {
-        copyFile(from, to, filtering, filterWrappers, encoding, false);
+        copyFile(from, to, filtering, filterWrappers, encoding, ChangeDetection.CONTENT);
+    }
+
+    @Override
+    public void copyFile(
+            Path from,
+            Path to,
+            boolean filtering,
+            List<FilterWrapper> filterWrappers,
+            String encoding,
+            ChangeDetection changeDetection)
+            throws MavenFilteringException {
+        doCopyFile(from, to, filtering, filterWrappers, encoding, changeDetection, false);
+    }
+
+    @Override
+    public boolean copyFileWithResult(
+            Path from,
+            Path to,
+            boolean filtering,
+            List<FilterWrapper> filterWrappers,
+            String encoding,
+            ChangeDetection changeDetection)
+            throws MavenFilteringException {
+        return doCopyFile(from, to, filtering, filterWrappers, encoding, changeDetection, false);
     }
 
     @Override
@@ -98,12 +124,24 @@ public class DefaultMavenFileFilter extends BaseFilter implements MavenFileFilte
             String encoding,
             boolean gracefulBinaryHandling)
             throws MavenFilteringException {
+        doCopyFile(from, to, filtering, filterWrappers, encoding, ChangeDetection.CONTENT, gracefulBinaryHandling);
+    }
+
+    private boolean doCopyFile(
+            Path from,
+            Path to,
+            boolean filtering,
+            List<FilterWrapper> filterWrappers,
+            String encoding,
+            ChangeDetection changeDetection,
+            boolean gracefulBinaryHandling)
+            throws MavenFilteringException {
         try {
+            boolean copied;
             if (filtering) {
-                getLogger().debug("filtering {} to {}", from, to);
                 FilterWrapper[] array = filterWrappers.toArray(new FilterWrapper[0]);
                 try {
-                    FilteringUtils.copyFile(from, to, encoding, array, false);
+                    copied = FilteringUtils.copyFile(from, to, encoding, array, changeDetection);
                 } catch (MalformedInputException e) {
                     if (!gracefulBinaryHandling) {
                         throw e;
@@ -115,13 +153,14 @@ public class DefaultMavenFileFilter extends BaseFilter implements MavenFileFilte
                                             + " <nonFilteredFiles> or <nonFilteredFileExtensions>.",
                                     from);
                     Files.copy(from, to, StandardCopyOption.REPLACE_EXISTING);
+                    copied = true;
                 }
             } else {
-                getLogger().debug("copy {} to {}", from, to);
-                FilteringUtils.copyFile(from, to, encoding, new FilterWrapper[0], false);
+                copied = FilteringUtils.copyFile(from, to, encoding, new FilterWrapper[0], changeDetection);
             }
 
             buildContext.refresh(to.toFile());
+            return copied;
         } catch (IOException e) {
             String reason = e.getClass().getSimpleName() + ": " + e.getMessage();
             if (e instanceof MalformedInputException) {

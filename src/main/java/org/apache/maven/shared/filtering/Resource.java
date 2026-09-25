@@ -36,6 +36,7 @@ public class Resource {
     String targetPath;
     boolean filtering;
     String mergeId;
+    ChangeDetection changeDetection;
 
     public Resource() {}
 
@@ -125,5 +126,27 @@ public class Resource {
 
     public void addExclude(String exclude) {
         excludes.add(exclude);
+    }
+
+    /**
+     * Returns the change detection strategy to apply when copying files from this resource.
+     * When set, this overrides the request-level {@link AbstractMavenFilteringRequest#getChangeDetection()}
+     * for files belonging to this resource.
+     *
+     * @return the per-resource change detection strategy, or {@code null} if not set (falls back to the request level)
+     * @since 4.0.0-beta-2
+     */
+    public ChangeDetection getChangeDetection() {
+        return changeDetection;
+    }
+
+    /**
+     * Sets the change detection strategy to apply when copying files from this resource.
+     *
+     * @param changeDetection the strategy, or {@code null} to inherit from the request level
+     * @since 4.0.0-beta-2
+     */
+    public void setChangeDetection(ChangeDetection changeDetection) {
+        this.changeDetection = changeDetection;
     }
 }

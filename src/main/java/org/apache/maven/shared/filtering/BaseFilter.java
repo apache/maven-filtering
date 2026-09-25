@@ -23,6 +23,7 @@ import java.io.Reader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
@@ -36,7 +37,6 @@ import org.apache.maven.api.settings.Settings;
 import org.codehaus.plexus.interpolation.Interpolator;
 import org.codehaus.plexus.interpolation.PrefixAwareRecursionInterceptor;
 import org.codehaus.plexus.interpolation.PrefixedObjectValueSource;
-import org.codehaus.plexus.interpolation.PropertiesBasedValueSource;
 import org.codehaus.plexus.interpolation.RecursionInterceptor;
 import org.codehaus.plexus.interpolation.SimpleRecursionInterceptor;
 import org.codehaus.plexus.interpolation.SingleResponseValueSource;
@@ -155,7 +155,7 @@ class BaseFilter implements DefaultFilterInfo {
             }
         }
 
-        final ValueSource propertiesValueSource = new PropertiesBasedValueSource(filterProperties);
+        final ValueSource propertiesValueSource = new RecursivePropertiesValueSource(filterProperties, getLogger());
 
         FilterWrapper wrapper = new Wrapper(
                 request.getDelimiters(),
@@ -324,5 +324,47 @@ class BaseFilter implements DefaultFilterInfo {
                     (value instanceof String) ? FilteringUtils.escapeWindowsPath((String) value) : value);
         }
         return interpolator;
+    }
+
+    /**
+     * A {@link ValueSource} that resolves property expressions recursively using Maven's native
+     * {@code ${...}} syntax within property values. This ensures that compound properties — where
+     * one property's value references another via {@code ${key}} — are fully resolved even when
+     * the user has configured custom delimiters and disabled the default {@code ${*}} delimiter.
+     *
+     * <p>For example, given:
+     * <pre>
+     *   buildNumber=42          (set by buildnumber-maven-plugin at runtime)
+     *   version=1.0-${buildNumber}  (declared in the POM)
+     * </pre>
+     * and a resource file containing {@code @version@} with only {@code @@} as the configured
+     * delimiter, this value source will resolve {@code version} to {@code 1.0-42} instead of
+     * the literal string {@code 1.0-${buildNumber}}.
+     */
+    private static final class RecursivePropertiesValueSource implements ValueSource {
+
+        private final Properties properties;
+
+        private final Logger logger;
+
+        RecursivePropertiesValueSource(Properties properties, Logger logger) {
+            this.properties = properties;
+            this.logger = logger;
+        }
+
+        @Override
+        public Object getValue(String expression) {
+            return PropertyUtils.getPropertyValue(expression, properties, logger);
+        }
+
+        @Override
+        public List<String> getFeedback() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public void clearFeedback() {
+            // nothing to clear
+        }
     }
 }

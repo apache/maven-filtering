@@ -36,6 +36,8 @@ public class Resource {
     String targetPath;
     boolean filtering;
     String mergeId;
+    String encoding;
+    String outputEncoding;
 
     public Resource() {}
 
@@ -120,6 +122,50 @@ public class Resource {
 
     public void setMergeId(String mergeId) {
         this.mergeId = mergeId;
+    }
+
+    /**
+     * Returns the per-resource input encoding override.
+     * When non-null, overrides the global {@code encoding} for reading this resource's files.
+     *
+     * @return the encoding override, or {@code null} if not set
+     * @since 4.0.0-beta-3
+     */
+    public String getEncoding() {
+        return encoding;
+    }
+
+    /**
+     * Sets the per-resource input encoding override.
+     *
+     * @param encoding the encoding override, or {@code null} to use the global encoding
+     * @since 4.0.0-beta-3
+     */
+    public void setEncoding(String encoding) {
+        this.encoding = encoding;
+    }
+
+    /**
+     * Returns the per-resource output encoding override.
+     * When non-null, overrides the global {@code outputEncoding} for writing this resource's files.
+     * Setting this enables encoding conversion for the resource (e.g. reading ISO-8859-1 sources
+     * and writing UTF-8 output) without affecting other resources.
+     *
+     * @return the output encoding override, or {@code null} if not set
+     * @since 4.0.0-beta-3
+     */
+    public String getOutputEncoding() {
+        return outputEncoding;
+    }
+
+    /**
+     * Sets the per-resource output encoding override.
+     *
+     * @param outputEncoding the output encoding override, or {@code null} to use the global output encoding
+     * @since 4.0.0-beta-3
+     */
+    public void setOutputEncoding(String outputEncoding) {
+        this.outputEncoding = outputEncoding;
     }
 
     public void addInclude(String include) {

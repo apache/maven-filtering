@@ -292,25 +292,52 @@ public final class FilteringUtils {
      *
      * @param from the file to copy
      * @param to the destination file
-     * @param encoding the file output encoding (only if wrappers is not empty)
+     * @param encoding the encoding used for both reading and writing (only if wrappers is not empty)
      * @param wrappers array of {@link FilterWrapper}
      * @throws IOException if an IO error occurs during copying or filtering
      */
     public static void copyFile(Path from, Path to, String encoding, FilterWrapper[] wrappers, boolean overwrite)
+            throws IOException {
+        copyFile(from, to, encoding, encoding, wrappers, overwrite);
+    }
+
+    /**
+     * Copy and optionally filter a file using separate input and output encodings. This allows
+     * encoding conversion during resource filtering (e.g. reading ISO-8859-1 and writing UTF-8).
+     * <b>If wrappers is null or empty, the file is copied as raw bytes — encoding parameters are
+     * ignored in that case.</b>
+     *
+     * @param from the file to copy
+     * @param to the destination file
+     * @param inputEncoding the charset used to read {@code from} (only when wrappers is not empty)
+     * @param outputEncoding the charset used to write {@code to} (only when wrappers is not empty)
+     * @param wrappers array of {@link FilterWrapper}
+     * @param overwrite unused (kept for API symmetry with the single-encoding overload)
+     * @throws IOException if an IO error occurs during copying or filtering
+     * @since 4.0.0-beta-3
+     */
+    public static void copyFile(
+            Path from,
+            Path to,
+            String inputEncoding,
+            String outputEncoding,
+            FilterWrapper[] wrappers,
+            boolean overwrite)
             throws IOException {
         if (wrappers == null || wrappers.length == 0) {
             try (OutputStream os = new CachingOutputStream(to)) {
                 Files.copy(from, os);
             }
         } else {
-            Charset charset = charset(encoding);
+            Charset inputCharset = charset(inputEncoding);
+            Charset outputCharset = charset(outputEncoding);
 
-            try (Reader fileReader = Files.newBufferedReader(from, charset)) {
+            try (Reader fileReader = Files.newBufferedReader(from, inputCharset)) {
                 Reader wrapped = fileReader;
                 for (FilterWrapper wrapper : wrappers) {
                     wrapped = wrapper.getReader(wrapped);
                 }
-                try (Writer writer = new CachingWriter(to, charset)) {
+                try (Writer writer = new CachingWriter(to, outputCharset)) {
                     char[] buffer = new char[COPY_BUFFER_LENGTH];
                     int nRead;
                     while ((nRead = wrapped.read(buffer, 0, COPY_BUFFER_LENGTH)) >= 0) {

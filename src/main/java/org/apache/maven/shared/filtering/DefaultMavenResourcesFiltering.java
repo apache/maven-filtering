@@ -274,16 +274,33 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
                 }
 
                 // Determine which encoding to use when filtering this file
-                String encoding = getEncoding(
+                String inputEncoding = getEncoding(
                         source, mavenResourcesExecution.getEncoding(), mavenResourcesExecution.getPropertiesEncoding());
+                // Per-resource input encoding overrides global (MRESOURCES-232 pattern)
+                if (resource.getEncoding() != null) {
+                    inputEncoding = resource.getEncoding();
+                }
+                String outputEncoding = getOutputEncoding(
+                        source,
+                        mavenResourcesExecution.getOutputEncoding(),
+                        mavenResourcesExecution.getOutputPropertiesEncoding(),
+                        inputEncoding);
+                // Per-resource output encoding overrides global
+                if (resource.getOutputEncoding() != null) {
+                    outputEncoding = resource.getOutputEncoding();
+                }
                 LOGGER.debug(
-                        "Using '" + encoding + "' encoding to copy filtered resource '" + source.getFileName() + "'.");
+                        "Using '{}' input / '{}' output encoding to copy filtered resource '{}'.",
+                        inputEncoding,
+                        outputEncoding,
+                        source.getFileName());
                 mavenFileFilter.copyFile(
                         source,
                         destinationFile,
                         resource.isFiltering() && filteredExt && filteredGlob,
                         mavenResourcesExecution.getFilterWrappers(),
-                        encoding,
+                        inputEncoding,
+                        outputEncoding,
                         mavenResourcesExecution.isGracefulBinaryHandling());
             }
 
@@ -359,6 +376,31 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
         } else {
             return encoding;
         }
+    }
+
+    /**
+     * Get the output encoding to use when writing the specified file. When a dedicated
+     * {@code outputEncoding} is configured, it is returned (using {@code outputPropertiesEncoding}
+     * for properties files). When no output encoding is configured, the resolved input encoding
+     * is used (backward-compatible: same encoding for reading and writing).
+     *
+     * @param file The file to check
+     * @param outputEncoding The global output encoding (may be {@code null})
+     * @param outputPropertiesEncoding The global output encoding for properties files (may be {@code null})
+     * @param inputEncoding The already-resolved input encoding to fall back to
+     * @return The output encoding to use when writing the specified file
+     * @since 4.0.0-beta-3
+     */
+    static String getOutputEncoding(
+            Path file, String outputEncoding, String outputPropertiesEncoding, String inputEncoding) {
+        if (outputEncoding == null) {
+            // no output encoding configured — fall back to input encoding (no conversion)
+            return inputEncoding;
+        }
+        if (isPropertiesFile(file)) {
+            return outputPropertiesEncoding != null ? outputPropertiesEncoding : outputEncoding;
+        }
+        return outputEncoding;
     }
 
     /**

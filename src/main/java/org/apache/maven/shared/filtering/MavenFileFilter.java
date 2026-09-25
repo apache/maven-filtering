@@ -92,6 +92,34 @@ public interface MavenFileFilter extends DefaultFilterInfo {
             String encoding,
             boolean gracefulBinaryHandling)
             throws MavenFilteringException {
-        copyFile(from, to, filtering, filterWrappers, encoding);
+        copyFile(from, to, filtering, filterWrappers, encoding, encoding, gracefulBinaryHandling);
+    }
+
+    /**
+     * Copy and optionally filter a file using separate input and output encodings. This enables
+     * encoding conversion during resource filtering (e.g. reading ISO-8859-1 and writing UTF-8).
+     *
+     * @param from The source file
+     * @param to The target file
+     * @param filtering true to apply filtering
+     * @param filterWrappers {@link List} of FileUtils.FilterWrapper
+     * @param inputEncoding The charset used to read {@code from}
+     * @param outputEncoding The charset used to write {@code to}
+     * @param gracefulBinaryHandling when {@code true}, files that cause
+     *        {@link java.nio.charset.MalformedInputException} are copied as-is with a warning
+     *        instead of failing the build
+     * @throws MavenFilteringException In case of an error.
+     * @since 4.0.0-beta-3
+     */
+    default void copyFile(
+            Path from,
+            Path to,
+            boolean filtering,
+            List<FilterWrapper> filterWrappers,
+            String inputEncoding,
+            String outputEncoding,
+            boolean gracefulBinaryHandling)
+            throws MavenFilteringException {
+        copyFile(from, to, filtering, filterWrappers, inputEncoding, gracefulBinaryHandling);
     }
 }

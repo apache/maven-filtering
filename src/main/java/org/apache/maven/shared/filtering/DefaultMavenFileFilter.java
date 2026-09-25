@@ -98,12 +98,25 @@ public class DefaultMavenFileFilter extends BaseFilter implements MavenFileFilte
             String encoding,
             boolean gracefulBinaryHandling)
             throws MavenFilteringException {
+        copyFile(from, to, filtering, filterWrappers, encoding, encoding, gracefulBinaryHandling);
+    }
+
+    @Override
+    public void copyFile(
+            Path from,
+            Path to,
+            boolean filtering,
+            List<FilterWrapper> filterWrappers,
+            String inputEncoding,
+            String outputEncoding,
+            boolean gracefulBinaryHandling)
+            throws MavenFilteringException {
         try {
             if (filtering) {
                 getLogger().debug("filtering {} to {}", from, to);
                 FilterWrapper[] array = filterWrappers.toArray(new FilterWrapper[0]);
                 try {
-                    FilteringUtils.copyFile(from, to, encoding, array, false);
+                    FilteringUtils.copyFile(from, to, inputEncoding, outputEncoding, array, false);
                 } catch (MalformedInputException e) {
                     if (!gracefulBinaryHandling) {
                         throw e;
@@ -118,16 +131,16 @@ public class DefaultMavenFileFilter extends BaseFilter implements MavenFileFilte
                 }
             } else {
                 getLogger().debug("copy {} to {}", from, to);
-                FilteringUtils.copyFile(from, to, encoding, new FilterWrapper[0], false);
+                FilteringUtils.copyFile(from, to, inputEncoding, outputEncoding, new FilterWrapper[0], false);
             }
 
             buildContext.refresh(to.toFile());
         } catch (IOException e) {
             String reason = e.getClass().getSimpleName() + ": " + e.getMessage();
             if (e instanceof MalformedInputException) {
-                String charsetName = encoding == null || encoding.isEmpty()
+                String charsetName = inputEncoding == null || inputEncoding.isEmpty()
                         ? Charset.defaultCharset().name()
-                        : encoding;
+                        : inputEncoding;
                 reason += " while reading with " + charsetName + " encoding";
             }
             throw new MavenFilteringException(

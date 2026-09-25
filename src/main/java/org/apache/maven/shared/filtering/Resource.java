@@ -29,9 +29,9 @@ import java.util.List;
  */
 public class Resource {
 
-    List<String> includes;
-    List<String> excludes;
-    List<String> nonFilteredFiles;
+    List<String> includes = new ArrayList<>();
+    List<String> excludes = new ArrayList<>();
+    List<String> nonFilteredFiles = new ArrayList<>();
     String directory;
     String targetPath;
     boolean filtering;
@@ -44,7 +44,7 @@ public class Resource {
     }
 
     public void setIncludes(List<String> includes) {
-        this.includes = includes;
+        this.includes = includes != null ? includes : new ArrayList<>();
     }
 
     public List<String> getExcludes() {
@@ -52,7 +52,7 @@ public class Resource {
     }
 
     public void setExcludes(List<String> excludes) {
-        this.excludes = excludes;
+        this.excludes = excludes != null ? excludes : new ArrayList<>();
     }
 
     /**
@@ -60,11 +60,11 @@ public class Resource {
      * even when this resource has {@code <filtering>true</filtering>}. Patterns are matched
      * against the relative file path within the resource directory.
      *
-     * @return the list of non-filtered file glob patterns, or {@code null} if none are configured
+     * @return the list of non-filtered file glob patterns (never {@code null}, may be empty)
      * @since 3.4.0
      */
     public List<String> getNonFilteredFiles() {
-        return nonFilteredFiles == null ? null : Collections.unmodifiableList(nonFilteredFiles);
+        return Collections.unmodifiableList(nonFilteredFiles);
     }
 
     /**
@@ -74,7 +74,7 @@ public class Resource {
      * @since 3.4.0
      */
     public void setNonFilteredFiles(List<String> nonFilteredFiles) {
-        this.nonFilteredFiles = nonFilteredFiles;
+        this.nonFilteredFiles = nonFilteredFiles != null ? nonFilteredFiles : new ArrayList<>();
     }
 
     /**
@@ -84,9 +84,6 @@ public class Resource {
      * @since 3.4.0
      */
     public void addNonFilteredFile(String nonFilteredFile) {
-        if (nonFilteredFiles == null) {
-            nonFilteredFiles = new ArrayList<>();
-        }
         nonFilteredFiles.add(nonFilteredFile);
     }
 
@@ -123,16 +120,10 @@ public class Resource {
     }
 
     public void addInclude(String include) {
-        if (includes == null) {
-            includes = new ArrayList<>();
-        }
         includes.add(include);
     }
 
     public void addExclude(String exclude) {
-        if (excludes == null) {
-            excludes = new ArrayList<>();
-        }
         excludes.add(exclude);
     }
 }

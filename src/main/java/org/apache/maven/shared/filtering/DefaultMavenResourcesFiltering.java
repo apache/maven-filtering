@@ -163,19 +163,8 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
                         .append(ls);
 
                 // @formatter:off
-                debugMessage
-                        .append("excludes ")
-                        .append(
-                                resource.getExcludes() == null
-                                        ? " empty "
-                                        : resource.getExcludes().toString())
-                        .append(ls);
-                debugMessage
-                        .append("includes ")
-                        .append(
-                                resource.getIncludes() == null
-                                        ? " empty "
-                                        : resource.getIncludes().toString());
+                debugMessage.append("excludes ").append(resource.getExcludes()).append(ls);
+                debugMessage.append("includes ").append(resource.getIncludes());
 
                 // @formatter:on
                 LOGGER.debug(debugMessage.toString());
@@ -439,17 +428,13 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
     }
 
     private void setupScanner(Resource resource, Scanner scanner, boolean addDefaultExcludes) {
-        String[] includes;
-        if (resource.getIncludes() != null && !resource.getIncludes().isEmpty()) {
-            includes = resource.getIncludes().toArray(EMPTY_STRING_ARRAY);
-        } else {
-            includes = DEFAULT_INCLUDES;
-        }
+        String[] includes = resource.getIncludes().isEmpty()
+                ? DEFAULT_INCLUDES
+                : resource.getIncludes().toArray(EMPTY_STRING_ARRAY);
         scanner.setIncludes(includes);
 
-        if (resource.getExcludes() != null && !resource.getExcludes().isEmpty()) {
-            String[] excludes = resource.getExcludes().toArray(EMPTY_STRING_ARRAY);
-            scanner.setExcludes(excludes);
+        if (!resource.getExcludes().isEmpty()) {
+            scanner.setExcludes(resource.getExcludes().toArray(EMPTY_STRING_ARRAY));
         }
 
         if (addDefaultExcludes) {

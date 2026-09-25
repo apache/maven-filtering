@@ -233,7 +233,7 @@ class DefaultMavenResourcesFilteringTest {
 
     private void assertFiltering(Path initialImageFile, boolean escapeTest, boolean additionalProperties)
             throws Exception {
-        assertEquals(7, list(outputDirectory).size());
+        assertEquals(8, list(outputDirectory).size());
         Properties result = new Properties();
 
         try (InputStream in = Files.newInputStream(outputDirectory.resolve("empty-maven-resources-filtering.txt"))) {
@@ -342,7 +342,7 @@ class DefaultMavenResourcesFilteringTest {
 
         mavenResourcesFiltering.filterResources(mre);
 
-        assertEquals(7, list(outputDirectory).size());
+        assertEquals(8, list(outputDirectory).size());
         Properties result =
                 PropertyUtils.loadPropertyFile(outputDirectory.resolve("empty-maven-resources-filtering.txt"), null);
         assertTrue(result.isEmpty());
@@ -552,7 +552,7 @@ class DefaultMavenResourcesFilteringTest {
         mavenResourcesFiltering.filterResources(mavenResourcesExecution);
 
         List<Path> files = list(outputDirectory);
-        assertEquals(5, files.size());
+        assertEquals(6, files.size());
         Path includeFile = outputDirectory.resolve("includefile.txt");
         assertTrue(Files.exists(includeFile));
 
@@ -1124,6 +1124,39 @@ class DefaultMavenResourcesFilteringTest {
         // Properties file must have been filtered
         String content = Files.readString(outputDirectory.resolve("app.properties"), StandardCharsets.UTF_8);
         assertEquals("message=Hello", content.replace("\r\n", "\n").trim());
+    }
+
+    @Test
+    void binaryJarIsNotFilteredByDefault() throws Exception {
+        // Regression test for MRESOURCES-301: .jar files in a filtered resource directory
+        // must be binary-copied by default without requiring user configuration of
+        // nonFilteredFileExtensions.
+        mavenProject.addProperty("foo", "bar");
+
+        String unitFilesDir = getBasedir() + "/src/test/units-files/maven-resources-filtering";
+        Path binaryJar = Paths.get(unitFilesDir, "binary.jar");
+
+        Resource resource = new Resource();
+        resource.setDirectory(unitFilesDir);
+        resource.setFiltering(true);
+
+        MavenResourcesExecution mavenResourcesExecution = new MavenResourcesExecution(
+                List.of(resource),
+                outputDirectory,
+                mavenProject,
+                "UTF-8",
+                Collections.emptyList(),
+                Collections.emptyList(), // no user-configured extensions
+                new StubSession());
+        mavenResourcesExecution.setUseDefaultFilterWrappers(true);
+
+        // Must not throw MavenFilteringException (would indicate jar was filtered as text)
+        mavenResourcesFiltering.filterResources(mavenResourcesExecution);
+
+        // binary.jar must be copied byte-for-byte
+        Path copiedJar = outputDirectory.resolve("binary.jar");
+        assertTrue(Files.exists(copiedJar), "binary.jar should have been copied to output");
+        assertTrue(filesAreIdentical(binaryJar, copiedJar), "binary.jar must be identical after copy");
     }
 
     @Test

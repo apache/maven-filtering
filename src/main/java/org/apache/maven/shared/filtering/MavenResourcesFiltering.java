@@ -26,7 +26,11 @@ import java.util.List;
 public interface MavenResourcesFiltering {
 
     /**
-     * return the List of the non filtered extensions (jpg,jpeg,gif,bmp,png,ico)
+     * return the List of the non filtered extensions. By default this includes common binary formats:
+     * images (jpg, jpeg, gif, bmp, png, ico, webp, tif, tiff), Java archives and native libraries
+     * (jar, war, ear, aar, rar, jnilib, so, dll, dylib), generic archives (zip, gz, bz2, xz, zst, 7z, tar),
+     * executables (exe, bin, class), documents (pdf, doc, docx, xls, xlsx, ppt, pptx),
+     * audio/video (mp3, mp4, ogg, wav, avi, mov, flv, swf) and fonts (ttf, otf, woff, woff2, eot).
      *
      * @return {@link List} of {@link String}
      */

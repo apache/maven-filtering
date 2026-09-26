@@ -40,12 +40,15 @@ import org.apache.maven.di.Injector;
 import org.codehaus.plexus.interpolation.AbstractValueSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
 import static org.apache.maven.api.di.testing.MavenDIExtension.getBasedir;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -243,5 +246,57 @@ class DefaultMavenFileFilterTest {
         try (Reader reader = wrappers.get(0).getReader(new StringReader("toto@titi.com ${foo}"))) {
             assertEquals("toto@titi.com bar", IOUtils.toString(reader));
         }
+    }
+
+    /**
+     * MSHARED-1004: a file that is a symbolic link in the source directory must be followed.
+     * Its content must be written as a regular file at the destination, not as a symlink.
+     * On a second invocation the regular file must be silently overwritten (no FileAlreadyExistsException).
+     */
+    @Test
+    @DisabledOnOs(OS.WINDOWS)
+    void copyFileSymlinkSourceIsFollowed() throws Exception {
+        Path realFile = tempDir.resolve("real.properties");
+        Files.writeString(realFile, "key=value");
+
+        // symlink that lives in the same directory as the real file (relative target)
+        Path symlink = tempDir.resolve("link.properties");
+        Files.createSymbolicLink(symlink, realFile.getFileName());
+
+        Path toFile = tempDir.resolve("output.properties");
+
+        MavenFileFilter mavenFileFilter = container.getInstance(MavenFileFilter.class);
+
+        // First copy
+        mavenFileFilter.copyFile(symlink, toFile, false, null, null);
+        assertFalse(Files.isSymbolicLink(toFile), "output must be a regular file, not a symlink");
+        assertEquals("key=value", Files.readString(toFile));
+
+        // Second copy must not throw FileAlreadyExistsException or NoSuchFileException
+        mavenFileFilter.copyFile(symlink, toFile, false, null, null);
+        assertFalse(Files.isSymbolicLink(toFile));
+        assertEquals("key=value", Files.readString(toFile));
+    }
+
+    /**
+     * MSHARED-1004: when the destination already is a dangling symbolic link (left by an older
+     * version of maven-filtering that used NOFOLLOW_LINKS), copyFile must replace it with a regular
+     * file without throwing.
+     */
+    @Test
+    @DisabledOnOs(OS.WINDOWS)
+    void copyFileReplacesDanglingSymlinkAtDestination() throws Exception {
+        Path realFile = tempDir.resolve("real.txt");
+        Files.writeString(realFile, "content");
+
+        Path toFile = tempDir.resolve("output.txt");
+        // Simulate a dangling symlink at the destination (as written by old NOFOLLOW_LINKS code)
+        Files.createSymbolicLink(toFile, Path.of("../nonexistent/target.txt"));
+
+        MavenFileFilter mavenFileFilter = container.getInstance(MavenFileFilter.class);
+        mavenFileFilter.copyFile(realFile, toFile, false, null, null);
+
+        assertFalse(Files.isSymbolicLink(toFile), "dangling symlink must be replaced by a regular file");
+        assertEquals("content", Files.readString(toFile));
     }
 }

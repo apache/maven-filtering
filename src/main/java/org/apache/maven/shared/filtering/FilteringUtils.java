@@ -298,6 +298,13 @@ public final class FilteringUtils {
      */
     public static void copyFile(Path from, Path to, String encoding, FilterWrapper[] wrappers, boolean overwrite)
             throws IOException {
+        // If the destination is a symbolic link (dangling or pointing to a regular file left by an
+        // earlier build that used NOFOLLOW_LINKS), delete it before writing so that the output is
+        // always a regular file and CachingOutputStream / CachingWriter do not fail with
+        // NoSuchFileException when trying to follow a dangling link.
+        if (Files.isSymbolicLink(to)) {
+            Files.delete(to);
+        }
         if (wrappers == null || wrappers.length == 0) {
             try (OutputStream os = new CachingOutputStream(to)) {
                 Files.copy(from, os);

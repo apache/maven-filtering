@@ -69,13 +69,62 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
     public DefaultMavenResourcesFiltering(MavenFileFilter mavenFileFilter, BuildContext buildContext) {
         this.mavenFileFilter = requireNonNull(mavenFileFilter);
         this.buildContext = requireNonNull(buildContext);
-        this.defaultNonFilteredFileExtensions = new ArrayList<>(5);
+        this.defaultNonFilteredFileExtensions = new ArrayList<>(64);
+        // Images
         this.defaultNonFilteredFileExtensions.add("jpg");
         this.defaultNonFilteredFileExtensions.add("jpeg");
         this.defaultNonFilteredFileExtensions.add("gif");
         this.defaultNonFilteredFileExtensions.add("bmp");
         this.defaultNonFilteredFileExtensions.add("png");
         this.defaultNonFilteredFileExtensions.add("ico");
+        this.defaultNonFilteredFileExtensions.add("webp");
+        this.defaultNonFilteredFileExtensions.add("tif");
+        this.defaultNonFilteredFileExtensions.add("tiff");
+        // Java archives and native libraries
+        this.defaultNonFilteredFileExtensions.add("jar");
+        this.defaultNonFilteredFileExtensions.add("war");
+        this.defaultNonFilteredFileExtensions.add("ear");
+        this.defaultNonFilteredFileExtensions.add("aar");
+        this.defaultNonFilteredFileExtensions.add("rar");
+        this.defaultNonFilteredFileExtensions.add("jnilib");
+        this.defaultNonFilteredFileExtensions.add("so");
+        this.defaultNonFilteredFileExtensions.add("dll");
+        this.defaultNonFilteredFileExtensions.add("dylib");
+        // Generic archives and compressed files
+        this.defaultNonFilteredFileExtensions.add("zip");
+        this.defaultNonFilteredFileExtensions.add("gz");
+        this.defaultNonFilteredFileExtensions.add("bz2");
+        this.defaultNonFilteredFileExtensions.add("xz");
+        this.defaultNonFilteredFileExtensions.add("zst");
+        this.defaultNonFilteredFileExtensions.add("7z");
+        this.defaultNonFilteredFileExtensions.add("tar");
+        // Executables and binaries
+        this.defaultNonFilteredFileExtensions.add("exe");
+        this.defaultNonFilteredFileExtensions.add("bin");
+        this.defaultNonFilteredFileExtensions.add("class");
+        // Documents
+        this.defaultNonFilteredFileExtensions.add("pdf");
+        this.defaultNonFilteredFileExtensions.add("doc");
+        this.defaultNonFilteredFileExtensions.add("docx");
+        this.defaultNonFilteredFileExtensions.add("xls");
+        this.defaultNonFilteredFileExtensions.add("xlsx");
+        this.defaultNonFilteredFileExtensions.add("ppt");
+        this.defaultNonFilteredFileExtensions.add("pptx");
+        // Audio/video
+        this.defaultNonFilteredFileExtensions.add("mp3");
+        this.defaultNonFilteredFileExtensions.add("mp4");
+        this.defaultNonFilteredFileExtensions.add("ogg");
+        this.defaultNonFilteredFileExtensions.add("wav");
+        this.defaultNonFilteredFileExtensions.add("avi");
+        this.defaultNonFilteredFileExtensions.add("mov");
+        this.defaultNonFilteredFileExtensions.add("flv");
+        this.defaultNonFilteredFileExtensions.add("swf");
+        // Fonts
+        this.defaultNonFilteredFileExtensions.add("ttf");
+        this.defaultNonFilteredFileExtensions.add("otf");
+        this.defaultNonFilteredFileExtensions.add("woff");
+        this.defaultNonFilteredFileExtensions.add("woff2");
+        this.defaultNonFilteredFileExtensions.add("eot");
     }
 
     @Override

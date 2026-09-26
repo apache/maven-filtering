@@ -93,6 +93,15 @@ public class AbstractMavenFilteringRequest {
     private ChangeDetection changeDetection = ChangeDetection.CONTENT;
 
     /**
+     * When {@code true}, the build fails if a filter expression cannot be resolved (i.e. the
+     * placeholder is left unsubstituted in the output). Defaults to {@code false} to preserve
+     * backward compatibility.
+     *
+     * @since 4.0.0-beta-4
+     */
+    private boolean failOnMissingFilterValue = false;
+
+    /**
      * Create instance.
      */
     protected AbstractMavenFilteringRequest() {
@@ -387,5 +396,27 @@ public class AbstractMavenFilteringRequest {
      */
     public void setChangeDetection(ChangeDetection changeDetection) {
         this.changeDetection = requireNonNull(changeDetection);
+    }
+
+    /**
+     * Returns whether the build should fail when a filter expression cannot be resolved.
+     *
+     * @return {@code true} if an unresolved placeholder causes a build failure
+     * @since 4.0.0-beta-4
+     */
+    public boolean isFailOnMissingFilterValue() {
+        return failOnMissingFilterValue;
+    }
+
+    /**
+     * Sets whether the build should fail when a filter expression cannot be resolved.
+     * When {@code true}, any placeholder that has no matching property causes a build failure
+     * instead of being passed through as-is. Defaults to {@code false}.
+     *
+     * @param failOnMissingFilterValue {@code true} to fail on unresolved placeholders
+     * @since 4.0.0-beta-4
+     */
+    public void setFailOnMissingFilterValue(boolean failOnMissingFilterValue) {
+        this.failOnMissingFilterValue = failOnMissingFilterValue;
     }
 }

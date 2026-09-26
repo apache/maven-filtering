@@ -22,15 +22,25 @@ import java.io.Reader;
 import java.io.StringReader;
 
 import org.codehaus.plexus.interpolation.Interpolator;
+import org.codehaus.plexus.interpolation.RecursionInterceptor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class InterpolatorFilterReaderLineEndingTest extends AbstractInterpolatorFilterReaderLineEndingTest {
+
+    @Mock
+    private Interpolator mockInterpolator;
+
     @Override
     protected Reader getAaaAaaReader(Reader in, Interpolator interpolator) {
         return new InterpolatorFilterReaderLineEnding(in, interpolator, "aaa", "aaa", true);
@@ -79,5 +89,31 @@ public class InterpolatorFilterReaderLineEndingTest extends AbstractInterpolator
         // Now disable escaping by setting to empty string
         reader.setEscapeString("");
         assertNull(reader.getEscapeString());
+    }
+
+    @Test
+    public void failOnMissingFilterValueThrowsWhenEnabled() throws Exception {
+        // mockInterpolator returns null → token is unresolved
+        when(mockInterpolator.interpolate(eq("${missing}"), eq(""), isA(RecursionInterceptor.class)))
+                .thenReturn(null);
+
+        InterpolatorFilterReaderLineEnding reader = new InterpolatorFilterReaderLineEnding(
+                new StringReader("value=${missing}"), mockInterpolator, "${", "}", true);
+        reader.setFailOnMissingFilterValue(true);
+
+        assertThrows(java.io.IOException.class, () -> IOUtils.toString(reader));
+    }
+
+    @Test
+    public void failOnMissingFilterValuePassesThroughWhenDisabled() throws Exception {
+        // mockInterpolator returns null → token is unresolved
+        when(mockInterpolator.interpolate(eq("${missing}"), eq(""), isA(RecursionInterceptor.class)))
+                .thenReturn(null);
+
+        InterpolatorFilterReaderLineEnding reader = new InterpolatorFilterReaderLineEnding(
+                new StringReader("value=${missing}"), mockInterpolator, "${", "}", true);
+        reader.setFailOnMissingFilterValue(false);
+
+        assertEquals("value=${missing}", IOUtils.toString(reader));
     }
 }

@@ -1,0 +1,2 @@
+Project: ${project.name}
+Windows-1252 text with non-ASCII: café, naïve, résumé

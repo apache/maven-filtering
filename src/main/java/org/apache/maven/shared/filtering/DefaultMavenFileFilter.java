@@ -127,6 +127,19 @@ public class DefaultMavenFileFilter extends BaseFilter implements MavenFileFilte
         doCopyFile(from, to, filtering, filterWrappers, encoding, ChangeDetection.CONTENT, gracefulBinaryHandling);
     }
 
+    @Override
+    public boolean copyFileWithResult(
+            Path from,
+            Path to,
+            boolean filtering,
+            List<FilterWrapper> filterWrappers,
+            String inputEncoding,
+            String outputEncoding,
+            ChangeDetection changeDetection)
+            throws MavenFilteringException {
+        return doCopyFile(from, to, filtering, filterWrappers, inputEncoding, outputEncoding, changeDetection, false);
+    }
+
     private boolean doCopyFile(
             Path from,
             Path to,
@@ -136,12 +149,26 @@ public class DefaultMavenFileFilter extends BaseFilter implements MavenFileFilte
             ChangeDetection changeDetection,
             boolean gracefulBinaryHandling)
             throws MavenFilteringException {
+        return doCopyFile(
+                from, to, filtering, filterWrappers, encoding, encoding, changeDetection, gracefulBinaryHandling);
+    }
+
+    private boolean doCopyFile(
+            Path from,
+            Path to,
+            boolean filtering,
+            List<FilterWrapper> filterWrappers,
+            String inputEncoding,
+            String outputEncoding,
+            ChangeDetection changeDetection,
+            boolean gracefulBinaryHandling)
+            throws MavenFilteringException {
         try {
             boolean copied;
             if (filtering) {
                 FilterWrapper[] array = filterWrappers.toArray(new FilterWrapper[0]);
                 try {
-                    copied = FilteringUtils.copyFile(from, to, encoding, array, changeDetection);
+                    copied = FilteringUtils.copyFile(from, to, inputEncoding, outputEncoding, array, changeDetection);
                 } catch (MalformedInputException e) {
                     if (!gracefulBinaryHandling) {
                         throw e;
@@ -156,7 +183,8 @@ public class DefaultMavenFileFilter extends BaseFilter implements MavenFileFilte
                     copied = true;
                 }
             } else {
-                copied = FilteringUtils.copyFile(from, to, encoding, new FilterWrapper[0], changeDetection);
+                copied = FilteringUtils.copyFile(
+                        from, to, inputEncoding, outputEncoding, new FilterWrapper[0], changeDetection);
             }
 
             buildContext.refresh(to.toFile());
@@ -164,9 +192,9 @@ public class DefaultMavenFileFilter extends BaseFilter implements MavenFileFilte
         } catch (IOException e) {
             String reason = e.getClass().getSimpleName() + ": " + e.getMessage();
             if (e instanceof MalformedInputException) {
-                String charsetName = encoding == null || encoding.isEmpty()
+                String charsetName = inputEncoding == null || inputEncoding.isEmpty()
                         ? Charset.defaultCharset().name()
-                        : encoding;
+                        : inputEncoding;
                 reason += " while reading with " + charsetName + " encoding";
             }
             throw new MavenFilteringException(

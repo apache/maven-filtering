@@ -292,7 +292,7 @@ public final class FilteringUtils {
      *
      * @param from the file to copy
      * @param to the destination file
-     * @param encoding the file output encoding (only if wrappers is not empty)
+     * @param encoding the encoding used for both reading and writing (only if wrappers is not empty)
      * @param wrappers array of {@link FilterWrapper}
      * @param overwrite if {@code true}, uses {@link ChangeDetection#ALWAYS}; if {@code false}, uses {@link ChangeDetection#CONTENT}
      * @throws IOException if an IO error occurs during copying or filtering
@@ -318,6 +318,33 @@ public final class FilteringUtils {
      */
     public static boolean copyFile(
             Path from, Path to, String encoding, FilterWrapper[] wrappers, ChangeDetection changeDetection)
+            throws IOException {
+        return copyFile(from, to, encoding, encoding, wrappers, changeDetection);
+    }
+
+    /**
+     * Copy and optionally filter a file using separate input and output encodings. This allows
+     * encoding conversion during resource filtering (e.g. reading ISO-8859-1 and writing UTF-8).
+     * <b>If wrappers is null or empty, the file is copied as raw bytes — encoding parameters are
+     * ignored in that case.</b>
+     *
+     * @param from the file to copy
+     * @param to the destination file
+     * @param inputEncoding the charset used to read {@code from} (only when wrappers is not empty)
+     * @param outputEncoding the charset used to write {@code to} (only when wrappers is not empty)
+     * @param wrappers array of {@link FilterWrapper}
+     * @param changeDetection the strategy to apply if to is existing file
+     * @return {@code true} if the file was copied.
+     * @throws IOException if an IO error occurs during copying or filtering
+     * @since 4.0.0-beta-3
+     */
+    public static boolean copyFile(
+            Path from,
+            Path to,
+            String inputEncoding,
+            String outputEncoding,
+            FilterWrapper[] wrappers,
+            ChangeDetection changeDetection)
             throws IOException {
         boolean needsCopy = false;
         boolean unconditionally = false;
@@ -350,15 +377,16 @@ public final class FilteringUtils {
         boolean copied = false;
         if (needsCopy) {
             if (unconditionally) {
-                copied = copyUnconditionally(from, to, encoding, wrappers);
+                copied = copyUnconditionally(from, to, inputEncoding, outputEncoding, wrappers);
             } else {
-                copied = copyIfContentsChanged(from, to, encoding, wrappers);
+                copied = copyIfContentsChanged(from, to, inputEncoding, outputEncoding, wrappers);
             }
         }
         return copied;
     }
 
-    private static boolean copyUnconditionally(Path from, Path to, String encoding, FilterWrapper[] wrappers)
+    private static boolean copyUnconditionally(
+            Path from, Path to, String inputEncoding, String outputEncoding, FilterWrapper[] wrappers)
             throws IOException {
         // If the destination is a symbolic link (dangling or pointing to a regular file left by an
         // earlier build that used NOFOLLOW_LINKS), delete it before writing so that the output is
@@ -372,13 +400,14 @@ public final class FilteringUtils {
                 Files.copy(from, os);
             }
         } else {
-            Charset charset = charset(encoding);
-            try (Reader fileReader = Files.newBufferedReader(from, charset)) {
+            Charset inputCharset = charset(inputEncoding);
+            Charset outputCharset = charset(outputEncoding);
+            try (Reader fileReader = Files.newBufferedReader(from, inputCharset)) {
                 Reader wrapped = fileReader;
                 for (FilterWrapper wrapper : wrappers) {
                     wrapped = wrapper.getReader(wrapped);
                 }
-                try (Writer writer = Files.newBufferedWriter(to, charset)) {
+                try (Writer writer = Files.newBufferedWriter(to, outputCharset)) {
                     char[] buffer = new char[COPY_BUFFER_LENGTH];
                     int nRead;
                     while ((nRead = wrapped.read(buffer, 0, COPY_BUFFER_LENGTH)) >= 0) {
@@ -391,7 +420,8 @@ public final class FilteringUtils {
         return true;
     }
 
-    private static boolean copyIfContentsChanged(Path from, Path to, String encoding, FilterWrapper[] wrappers)
+    private static boolean copyIfContentsChanged(
+            Path from, Path to, String inputEncoding, String outputEncoding, FilterWrapper[] wrappers)
             throws IOException {
         boolean copied = false;
         if (wrappers == null || wrappers.length == 0) {
@@ -400,13 +430,14 @@ public final class FilteringUtils {
                 copied = os.isModified();
             }
         } else {
-            Charset charset = charset(encoding);
-            try (Reader fileReader = Files.newBufferedReader(from, charset)) {
+            Charset inputCharset = charset(inputEncoding);
+            Charset outputCharset = charset(outputEncoding);
+            try (Reader fileReader = Files.newBufferedReader(from, inputCharset)) {
                 Reader wrapped = fileReader;
                 for (FilterWrapper wrapper : wrappers) {
                     wrapped = wrapper.getReader(wrapped);
                 }
-                try (CachingWriter writer = new CachingWriter(to, charset)) {
+                try (CachingWriter writer = new CachingWriter(to, outputCharset)) {
                     char[] buffer = new char[COPY_BUFFER_LENGTH];
                     int nRead;
                     while ((nRead = wrapped.read(buffer, 0, COPY_BUFFER_LENGTH)) >= 0) {

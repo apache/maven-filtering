@@ -53,9 +53,25 @@ public class MavenResourcesExecution extends AbstractMavenFilteringRequest {
     private String encoding;
 
     /**
+     * The character encoding used to write filtered resources. When {@code null}, defaults to
+     * {@link #encoding} (i.e. same encoding for reading and writing, preserving backward compatibility).
+     *
+     * @since 4.0.0-beta-3
+     */
+    private String outputEncoding;
+
+    /**
      * @since 3.2.0
      */
     private String propertiesEncoding;
+
+    /**
+     * The character encoding used to write filtered properties files. When {@code null}, defaults to
+     * {@link #outputEncoding} if set, otherwise to {@link #propertiesEncoding}.
+     *
+     * @since 4.0.0-beta-3
+     */
+    private String outputPropertiesEncoding;
 
     /**
      * By default files like {@code .gitignore}, {@code .cvsignore} etc. are excluded which means they will not being
@@ -197,6 +213,29 @@ public class MavenResourcesExecution extends AbstractMavenFilteringRequest {
     }
 
     /**
+     * Return the output encoding used when writing filtered resources.
+     * When {@code null}, {@link #getEncoding()} is used for writing as well.
+     *
+     * @return the output encoding, or {@code null} if not set
+     * @since 4.0.0-beta-3
+     */
+    public String getOutputEncoding() {
+        return outputEncoding;
+    }
+
+    /**
+     * Set the output encoding used when writing filtered resources.
+     * When set, enables encoding conversion during filtering (read with {@link #getEncoding()},
+     * write with this encoding). Pass {@code null} to restore symmetric behaviour.
+     *
+     * @param outputEncoding the output encoding, or {@code null} to use {@link #getEncoding()}
+     * @since 4.0.0-beta-3
+     */
+    public void setOutputEncoding(String outputEncoding) {
+        this.outputEncoding = outputEncoding;
+    }
+
+    /**
      * Return the encoding of properties files.
      *
      * @return Current encoding of properties files.
@@ -214,6 +253,28 @@ public class MavenResourcesExecution extends AbstractMavenFilteringRequest {
      */
     public void setPropertiesEncoding(String propertiesEncoding) {
         this.propertiesEncoding = propertiesEncoding;
+    }
+
+    /**
+     * Return the output encoding used when writing filtered properties files.
+     * When {@code null}, falls back to {@link #getOutputEncoding()} if set, then to
+     * {@link #getPropertiesEncoding()}.
+     *
+     * @return the output properties encoding, or {@code null} if not explicitly set
+     * @since 4.0.0-beta-3
+     */
+    public String getOutputPropertiesEncoding() {
+        return outputPropertiesEncoding;
+    }
+
+    /**
+     * Set the output encoding used when writing filtered properties files.
+     *
+     * @param outputPropertiesEncoding the output encoding for properties files, or {@code null}
+     * @since 4.0.0-beta-3
+     */
+    public void setOutputPropertiesEncoding(String outputPropertiesEncoding) {
+        this.outputPropertiesEncoding = outputPropertiesEncoding;
     }
 
     /**
@@ -437,6 +498,9 @@ public class MavenResourcesExecution extends AbstractMavenFilteringRequest {
         MavenResourcesExecution mre = new MavenResourcesExecution();
         mre.setAdditionalProperties(this.getAdditionalProperties());
         mre.setEncoding(this.getEncoding());
+        mre.setOutputEncoding(this.getOutputEncoding());
+        mre.setPropertiesEncoding(this.getPropertiesEncoding());
+        mre.setOutputPropertiesEncoding(this.getOutputPropertiesEncoding());
         mre.setEscapedBackslashesInFilePath(this.isEscapedBackslashesInFilePath());
         mre.setEscapeString(this.getEscapeString());
         mre.setFileFilters(copyList(this.getFileFilters()));
@@ -455,7 +519,6 @@ public class MavenResourcesExecution extends AbstractMavenFilteringRequest {
         mre.setAddDefaultExcludes(this.isAddDefaultExcludes());
         mre.setSupportMultiLineFiltering(this.isSupportMultiLineFiltering());
         mre.setFlatten(this.isFlatten());
-        mre.setPropertiesEncoding(this.getPropertiesEncoding());
         mre.setDelimiters(new LinkedHashSet<>(this.getDelimiters()));
         mre.setInterpolatorCustomizer(this.getInterpolatorCustomizer());
         mre.setGracefulBinaryHandling(this.isGracefulBinaryHandling());

@@ -167,7 +167,7 @@ public final class PropertyUtils {
      * @param logger Logger instance
      * @return The filtered property value.
      */
-    private static String getPropertyValue(String k, Properties p, Logger logger) {
+    static String getPropertyValue(String k, Properties p, Logger logger) {
         // This can also be done using InterpolationFilterReader,
         // but it requires reparsing the file over and over until
         // it doesn't change.

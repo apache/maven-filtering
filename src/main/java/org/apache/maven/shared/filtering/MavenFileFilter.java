@@ -143,4 +143,29 @@ public interface MavenFileFilter extends DefaultFilterInfo {
             throws MavenFilteringException {
         copyFile(from, to, filtering, filterWrappers, encoding, ChangeDetection.CONTENT);
     }
+
+    /**
+     * Copy and optionally filter a file using separate input and output encodings. This enables
+     * encoding conversion during resource filtering (e.g. reading ISO-8859-1 and writing UTF-8).
+     *
+     * @param from The source file
+     * @param to The target file
+     * @param filtering true to apply filtering
+     * @param filterWrappers {@link List} of FileUtils.FilterWrapper
+     * @param inputEncoding The charset used to read {@code from}
+     * @param outputEncoding The charset used to write {@code to}
+     * @param changeDetection The change detection mode to use
+     * @return {@code true} if the destination was written; {@code false} if it was skipped.
+     * @throws MavenFilteringException In case of an error.
+     * @since 4.0.0-beta-3
+     */
+    boolean copyFileWithResult(
+            Path from,
+            Path to,
+            boolean filtering,
+            List<FilterWrapper> filterWrappers,
+            String inputEncoding,
+            String outputEncoding,
+            ChangeDetection changeDetection)
+            throws MavenFilteringException;
 }

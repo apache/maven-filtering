@@ -20,6 +20,7 @@ package org.apache.maven.shared.filtering;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -1041,6 +1042,65 @@ class DefaultMavenResourcesFilteringTest {
         assertTrue(contentEquals(Paths.get(unitFilesDir, "test.txt"), targetPathFile.resolve("test.txt")));
     }
 
+    /**
+     * MRESOURCES-281: Allow per-resource encoding override via {@link Resource#setEncoding(String)}.
+     *
+     * <p>Each resource set is filtered with {@code filtering=true} so the read→decode→filter→encode→write
+     * pipeline in {@link FilteringUtils} is exercised. A {@code ${project.name}} placeholder in every
+     * fixture file is replaced during filtering; the assertion checks that the placeholder was resolved,
+     * which proves the encoding was actually propagated through the filtering path.
+     */
+    @Test
+    void filterResourcesWithPerResourceEncoding() throws Exception {
+        String unitFilesDir = getBasedir() + "/src/test/units-files/resource-encoding";
+        String projectName = mavenProject.getName(); // "test project" set in @BeforeEach
+
+        // Resource 1: filter the UTF-8 encoded file using per-resource encoding "UTF-8"
+        Resource utf8Resource = new Resource();
+        utf8Resource.setDirectory(unitFilesDir);
+        utf8Resource.setFiltering(true);
+        utf8Resource.setTargetPath("testPerResourceEncoding/utf8");
+        utf8Resource.setEncoding("UTF-8");
+        utf8Resource.addInclude("utf8.txt");
+
+        // Resource 2: filter the Windows-1252 encoded file using per-resource encoding "windows-1252"
+        Resource cp1252Resource = new Resource();
+        cp1252Resource.setDirectory(unitFilesDir);
+        cp1252Resource.setFiltering(true);
+        cp1252Resource.setTargetPath("testPerResourceEncoding/cp1252");
+        cp1252Resource.setEncoding("windows-1252");
+        cp1252Resource.addInclude("cp1252.txt");
+
+        MavenResourcesExecution mavenResourcesExecution = new MavenResourcesExecution(
+                List.of(utf8Resource, cp1252Resource),
+                outputDirectory,
+                mavenProject,
+                "UTF-8",
+                Collections.emptyList(),
+                Collections.emptyList(),
+                new StubSession());
+        mavenResourcesExecution.setUseDefaultFilterWrappers(true);
+        mavenResourcesFiltering.filterResources(mavenResourcesExecution);
+
+        // UTF-8 resource: placeholder must be resolved, content readable as UTF-8
+        String utf8Content = Files.readString(
+                outputDirectory.resolve("testPerResourceEncoding/utf8/utf8.txt"), StandardCharsets.UTF_8);
+        assertTrue(
+                utf8Content.contains("Project: " + projectName),
+                "UTF-8 resource: ${project.name} placeholder was not resolved");
+        assertTrue(utf8Content.contains("café"), "UTF-8 resource: non-ASCII chars must survive encoding round-trip");
+
+        // Windows-1252 resource: placeholder must be resolved, content readable as windows-1252
+        String cp1252Content = Files.readString(
+                outputDirectory.resolve("testPerResourceEncoding/cp1252/cp1252.txt"), Charset.forName("windows-1252"));
+        assertTrue(
+                cp1252Content.contains("Project: " + projectName),
+                "windows-1252 resource: ${project.name} placeholder was not resolved");
+        assertTrue(
+                cp1252Content.contains("café"),
+                "windows-1252 resource: non-ASCII chars must survive encoding round-trip");
+    }
+
     @Test
     void getEncoding() {
         Path propertiesFile = Paths.get("file.properties");
@@ -1182,6 +1242,95 @@ class DefaultMavenResourcesFilteringTest {
         mavenResourcesFiltering.filterResources(mre);
 
         assertTrue(contentEquals(Paths.get(unitFilesDir, "binary-file"), outputDirectory.resolve("binary-file")));
+    }
+
+    /**
+     * MRESOURCES-232: getOutputEncoding returns correct encoding based on parameters.
+     */
+    @Test
+    void getOutputEncoding() {
+        Path propertiesFile = Paths.get("file.properties");
+        Path regularFile = Paths.get("file.xml");
+
+        // When outputEncoding is null -> fall back to inputEncoding (no conversion)
+        assertNull(DefaultMavenResourcesFiltering.getOutputEncoding(regularFile, null, null, null));
+        assertEquals("UTF-8", DefaultMavenResourcesFiltering.getOutputEncoding(regularFile, null, null, "UTF-8"));
+
+        // Regular file with outputEncoding set -> use outputEncoding
+        assertEquals(
+                "UTF-16", DefaultMavenResourcesFiltering.getOutputEncoding(regularFile, "UTF-16", null, "ISO-8859-1"));
+        // Regular file: outputPropertiesEncoding is ignored for non-properties files
+        assertEquals(
+                "UTF-16",
+                DefaultMavenResourcesFiltering.getOutputEncoding(regularFile, "UTF-16", "ISO-8859-1", "UTF-8"));
+
+        // Properties file with outputEncoding only -> use outputEncoding
+        assertEquals(
+                "UTF-16",
+                DefaultMavenResourcesFiltering.getOutputEncoding(propertiesFile, "UTF-16", null, "ISO-8859-1"));
+        // Properties file with outputPropertiesEncoding -> use outputPropertiesEncoding
+        assertEquals(
+                "ISO-8859-1",
+                DefaultMavenResourcesFiltering.getOutputEncoding(propertiesFile, "UTF-16", "ISO-8859-1", "UTF-8"));
+    }
+
+    /**
+     * MRESOURCES-232: Filtering with a different output encoding should produce a file
+     * readable with that output encoding (encoding conversion test).
+     * Input: ISO-8859-1 source containing a token and a Latin-1 character (é = 0xE9).
+     * Output: UTF-8 (é is encoded as 0xC3 0xA9 in UTF-8).
+     */
+    @Test
+    void filterResourcesWithOutputEncoding() throws Exception {
+        mavenProject.addProperty("greeting", "World");
+        String unitFilesDir = getBasedir() + "/src/test/units-files/MRESOURCES-232";
+
+        Resource resource = new Resource();
+        resource.setDirectory(unitFilesDir);
+        resource.setFiltering(true);
+
+        MavenResourcesExecution mre = new MavenResourcesExecution(
+                Collections.singletonList(resource),
+                outputDirectory,
+                mavenProject,
+                "ISO-8859-1",
+                Collections.emptyList(),
+                Collections.emptyList(),
+                new StubSession());
+        mre.setOutputEncoding("UTF-8");
+        mavenResourcesFiltering.filterResources(mre);
+
+        // Read the output file as UTF-8 — the token must be expanded and é must survive
+        String result = Files.readString(outputDirectory.resolve("message.txt"), StandardCharsets.UTF_8);
+        assertEquals("Bonjour World! café", result);
+    }
+
+    /**
+     * MRESOURCES-232: Per-resource outputEncoding overrides the global setting.
+     */
+    @Test
+    void filterResourcesWithPerResourceOutputEncoding() throws Exception {
+        mavenProject.addProperty("greeting", "World");
+        String unitFilesDir = getBasedir() + "/src/test/units-files/MRESOURCES-232";
+
+        Resource resource = new Resource();
+        resource.setDirectory(unitFilesDir);
+        resource.setFiltering(true);
+        resource.setEncoding("ISO-8859-1");
+        resource.setOutputEncoding("UTF-8");
+
+        MavenResourcesExecution mre = new MavenResourcesExecution();
+        mre.setResources(Collections.singletonList(resource));
+        mre.setOutputDirectory(outputDirectory);
+        mre.setEncoding("UTF-8"); // global encoding — overridden per-resource
+        mre.setMavenProject(mavenProject);
+        mre.setMavenSession(new StubSession());
+        mre.setNonFilteredFileExtensions(Collections.emptyList());
+        mre.setUseDefaultFilterWrappers(true);
+        mavenResourcesFiltering.filterResources(mre);
+
+        String result = Files.readString(outputDirectory.resolve("message.txt"), StandardCharsets.UTF_8);
+        assertEquals("Bonjour World! café", result);
     }
 
     private String filename(Path file) {

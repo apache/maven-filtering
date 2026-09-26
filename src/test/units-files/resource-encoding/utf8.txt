@@ -1,0 +1,2 @@
+Project: ${project.name}
+UTF-8 text with non-ASCII: café, naïve, résumé

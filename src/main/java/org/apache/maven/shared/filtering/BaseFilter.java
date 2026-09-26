@@ -27,7 +27,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.TreeSet;
 import java.util.function.Consumer;
 
 import org.apache.maven.api.Project;
@@ -149,10 +148,7 @@ class BaseFilter implements DefaultFilterInfo {
                 new ArrayList<>(request.getDelimiters().size() + 1);
 
         if (getLogger().isDebugEnabled()) {
-            getLogger().debug("properties used:");
-            for (String s : new TreeSet<>(filterProperties.stringPropertyNames())) {
-                getLogger().debug(s + ": " + filterProperties.getProperty(s));
-            }
+            getLogger().debug("number of properties used for filtering: {}", filterProperties.size());
         }
 
         final ValueSource propertiesValueSource = new PropertiesBasedValueSource(filterProperties);

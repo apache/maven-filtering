@@ -29,9 +29,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import org.apache.maven.api.di.Inject;
 import org.apache.maven.api.di.Named;
@@ -150,6 +152,13 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
         boolean isFilteringUsed = false;
         List<Path> propertiesFiles = new ArrayList<>();
 
+        // Destinations already written by a previous <resource> entry in this call.
+        // Used to preserve "first <resource> entry wins" semantics for overlapping
+        // declarations — the behaviour 3.3.1 produced as a side effect of the
+        // timestamp-based overwrite gate in FilteringUtils.copyFile, lost in
+        // MSHARED-1216 / GH-333.
+        Set<Path> alreadyCopied = new HashSet<>();
+
         for (Resource resource : mavenResourcesExecution.getResources()) {
 
             if (LOGGER.isDebugEnabled()) {
@@ -245,6 +254,20 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
                 Path source = resourceDirectory.resolve(name);
 
                 Path destinationFile = getDestinationFile(outputDirectory, targetPath, name, mavenResourcesExecution);
+
+                // Track destinations already written by a previous <resource> entry so we
+                // can preserve "first <resource> entry wins" semantics for overlapping
+                // declarations. The flatten case has its own collision policy below
+                // (warn-or-throw based on overwrite), so we deliberately do not suppress
+                // it here.
+                Path destinationPath = destinationFile.toAbsolutePath();
+                boolean firstOccurrence = alreadyCopied.add(destinationPath);
+                if (!firstOccurrence
+                        && !mavenResourcesExecution.isFlatten()
+                        && !mavenResourcesExecution.isOverwrite()) {
+                    LOGGER.debug("skipping {} — destination already written by a previous <resource> entry", name);
+                    continue;
+                }
 
                 if (mavenResourcesExecution.isFlatten() && Files.exists(destinationFile)) {
                     if (mavenResourcesExecution.isOverwrite()) {

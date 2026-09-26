@@ -1162,4 +1162,48 @@ class DefaultMavenResourcesFilteringTest {
     private boolean contentEquals(Path p1, Path p2) throws IOException {
         return Files.mismatch(p1, p2) < 0;
     }
+
+    /**
+     * Regression guard for the maven-resources-plugin issue 471 / GH-333 scenario: when the same
+     * destination is reached by a later &lt;resource&gt; entry while overwrite is explicitly enabled,
+     * the later entry must still be allowed to replace the earlier one — the "first entry wins"
+     * skip introduced for the default case must not apply here.
+     */
+    @Test
+    void overlappingEntriesWithExplicitOverwriteStillReplace() throws Exception {
+        mavenProject.addProperty("repro.value", "REPLACED_BY_FILTERING");
+
+        String unitFilesDir = getBasedir() + "/src/test/units-files/MRP-471";
+
+        Resource filtered = new Resource();
+        filtered.setDirectory(unitFilesDir);
+        filtered.setFiltering(true);
+        filtered.addInclude("config/filtered.xml");
+
+        Resource unfiltered = new Resource();
+        unfiltered.setDirectory(unitFilesDir);
+        unfiltered.setFiltering(false);
+        unfiltered.addInclude("**");
+
+        MavenResourcesExecution execution = new MavenResourcesExecution(
+                Arrays.asList(filtered, unfiltered),
+                outputDirectory,
+                mavenProject,
+                "UTF-8",
+                Collections.emptyList(),
+                Collections.emptyList(),
+                new StubSession());
+        execution.setUseDefaultFilterWrappers(true);
+        execution.setOverwrite(true);
+
+        mavenResourcesFiltering.filterResources(execution);
+
+        Path filteredOut = outputDirectory.resolve("config/filtered.xml");
+        String content = new String(Files.readAllBytes(filteredOut), StandardCharsets.UTF_8);
+        // With overwrite=true the unfiltered second pass still wins — preserve the historical
+        // 3.3.1 behaviour for callers that explicitly request overwriting.
+        assertTrue(
+                content.contains("${repro.value}"),
+                "with overwrite=true the second <resource> entry must still clobber; got:\n" + content);
+    }
 }

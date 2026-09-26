@@ -20,7 +20,10 @@ package org.apache.maven.shared.filtering;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,6 +32,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import org.apache.maven.api.Project;
 import org.apache.maven.api.Session;
@@ -171,6 +175,72 @@ class BaseFilter implements DefaultFilterInfo {
     }
 
     /**
+     * Returns {@code true} if the given filter path contains glob pattern characters
+     * ({@code *}, {@code ?}, <code>{</code>, or {@code [}).
+     */
+    private static boolean isGlobPattern(String path) {
+        return path.indexOf('*') >= 0 || path.indexOf('?') >= 0 || path.indexOf('{') >= 0 || path.indexOf('[') >= 0;
+    }
+
+    /**
+     * Expands a glob pattern relative to {@code basedir} and returns the matched paths in sorted order.
+     * The pattern must use forward slashes as path separators (as is conventional in Maven filter paths).
+     */
+    private List<Path> expandGlob(Path basedir, String globPattern) throws IOException {
+        // Normalize to forward slashes; resolveFile accepts them on all platforms
+        String normalized = globPattern.replace('\\', '/');
+
+        // Find the deepest non-glob path prefix to use as the walk root
+        String[] segments = normalized.split("/");
+        StringBuilder prefix = new StringBuilder();
+        for (String segment : segments) {
+            if (segment.indexOf('*') >= 0
+                    || segment.indexOf('?') >= 0
+                    || segment.indexOf('{') >= 0
+                    || segment.indexOf('[') >= 0) {
+                break;
+            }
+            if (prefix.length() > 0) {
+                prefix.append('/');
+            }
+            prefix.append(segment);
+        }
+
+        Path normalizedBase = basedir.toAbsolutePath().normalize();
+        Path searchRoot = prefix.length() > 0 ? FilteringUtils.resolveFile(basedir, prefix.toString()) : normalizedBase;
+
+        if (!searchRoot.startsWith(normalizedBase)) {
+            throw new IOException("Filter glob pattern '" + globPattern + "' resolves outside project basedir");
+        }
+
+        if (!Files.isDirectory(searchRoot)) {
+            return List.of();
+        }
+
+        // Build a relative glob pattern for the suffix beyond the prefix.
+        // We match against the path relative to searchRoot to avoid OS separator issues:
+        // on Windows, Path.toString() uses '\' which glob treats as an escape character.
+        // Relative matching with forward-slash patterns works on all platforms because
+        // Path.relativize() always returns paths comparable with '/' in glob patterns.
+        String patternSuffix = prefix.length() > 0 ? normalized.substring(prefix.length() + 1) : normalized;
+        PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + patternSuffix);
+
+        List<Path> matched = new ArrayList<>();
+        int maxDepth = patternSuffix.contains("/") || patternSuffix.contains("**") ? Integer.MAX_VALUE : 1;
+        try (Stream<Path> stream = Files.walk(searchRoot, maxDepth)) {
+            stream.filter(Files::isRegularFile)
+                    .filter(p -> {
+                        // Convert relative path to forward-slash form for cross-platform matching
+                        String relative = searchRoot.relativize(p).toString().replace('\\', '/');
+                        return matcher.matches(Paths.get(relative));
+                    })
+                    .sorted()
+                    .forEach(matched::add);
+        }
+        return matched;
+    }
+
+    /**
      * default visibility only for testing reason !
      */
     void loadProperties(
@@ -186,10 +256,38 @@ class BaseFilter implements DefaultFilterInfo {
                     continue;
                 }
                 try {
-                    Path propFile = FilteringUtils.resolveFile(basedir, filterFile);
-                    Properties properties = PropertyUtils.loadPropertyFile(propFile, workProperties, getLogger());
-                    filterProperties.putAll(properties);
-                    workProperties.putAll(properties);
+                    if (isGlobPattern(filterFile)) {
+                        List<Path> matched = expandGlob(basedir, filterFile);
+                        if (matched.isEmpty()) {
+                            // Backward-compat fallback: if the pattern looks like a glob but a literal
+                            // file exists at that exact path, load it as-is (e.g. filter[1].properties).
+                            // On Windows, glob chars like * are illegal in paths, so resolveFile()
+                            // will throw InvalidPathException — catch it and skip the fallback.
+                            try {
+                                Path literalPath = FilteringUtils.resolveFile(basedir, filterFile);
+                                if (Files.isRegularFile(literalPath)) {
+                                    matched = List.of(literalPath);
+                                } else {
+                                    getLogger().warn("Filter glob '{}' did not match any files", filterFile);
+                                }
+                            } catch (java.nio.file.InvalidPathException e) {
+                                // Path contains OS-invalid characters (e.g. * on Windows);
+                                // it cannot be a literal file, so just warn.
+                                getLogger().warn("Filter glob '{}' did not match any files", filterFile);
+                            }
+                        }
+                        for (Path propFile : matched) {
+                            Properties properties =
+                                    PropertyUtils.loadPropertyFile(propFile, workProperties, getLogger());
+                            filterProperties.putAll(properties);
+                            workProperties.putAll(properties);
+                        }
+                    } else {
+                        Path propFile = FilteringUtils.resolveFile(basedir, filterFile);
+                        Properties properties = PropertyUtils.loadPropertyFile(propFile, workProperties, getLogger());
+                        filterProperties.putAll(properties);
+                        workProperties.putAll(properties);
+                    }
                 } catch (IOException e) {
                     throw new MavenFilteringException("Error loading property file '" + filterFile + "'", e);
                 }

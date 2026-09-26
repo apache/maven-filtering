@@ -298,5 +298,58 @@ class DefaultMavenFileFilterTest {
 
         assertFalse(Files.isSymbolicLink(toFile), "dangling symlink must be replaced by a regular file");
         assertEquals("content", Files.readString(toFile));
+
+    // MSHARED-995: support glob patterns in filter file paths
+    @Test
+    void globFilterFilesMatchMultipleFiles() throws Exception {
+        DefaultMavenFileFilter mavenFileFilter = new DefaultMavenFileFilter(mock(BuildContext.class));
+
+        Path basedir = Paths.get(getBasedir(), "src/test/units-files/MSHARED-995");
+        List<String> filters = Collections.singletonList("env/dev/*.properties");
+
+        Properties filterProperties = new Properties();
+        mavenFileFilter.loadProperties(filterProperties, basedir, filters, new Properties());
+
+        // Both files under env/dev/ must have been loaded
+        assertEquals("jdbc:h2:mem:dev", filterProperties.getProperty("db.url"));
+        assertEquals("60", filterProperties.getProperty("cache.ttl"));
+    }
+
+    // MSHARED-995: a glob that only matches files in one subdirectory must not include sibling dirs
+    @Test
+    void globFilterFilesScopedToSubdirectory() throws Exception {
+        DefaultMavenFileFilter mavenFileFilter = new DefaultMavenFileFilter(mock(BuildContext.class));
+
+        Path basedir = Paths.get(getBasedir(), "src/test/units-files/MSHARED-995");
+        List<String> filters = Collections.singletonList("env/prod/*.properties");
+
+        Properties filterProperties = new Properties();
+        mavenFileFilter.loadProperties(filterProperties, basedir, filters, new Properties());
+
+        assertEquals("jdbc:postgresql://prod/app", filterProperties.getProperty("db.url"));
+        // env/dev/cache.properties must NOT have been loaded
+        assertEquals(null, filterProperties.getProperty("cache.ttl"));
+    }
+
+    // MSHARED-995: a glob that matches nothing emits a warning, not an exception
+    @Test
+    void globFilterFilesNoMatchEmitsWarning() throws Exception {
+        Logger logger = mock(Logger.class);
+        DefaultMavenFileFilter mavenFileFilter = new DefaultMavenFileFilter(mock(BuildContext.class)) {
+            @Override
+            protected Logger getLogger() {
+                return logger;
+            }
+        };
+
+        Path basedir = Paths.get(getBasedir(), "src/test/units-files/MSHARED-995");
+        Properties filterProperties = new Properties();
+        mavenFileFilter.loadProperties(
+                filterProperties, basedir, Collections.singletonList("env/staging/*.properties"), new Properties());
+
+        verify(logger).warn("Filter glob '{}' did not match any files", "env/staging/*.properties");
+        // No properties loaded
+        assertEquals(0, filterProperties.size());
+
     }
 }

@@ -162,7 +162,8 @@ class BaseFilter implements DefaultFilterInfo {
                 request.getEscapeString(),
                 request.isEscapeWindowsPaths(),
                 request.isSupportMultiLineFiltering(),
-                request.getInterpolatorCustomizer());
+                request.getInterpolatorCustomizer(),
+                request.isFailOnMissingFilterValue());
 
         defaultFilterWrappers.add(wrapper);
 
@@ -216,6 +217,8 @@ class BaseFilter implements DefaultFilterInfo {
 
         private final Consumer<Interpolator> interpolatorCustomizer;
 
+        private final boolean failOnMissingFilterValue;
+
         Wrapper(
                 LinkedHashSet<String> delimiters,
                 Project project,
@@ -225,7 +228,8 @@ class BaseFilter implements DefaultFilterInfo {
                 String escapeString,
                 boolean escapeWindowsPaths,
                 boolean supportMultiLineFiltering,
-                Consumer<Interpolator> interpolatorCustomizer) {
+                Consumer<Interpolator> interpolatorCustomizer,
+                boolean failOnMissingFilterValue) {
             super();
             this.delimiters = delimiters;
             this.project = project;
@@ -236,6 +240,7 @@ class BaseFilter implements DefaultFilterInfo {
             this.escapeWindowsPaths = escapeWindowsPaths;
             this.supportMultiLineFiltering = supportMultiLineFiltering;
             this.interpolatorCustomizer = interpolatorCustomizer;
+            this.failOnMissingFilterValue = failOnMissingFilterValue;
         }
 
         @Override
@@ -268,6 +273,7 @@ class BaseFilter implements DefaultFilterInfo {
 
             filterReader.setInterpolateWithPrefixPattern(false);
             filterReader.setEscapeString(escapeString);
+            filterReader.setFailOnMissingFilterValue(failOnMissingFilterValue);
 
             return filterReader;
         }

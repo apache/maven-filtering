@@ -522,6 +522,7 @@ public class MavenResourcesExecution extends AbstractMavenFilteringRequest {
         mre.setDelimiters(new LinkedHashSet<>(this.getDelimiters()));
         mre.setInterpolatorCustomizer(this.getInterpolatorCustomizer());
         mre.setGracefulBinaryHandling(this.isGracefulBinaryHandling());
+        mre.setFailOnMissingFilterValue(this.isFailOnMissingFilterValue());
         return mre;
     }
 

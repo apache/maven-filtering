@@ -78,6 +78,14 @@ public class InterpolatorFilterReaderLineEnding extends AbstractFilterReaderLine
     private boolean eof = false;
 
     /**
+     * When {@code true}, an unresolved filter expression causes an {@link IOException} instead of
+     * being passed through as-is. Defaults to {@code false}.
+     *
+     * @since 4.0.0-beta-4
+     */
+    private boolean failOnMissingFilterValue = false;
+
+    /**
      * @param in reader to use
      * @param interpolator interpolator instance to use
      * @param beginToken start token to use
@@ -306,9 +314,15 @@ public class InterpolatorFilterReaderLineEnding extends AbstractFilterReaderLine
         }
 
         // write away the value if present, otherwise the key unmodified
-        if (value != null) {
+        // Note: the plexus interpolator never returns null — when a token is unresolved it
+        // returns the original expression (i.e. value.equals(key.toString())). We detect
+        // unresolved tokens by comparing value to the original key.
+        boolean resolved = value != null && !value.equals(key.toString());
+        if (resolved) {
             replaceData = value;
             replaceIndex = value.length();
+        } else if (failOnMissingFilterValue) {
+            throw new IOException("Unresolved filter token: '" + key + "'");
         } else {
             replaceData = key.toString();
             replaceIndex = key.length();
@@ -348,5 +362,16 @@ public class InterpolatorFilterReaderLineEnding extends AbstractFilterReaderLine
     public InterpolatorFilterReaderLineEnding setRecursionInterceptor(RecursionInterceptor theRecursionInterceptor) {
         this.recursionInterceptor = theRecursionInterceptor;
         return this;
+    }
+
+    /**
+     * Sets whether the reader should throw an {@link IOException} when a filter expression cannot
+     * be resolved, instead of passing it through as-is. Defaults to {@code false}.
+     *
+     * @param failOnMissingFilterValue {@code true} to fail on unresolved placeholders
+     * @since 4.0.0-beta-4
+     */
+    public void setFailOnMissingFilterValue(boolean failOnMissingFilterValue) {
+        this.failOnMissingFilterValue = failOnMissingFilterValue;
     }
 }

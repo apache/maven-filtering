@@ -32,6 +32,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.when;
@@ -131,5 +132,37 @@ class MultiDelimiterInterpolatorFilterReaderLineEndingTest extends AbstractInter
         reader.setDelimiterSpecs(Collections.singleton("@"));
 
         assertEquals(markLength, reader.markLength, "mark length should reflect the current delimiter set");
+    }
+
+    @Test
+    void failOnMissingFilterValueThrowsWhenEnabled() throws Exception {
+        // interpolator returns null → token is unresolved
+        when(interpolator.interpolate(eq("${missing}"), isA(RecursionInterceptor.class)))
+                .thenReturn(null);
+
+        Reader in = new StringReader("value=${missing}");
+        MultiDelimiterInterpolatorFilterReaderLineEnding reader =
+                new MultiDelimiterInterpolatorFilterReaderLineEnding(in, interpolator, true);
+        reader.setDelimiterSpecs(Collections.singleton("${*}"));
+        reader.setInterpolateWithPrefixPattern(false);
+        reader.setFailOnMissingFilterValue(true);
+
+        assertThrows(java.io.IOException.class, () -> IOUtils.toString(reader));
+    }
+
+    @Test
+    void failOnMissingFilterValuePassesThroughWhenDisabled() throws Exception {
+        // interpolator returns null → token is unresolved
+        when(interpolator.interpolate(eq("${missing}"), isA(RecursionInterceptor.class)))
+                .thenReturn(null);
+
+        Reader in = new StringReader("value=${missing}");
+        MultiDelimiterInterpolatorFilterReaderLineEnding reader =
+                new MultiDelimiterInterpolatorFilterReaderLineEnding(in, interpolator, true);
+        reader.setDelimiterSpecs(Collections.singleton("${*}"));
+        reader.setInterpolateWithPrefixPattern(false);
+        reader.setFailOnMissingFilterValue(false);
+
+        assertEquals("value=${missing}", IOUtils.toString(reader));
     }
 }

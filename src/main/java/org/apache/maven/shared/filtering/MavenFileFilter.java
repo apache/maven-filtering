@@ -68,8 +68,57 @@ public interface MavenFileFilter extends DefaultFilterInfo {
      * @param filterWrappers {@link List} of FileUtils.FilterWrapper
      * @param encoding The encoding used during the filtering.
      * @throws MavenFilteringException In case of an error.
+     * @deprecated use {@link #copyFile(Path, Path, boolean, List, String, ChangeDetection)} instead
      */
+    @Deprecated
     void copyFile(Path from, Path to, boolean filtering, List<FilterWrapper> filterWrappers, String encoding)
+            throws MavenFilteringException;
+
+    /**
+     * @param from The source file
+     * @param to The target file
+     * @param filtering true to apply filtering
+     * @param filterWrappers The filters to be applied.
+     * @param encoding The encoding to use
+     * @param changeDetection The change detection mode to use to determine if the file should be copied/filtered.
+     * @throws MavenFilteringException In case of an error.
+     * @since 4.0.0-beta-2
+     */
+    void copyFile(
+            Path from,
+            Path to,
+            boolean filtering,
+            List<FilterWrapper> filterWrappers,
+            String encoding,
+            ChangeDetection changeDetection)
+            throws MavenFilteringException;
+
+    /**
+     * Copies (or filters) a file and returns whether the destination was actually written.
+     *
+     * <p>This method is identical to {@link #copyFile(Path, Path, boolean, List, String, ChangeDetection)}
+     * but returns {@code true} when the destination file was created or updated, and {@code false}
+     * when the change-detection strategy determined the destination was already up to date and
+     * therefore left untouched. Callers can use this to emit accurate log messages (e.g. "Copying"
+     * vs "Skipping (up to date)").
+     *
+     * @param from The source file
+     * @param to The target file
+     * @param filtering true to apply filtering
+     * @param filterWrappers The filters to be applied.
+     * @param encoding The encoding to use
+     * @param changeDetection The change detection mode to use to determine if the file should be copied/filtered.
+     * @return {@code true} if the destination was written; {@code false} if it was skipped.
+     * @throws MavenFilteringException In case of an error.
+     * @since 4.0.0-beta-2
+     */
+    boolean copyFileWithResult(
+            Path from,
+            Path to,
+            boolean filtering,
+            List<FilterWrapper> filterWrappers,
+            String encoding,
+            ChangeDetection changeDetection)
             throws MavenFilteringException;
 
     /**
@@ -92,6 +141,6 @@ public interface MavenFileFilter extends DefaultFilterInfo {
             String encoding,
             boolean gracefulBinaryHandling)
             throws MavenFilteringException {
-        copyFile(from, to, filtering, filterWrappers, encoding);
+        copyFile(from, to, filtering, filterWrappers, encoding, ChangeDetection.CONTENT);
     }
 }

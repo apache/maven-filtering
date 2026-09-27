@@ -298,6 +298,7 @@ class DefaultMavenFileFilterTest {
 
         assertFalse(Files.isSymbolicLink(toFile), "dangling symlink must be replaced by a regular file");
         assertEquals("content", Files.readString(toFile));
+    }
 
     // MSHARED-995: support glob patterns in filter file paths
     @Test
@@ -350,6 +351,5 @@ class DefaultMavenFileFilterTest {
         verify(logger).warn("Filter glob '{}' did not match any files", "env/staging/*.properties");
         // No properties loaded
         assertEquals(0, filterProperties.size());
-
     }
 }

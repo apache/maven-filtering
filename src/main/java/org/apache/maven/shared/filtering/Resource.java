@@ -122,15 +122,6 @@ public class Resource {
         this.mergeId = mergeId;
     }
 
-    public void addInclude(String include) {
-        includes.add(include);
-    }
-
-    public void addExclude(String exclude) {
-        excludes.add(exclude);
-    }
-
-
     /**
      * Returns the change detection strategy to apply when copying files from this resource.
      * When set, this overrides the request-level {@link AbstractMavenFilteringRequest#getChangeDetection()}

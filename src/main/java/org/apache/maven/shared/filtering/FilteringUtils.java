@@ -423,6 +423,11 @@ public final class FilteringUtils {
     private static boolean copyIfContentsChanged(
             Path from, Path to, String inputEncoding, String outputEncoding, FilterWrapper[] wrappers)
             throws IOException {
+        // Same as copyUnconditionally: delete dangling symlinks first so that
+        // CachingOutputStream/CachingWriter don't get NoSuchFileException.
+        if (Files.isSymbolicLink(to) && !Files.exists(to)) {
+            Files.delete(to);
+        }
         boolean copied = false;
         if (wrappers == null || wrappers.length == 0) {
             try (CachingOutputStream os = new CachingOutputStream(to)) {

@@ -249,6 +249,7 @@ class FilteringUtilsTest {
 
         assertFalse(Files.isSymbolicLink(toFile), "dangling symlink must be replaced by a regular file");
         assertEquals("hello", Files.readString(toFile));
+    }
 
     // --- ChangeDetection strategy tests (MRESOURCES-397) ---
 
@@ -546,6 +547,5 @@ class FilteringUtilsTest {
             Files.deleteIfExists(from);
             Files.deleteIfExists(to);
         }
-
     }
 }

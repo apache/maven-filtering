@@ -13,7 +13,7 @@
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
-# under the License. 
+# under the License.
 
 version: 2
 updates:
@@ -21,10 +21,37 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    target-branch: "maven-filtering-4.x"
+
+  - package-ecosystem: maven
+    directory: "/"
+    schedule:
+      interval: "daily"
+    labels:
+      - "mvn3"
+      - "java"
+      - "dependencies"
     ignore:
-      # Ignore Maven Core updates
-      - dependency-name: "org.apache.maven:*"
+      # Mockito >=5 requires Java 11+
+      - dependency-name: "org.mockito:*"
+        versions: [">= 5.0.0"]
+      # Maven 3 so use SLF4J 1.7.x
+      - dependency-name: "org.slf4j:*"
+        versions: [">= 2.0.0"]
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "daily"
+    target-branch: "maven-filtering-4.x"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    labels:
+      - "mvn3"
+      - "github_actions"
+      - "dependencies"
+# trigger rescan: 2026-09-25
+# trigger rescan: 2026-09-25

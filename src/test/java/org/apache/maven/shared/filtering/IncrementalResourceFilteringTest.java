@@ -32,8 +32,8 @@ import java.util.Set;
 
 import org.apache.maven.api.di.Inject;
 import org.apache.maven.api.di.testing.MavenDITest;
-import org.apache.maven.api.plugin.testing.stubs.ProjectStub;
 import org.apache.maven.di.Injector;
+import org.apache.maven.testing.plugin.stubs.ProjectStub;
 import org.codehaus.plexus.util.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

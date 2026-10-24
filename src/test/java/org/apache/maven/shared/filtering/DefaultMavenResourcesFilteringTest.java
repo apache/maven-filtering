@@ -35,9 +35,9 @@ import java.util.stream.Collectors;
 
 import org.apache.maven.api.di.Inject;
 import org.apache.maven.api.di.testing.MavenDITest;
-import org.apache.maven.api.plugin.testing.stubs.ProjectStub;
 import org.apache.maven.api.settings.Settings;
 import org.apache.maven.di.Injector;
+import org.apache.maven.testing.plugin.stubs.ProjectStub;
 import org.codehaus.plexus.interpolation.PrefixedObjectValueSource;
 import org.codehaus.plexus.interpolation.ValueSource;
 import org.junit.jupiter.api.BeforeEach;

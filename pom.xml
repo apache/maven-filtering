@@ -77,9 +77,10 @@
       <version>${slf4jVersion}</version>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.plexus</groupId>
+      <groupId>org.sonatype.plexus</groupId>
       <artifactId>plexus-build-api</artifactId>
-      <version>1.2.0</version>
+      <version>0.0.7</version>
+      <!-- stick with old GAV until https://github.com/eclipse-m2e/m2e-core/issues/944 is fixed -->
     </dependency>
     <dependency>
       <groupId>org.codehaus.plexus</groupId>

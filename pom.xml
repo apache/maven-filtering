@@ -62,7 +62,7 @@
 
   <properties>
     <mavenVersion>3.9.16</mavenVersion>
-    <resolverVersion>1.9.27</resolverVersion>
+    <resolverVersion>2.0.24</resolverVersion>
     <slf4jVersion>1.7.36</slf4jVersion>
     <version.plexus-utils>3.6.1</version.plexus-utils>
     <project.build.outputTimestamp>2026-06-30T14:34:27Z</project.build.outputTimestamp>

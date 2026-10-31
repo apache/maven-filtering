@@ -18,12 +18,12 @@
  */
 package org.apache.maven.shared.filtering;
 
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 
 /**
  * @author Karl Heinz Marbaise <a href="mailto:khmarbaise@apache.org">khmarbaise@apache.org</a>.
@@ -36,20 +36,20 @@ class AbstractMavenFilteringRequestTest {
     @Test
     void setDelimitersShouldNotChangeAnythingIfUsingNull() {
         request.setDelimiters(null, false);
-        assertThat(request.getDelimiters(), Matchers.contains("${*}", "@"));
+        assertIterableEquals(Arrays.asList("${*}", "@"), request.getDelimiters());
     }
 
     @Test
     void setDelimitersShouldNotChangeAnythingIfUsingEmpty() {
         request.setDelimiters(delimiters, false);
-        assertThat(request.getDelimiters(), Matchers.contains("${*}", "@"));
+        assertIterableEquals(Arrays.asList("${*}", "@"), request.getDelimiters());
     }
 
     @Test
     void setDelimitersShouldAddOnlyTheGivenDelimiter() {
         delimiters.add("test");
         request.setDelimiters(delimiters, false);
-        assertThat(request.getDelimiters(), Matchers.contains("test"));
+        assertIterableEquals(Arrays.asList("test"), request.getDelimiters());
     }
 
     @Test
@@ -58,27 +58,27 @@ class AbstractMavenFilteringRequestTest {
         delimiters.add(null);
         delimiters.add("second");
         request.setDelimiters(delimiters, false);
-        assertThat(request.getDelimiters(), Matchers.contains("test", "${*}", "second"));
+        assertIterableEquals(Arrays.asList("test", "${*}", "second"), request.getDelimiters());
     }
 
     @Test
     void setDelimitersShouldAddDefaultDelimitersIfUseDefaultDelimitersIfNullGiven() {
         request.setDelimiters(null, true);
-        assertThat(request.getDelimiters(), Matchers.contains("${*}", "@"));
+        assertIterableEquals(Arrays.asList("${*}", "@"), request.getDelimiters());
     }
 
     @Test
     void setDelimitersShouldAddDefaultDelimitersIfUseDefaultDelimitersIfNotNullGiven() {
         LinkedHashSet<String> delimiters = new LinkedHashSet<>();
         request.setDelimiters(delimiters, true);
-        assertThat(request.getDelimiters(), Matchers.contains("${*}", "@"));
+        assertIterableEquals(Arrays.asList("${*}", "@"), request.getDelimiters());
     }
 
     @Test
     void setDelimitersShouldAddDefaultDelimitersIfUseDefaultDelimitersIfSingleElementIsGiven() {
         delimiters.add("test");
         request.setDelimiters(delimiters, true);
-        assertThat(request.getDelimiters(), Matchers.contains("${*}", "@", "test"));
+        assertIterableEquals(Arrays.asList("${*}", "@", "test"), request.getDelimiters());
     }
 
     @Test
@@ -87,6 +87,6 @@ class AbstractMavenFilteringRequestTest {
         delimiters.add(null);
         delimiters.add("second");
         request.setDelimiters(delimiters, true);
-        assertThat(request.getDelimiters(), Matchers.contains("${*}", "@", "test", "second"));
+        assertIterableEquals(Arrays.asList("${*}", "@", "test", "second"), request.getDelimiters());
     }
 }

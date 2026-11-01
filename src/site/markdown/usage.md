@@ -30,14 +30,14 @@ under the License.
 
 Lookup the component in your Mojo:
 
-```unknown
+```java
     @Required
     private MavenResourcesFiltering mavenResourcesFiltering;
 ```
 
 Apply filtering on your `List` of resources, see [Introduction](./index.html) for the default `FilterWrappers` that are used.
 
-```unknown
+```java
         MavenResourcesExecution mavenResourcesExecution =
             new MavenResourcesExecution ( resources, outputDirectory, mavenProject,
                                           encoding, fileFilters,
@@ -73,7 +73,7 @@ You must use the other methods from the `MavenResourcesFiltering` component and 
 
 There is a helper method to simplify this. Here's how you would use it to do what we did above:
 
-```unknown
+```java
         mavenResourcesExecution.addFilerWrapper( new MavenProjectValueSource( mavenProject,
                                                                               true ),
                                                  "\\@", "(.+?)\\@", "@", "@" );
@@ -83,7 +83,7 @@ There is a helper method to simplify this. Here's how you would use it to do wha
 
 Now it's time to filter the resources:
 
-```unknown
+```java
         // Apply filtering on your resources
         mavenResourcesFiltering.filterResources( mavenResourcesExecution );
 ```

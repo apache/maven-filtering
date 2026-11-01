@@ -48,35 +48,32 @@ Apply filtering on your `List` of resources, see [Introduction](./index.html) fo
 
 ## Add a new filtering token
 
-You must use the other methods from the `MavenResourcesFiltering` component and construct your own `List` of `FilterWrappers`. The following example adds interpolation for the token @ @ using values coming from reflection with the Maven Project.
+You must use the other methods from the `MavenResourcesFiltering` component and construct your own `List` of `FilterWrapper`s. The following example adds interpolation for the token @ @ using values coming from reflection with the Maven Project.
 
 ```java
         // Create your FilterWrapper
-        FileUtils.FilterWrapper filterWrapper = new FileUtils.FilterWrapper()
-        {
-            public Reader getReader( Reader reader )
-            {
-                Interpolator propertiesInterpolator =
-                    new RegexBasedInterpolator(  "\\@", "(.+?)\\@" );
-                ValueSource valueSource = new MavenProjectValueSource( mavenProject,
-                                                                       true );
-                propertiesInterpolator.addValueSource( valueSource );
-                return new InterpolatorFilterReader( reader,
-                                                     propertiesInterpolator,
-                                                     "@", "@" );
+        FilterWrapper filterWrapper = new FilterWrapper() {
+            @Override
+            public Reader getReader(Reader reader) {
+                Interpolator interpolator = new RegexBasedInterpolator("\\@", "(.+?)\\@");
+                interpolator.addValueSource(
+                        new PrefixedObjectValueSource(Arrays.asList("project", "pom"), mavenProject, true));
+                return new InterpolatorFilterReader(reader, interpolator, "@", "@");
             }
         };
 
         // Add the new filterWrapper to your MavenResourcesExecution instance
-        mavenResourcesExecution.addFilterWrapper( filterWrapper );
+        mavenResourcesExecution.addFilterWrapper(filterWrapper);
 ```
 
-There is a helper method to simplify this. Here's how you would use it to do what we did above:
+`FilterWrapper` is `org.apache.maven.shared.filtering.FilterWrapper`; the interpolation classes come from `org.codehaus.plexus.interpolation`.
+
+There is a helper method to simplify this. It takes literal tokens rather than regular expressions, and an escape string (`null` for none):
 
 ```java
-        mavenResourcesExecution.addFilerWrapper( new MavenProjectValueSource( mavenProject,
-                                                                              true ),
-                                                 "\\@", "(.+?)\\@", "@", "@" );
+        mavenResourcesExecution.addFilerWrapperWithEscaping(
+                new PrefixedObjectValueSource(Arrays.asList("project", "pom"), mavenProject, true),
+                "@", "@", null, false);
 ```
 
 **Note:** If `mavenResourcesExecution.useDefaultFilterWrappers` is set to `true`, the default `FilterWrapper`s will be added first.

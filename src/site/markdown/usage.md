@@ -31,7 +31,7 @@ under the License.
 Lookup the component in your Mojo:
 
 ```java
-    @Required
+    @Inject
     private MavenResourcesFiltering mavenResourcesFiltering;
 ```
 
@@ -88,4 +88,4 @@ Now it's time to filter the resources:
         mavenResourcesFiltering.filterResources( mavenResourcesExecution );
 ```
 
-**Note:** Maven Filtering uses the [plexus-interpolation component](http://codehaus-plexus.github.io/plexus-interpolation/).
+**Note:** Maven Filtering uses the [plexus-interpolation component](https://codehaus-plexus.github.io/plexus-interpolation/).

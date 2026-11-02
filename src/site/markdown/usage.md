@@ -50,7 +50,7 @@ Apply filtering on your `List` of resources, see [Introduction](./index.html) fo
 
 You must use the other methods from the `MavenResourcesFiltering` component and construct your own `List` of `FilterWrappers`. The following example adds interpolation for the token @ @ using values coming from reflection with the Maven Project.
 
-```unknown
+```java
         // Create your FilterWrapper
         FileUtils.FilterWrapper filterWrapper = new FileUtils.FilterWrapper()
         {

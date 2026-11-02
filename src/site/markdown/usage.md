@@ -28,7 +28,8 @@ under the License.
 
 ## Filter a `List` of `org.apache.maven.model.Resource`
 
-Lookup the component in your Mojo:
+On the Maven 4 line the resources are `org.apache.maven.shared.filtering.Resource`, and the
+component is injected with `org.apache.maven.api.di.Inject`:
 
 ```java
     @Inject

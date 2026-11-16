@@ -51,9 +51,9 @@ import org.sonatype.plexus.build.incremental.BuildContext;
 public class TestIncrementalBuildContext implements BuildContext {
 
     private final Path basedir;
-    private final Set<Path> refresh = new HashSet<Path>();
-    private final Set<Path> changedFiles = new HashSet<Path>();
-    private final Set<Path> deletedFiles = new HashSet<Path>();
+    private final Set<Path> refresh = new HashSet<>();
+    private final Set<Path> changedFiles = new HashSet<>();
+    private final Set<Path> deletedFiles = new HashSet<>();
     private final Map<String, Object> context = new HashMap<>();
 
     public TestIncrementalBuildContext(Path basedir, Set<Path> changedFiles) {
@@ -200,7 +200,7 @@ public class TestIncrementalBuildContext implements BuildContext {
         public String[] getIncludedFiles() {
             return files.stream()
                     .filter(p -> p.startsWith(basedir))
-                    .map(p -> basedir.relativize(p))
+                    .map(basedir::relativize)
                     .map(Path::toString)
                     .toArray(i -> new String[i]);
         }

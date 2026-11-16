@@ -190,7 +190,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
 
             String targetPath = resource.getTargetPath();
 
-            File resourceDirectory = (resource.getDirectory() == null) ? null : new File(resource.getDirectory());
+            File resourceDirectory = resource.getDirectory() == null ? null : new File(resource.getDirectory());
 
             if (resourceDirectory != null && !resourceDirectory.isAbsolute()) {
                 resourceDirectory =
@@ -362,7 +362,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
                         || mavenResourcesExecution.getPropertiesEncoding().length() < 1)
                 && !mavenResourcesExecution.getNonFilteredFileExtensions().contains("properties")
                 && isFilteringUsed
-                && propertiesFiles.size() > 0) {
+                && !propertiesFiles.isEmpty()) {
             // @todo Sometime in the future we should change this to be a warning
             LOGGER.info("The encoding used to copy filtered properties files has not been set."
                     + " This means that the same encoding will be used to copy filtered properties files"
@@ -440,7 +440,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
         }
 
         if (mavenResourcesExecution.isFilterFilenames()
-                && mavenResourcesExecution.getFilterWrappers().size() > 0) {
+                && !mavenResourcesExecution.getFilterWrappers().isEmpty()) {
             destination = filterFileName(destination, mavenResourcesExecution.getFilterWrappers());
         }
 

@@ -92,7 +92,7 @@ class TestReflectionProperties {
 
         Properties reading = new Properties();
 
-        try (FileInputStream readFileInputStream = new FileInputStream(to); ) {
+        try (FileInputStream readFileInputStream = new FileInputStream(to)) {
             reading.load(readFileInputStream);
         }
 

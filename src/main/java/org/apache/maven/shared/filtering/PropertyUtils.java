@@ -182,7 +182,8 @@ public final class PropertyUtils {
         }
         String defaultValue = v;
         StringBuilder ret = new StringBuilder();
-        int idx, idx2;
+        int idx;
+        int idx2;
 
         while ((idx = v.indexOf("${")) >= 0) {
             // append prefix to result

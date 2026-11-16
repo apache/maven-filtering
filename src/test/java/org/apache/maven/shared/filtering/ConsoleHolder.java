@@ -29,7 +29,7 @@ import java.io.PrintStream;
  * @author abelsromero
  * @since 3.3.2
  */
-class ConsoleHolder {
+final class ConsoleHolder {
 
     private PrintStream originalOut;
     private PrintStream originalErr;

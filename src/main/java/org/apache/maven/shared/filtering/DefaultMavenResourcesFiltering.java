@@ -41,7 +41,6 @@ import org.apache.maven.model.Resource;
 import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.Scanner;
-import org.codehaus.plexus.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonatype.plexus.build.incremental.BuildContext;
@@ -273,7 +272,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
                 String origin = basedir.relativize(
                                 resourceDirectory.getAbsoluteFile().toPath())
                         .toString();
-                if (StringUtils.isEmpty(origin)) {
+                if (origin == null || origin.isEmpty()) {
                     origin = ".";
                 }
                 LOGGER.info("Copying " + includedFiles.size() + " resource" + (includedFiles.size() > 1 ? "s" : "")

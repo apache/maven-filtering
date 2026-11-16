@@ -208,18 +208,16 @@ class DefaultMavenFileFilterTest {
     @Test
     void interpolatorCustomizer() throws Exception {
         AbstractMavenFilteringRequest req = new AbstractMavenFilteringRequest();
-        req.setInterpolatorCustomizer(i -> {
-            i.addValueSource(new AbstractValueSource(false) {
+        req.setInterpolatorCustomizer(i -> i.addValueSource(new AbstractValueSource(false) {
 
-                @Override
-                public Object getValue(String expression) {
-                    if (expression.equals("foo")) {
-                        return "bar";
-                    }
-                    return null;
+            @Override
+            public Object getValue(String expression) {
+                if (expression.equals("foo")) {
+                    return "bar";
                 }
-            });
-        });
+                return null;
+            }
+        }));
 
         List<FilterWrapper> wrappers = mavenFileFilter.getDefaultFilterWrappers(req);
 

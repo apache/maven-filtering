@@ -155,7 +155,7 @@ class PropertyUtilsTest {
     }
 
     @Test
-    void nonCircularReferences1Var3Times() throws IOException {
+    void nonCircularReferences1Var3Times() throws Exception {
         File nonCircularProperties = File.createTempFile("non-circular", ".properties");
         nonCircularProperties.deleteOnExit();
 
@@ -172,7 +172,7 @@ class PropertyUtilsTest {
     }
 
     @Test
-    void nonCircularReferences2Vars2Times() throws IOException {
+    void nonCircularReferences2Vars2Times() throws Exception {
         File nonCircularProperties = File.createTempFile("non-circular", ".properties");
         nonCircularProperties.deleteOnExit();
 

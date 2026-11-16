@@ -27,6 +27,7 @@ import java.util.HashSet;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.interpolation.Interpolator;
 import org.codehaus.plexus.interpolation.RecursionInterceptor;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -39,13 +40,15 @@ import static org.mockito.Mockito.when;
 
 class MultiDelimiterInterpolatorFilterReaderLineEndingTest extends AbstractInterpolatorFilterReaderLineEndingTest {
 
+    private AutoCloseable mocks;
+
     @Mock
     private Interpolator interpolator;
 
     @Override
     @BeforeEach
     public void onSetup() {
-        MockitoAnnotations.initMocks(this);
+        mocks = MockitoAnnotations.openMocks(this);
     }
 
     @Override
@@ -126,5 +129,10 @@ class MultiDelimiterInterpolatorFilterReaderLineEndingTest extends AbstractInter
         reader.setDelimiterSpecs(Collections.singleton("@"));
 
         assertEquals(markLength, reader.markLength, "mark length should reflect the current delimiter set");
+    }
+
+    @AfterEach
+    void tearDown() throws Exception {
+        mocks.close();
     }
 }

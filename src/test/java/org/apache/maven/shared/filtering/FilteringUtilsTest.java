@@ -19,7 +19,6 @@
 package org.apache.maven.shared.filtering;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -43,7 +42,7 @@ class FilteringUtilsTest {
     private static File testDirectory = new File(getBasedir(), "target/test-classes/");
 
     @Test
-    void mSHARED1213CopyWithTargetAlreadyExisting0ByteFile() throws IOException {
+    void mSHARED1213CopyWithTargetAlreadyExisting0ByteFile() throws Exception {
         File fromFile = new File(getBasedir() + "/src/test/units-files/MSHARED-1213/enunciate.xml");
         File toFile = new File(testDirectory, "MSHARED-1213-enunciate.xml");
         Files.write(toFile.toPath(), "".getBytes(StandardCharsets.UTF_8));
@@ -66,7 +65,7 @@ class FilteringUtilsTest {
     }
 
     @Test
-    void mSHARED1213CopyWithTargetAlreadyExistingJunkFile() throws IOException {
+    void mSHARED1213CopyWithTargetAlreadyExistingJunkFile() throws Exception {
         File fromFile = new File(getBasedir() + "/src/test/units-files/MSHARED-1213/enunciate.xml");
         File toFile = new File(testDirectory, "MSHARED-1213-enunciate.xml");
         Files.write(toFile.toPath(), "junk".getBytes(StandardCharsets.UTF_8));
@@ -89,7 +88,7 @@ class FilteringUtilsTest {
     }
 
     @Test
-    void mSHARED1213CopyWithTargetAlreadyExistingSameFile() throws IOException {
+    void mSHARED1213CopyWithTargetAlreadyExistingSameFile() throws Exception {
         File fromFile = new File(getBasedir() + "/src/test/units-files/MSHARED-1213/enunciate.xml");
         File toFile = new File(testDirectory, "MSHARED-1213-enunciate.xml");
         Files.copy(fromFile.toPath(), toFile.toPath(), StandardCopyOption.REPLACE_EXISTING);

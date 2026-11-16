@@ -272,7 +272,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
                 String origin = basedir.relativize(
                                 resourceDirectory.getAbsoluteFile().toPath())
                         .toString();
-                if (origin == null || origin.isEmpty()) {
+                if (origin.isEmpty()) {
                     origin = ".";
                 }
                 LOGGER.info("Copying " + includedFiles.size() + " resource" + (includedFiles.size() > 1 ? "s" : "")

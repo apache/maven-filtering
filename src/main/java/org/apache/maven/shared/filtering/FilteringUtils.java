@@ -80,7 +80,8 @@ public final class FilteringUtils {
         if (!isEmpty(val) && PATTERN.matcher(val).matches()) {
             // Adapted from StringUtils.replace in plexus-utils to accommodate pre-escaped backslashes.
             StringBuilder buf = new StringBuilder(val.length());
-            int start = 0, end;
+            int start = 0;
+            int end;
             while ((end = val.indexOf('\\', start)) != -1) {
                 buf.append(val, start, end).append("\\\\");
                 start = end + 1;
@@ -117,7 +118,7 @@ public final class FilteringUtils {
         }
 
         // deal with absolute files
-        if (filenm.startsWith(File.separator) || (IS_WINDOWS && filenm.indexOf(":") > 0)) {
+        if (filenm.startsWith(File.separator) || (IS_WINDOWS && filenm.indexOf(":") >= 1)) {
             return Paths.get(filenm).toAbsolutePath().normalize();
         }
 

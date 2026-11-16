@@ -43,5 +43,5 @@ public enum ChangeDetection {
     /**
      * Disable change detection; never overwrite existing file.
      */
-    NEVER;
+    NEVER
 }

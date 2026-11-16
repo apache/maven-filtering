@@ -421,7 +421,7 @@ class BaseFilter implements DefaultFilterInfo {
 
         if (escapeWindowsPaths) {
             interpolator.addPostProcessor((expression, value) ->
-                    (value instanceof String) ? FilteringUtils.escapeWindowsPath((String) value) : value);
+                    value instanceof String ? FilteringUtils.escapeWindowsPath((String) value) : value);
         }
         return interpolator;
     }

@@ -230,7 +230,7 @@ public class DefaultMavenResourcesFiltering implements MavenResourcesFiltering {
 
             String targetPath = resource.getTargetPath();
 
-            Path resourceDirectory = (resource.getDirectory() == null) ? null : Paths.get(resource.getDirectory());
+            Path resourceDirectory = resource.getDirectory() == null ? null : Paths.get(resource.getDirectory());
 
             if (resourceDirectory != null && !resourceDirectory.isAbsolute()) {
                 resourceDirectory =
